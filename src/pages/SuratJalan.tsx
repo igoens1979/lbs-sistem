@@ -23,7 +23,6 @@ export default function SuratJalan() {
   const [scope, setScope] = useState<"periode" | "semua">("periode");
   const canCreate = app.can("surat-jalan", "create");
   const canEdit = app.can("surat-jalan", "edit");
-  const canDelete = app.can("surat-jalan", "delete");
   const canInvoice = app.can("invoice", "create");
 
   const filtered = useMemo(() => {
@@ -384,7 +383,7 @@ footer={
                 variant="secondary"
                 size="sm"
                 icon="swap_horiz"
-                disabled={!canEdit}
+                disabled={!canEdit || !!detail.invoiceId}
                 onClick={() => {
                   const next: SJStatus = detail.status === "Terkirim" ? "Draft" : "Terkirim";
                   app.updateSJ(detail.id, { status: next });
@@ -395,16 +394,17 @@ footer={
                 Ubah Status ({detail.status})
               </Button>
               <Button
-                variant="danger"
+                variant="amber"
                 size="sm"
-                icon="delete"
-                disabled={!canDelete}
+                icon="cancel"
+                disabled={!canEdit || !!detail.invoiceId || detail.status === "Batal"}
                 onClick={() => {
-                  app.deleteSJ(detail.id);
-                  setDetail(null);
+                  app.updateSJ(detail.id, { status: "Batal" });
+                  app.toast("Surat jalan dibatalkan", detail.no, "warn");
+                  setDetail({ ...detail, status: "Batal" });
                 }}
               >
-                Hapus Dokumen
+                Batalkan Surat Jalan
               </Button>
             </div>
           </div>
