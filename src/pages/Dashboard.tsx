@@ -390,17 +390,17 @@ export default function Dashboard() {
           </Card>
 
           <Card className="flex flex-col justify-between p-space-md sm:p-space-lg">
-            <div className="flex items-start justify-between">
-              <div>
+            <div className="flex items-start justify-between gap-space-sm">
+              <div className="min-w-0">
                 <div className="flex items-center gap-space-xs">
                   <span className="rounded bg-surface-container p-1 text-primary">
                     <Icon name="play_apps" size={16} />
                   </span>
-                  <span className="font-label-sm text-label-sm font-bold uppercase tracking-wider text-secondary">site golo mori</span>
+                  <span className="font-label-sm text-label-sm font-bold uppercase tracking-wider text-secondary">Site Golo Mori</span>
                 </div>
                 <h3 className="mt-1 font-headline-md text-headline-md text-primary">Ritase Dump Truck Hari Ini</h3>
               </div>
-              <div className="text-right">
+              <div className="shrink-0 text-right">
                 <span className="font-numeric-metric text-headline-lg text-primary tabular">{num(ritase.trips)} <span className="font-label-md text-label-md font-normal text-on-surface-variant">Rit</span></span>
                 <div className="text-[11px] font-semibold text-secondary">Volume: {num(ritase.volume)} m³</div>
               </div>
