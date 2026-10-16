@@ -1200,10 +1200,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return null;
     }
     const carriedDpp = carried.reduce((s, r) => s + sjValue(r), 0);
-    if (carriedDpp > outstanding) {
-      toast("Nilai carry forward melebihi sisa tagihan", `Maksimal DPP ${rupiah(outstanding)} agar pembayaran yang sudah diterima tetap tertutup`, "error");
-      return null;
-    }
     const rate = Math.max(0, Math.min(1, opts?.ppnRate ?? inv.ppnRate ?? state.tax.ppnRate));
     const origin = calcTotals(keptRows, rate);
     const billTo = state.customers.find((c) => c.id === inv.customerId) ?? state.customers[0];
@@ -1211,6 +1207,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const term = opts?.term ?? billTo.term;
     const carriedPpn = Math.round(carriedDpp * rate);
     const carriedTotal = carriedDpp + carriedPpn;
+    if (carriedTotal > outstanding) {
+      toast("Nilai carry forward melebihi sisa tagihan", `Maksimal total ${rupiah(outstanding)} agar pembayaran yang sudah diterima tetap tertutup`, "error");
+      return null;
+    }
     const covered = [...new Set(carried.map((r) => r.customerId))];
     const newInvoice: Invoice = {
       id: uid("INV"),
