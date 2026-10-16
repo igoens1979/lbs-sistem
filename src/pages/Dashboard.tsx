@@ -390,17 +390,16 @@ export default function Dashboard() {
           </Card>
 
           <Card className="flex flex-col gap-space-md p-space-md sm:p-space-lg lg:col-span-5">
-            <SectionHeading
-              icon="play_apps"
-              title="Ritase Dump Truck Hari Ini"
-              subtitle="Site Golo Mori"
-              right={
-                <div className="text-right">
-                  <span className="font-numeric-metric text-headline-lg text-primary tabular">{num(ritase.trips)} <span className="font-label-md text-label-md font-normal text-on-surface-variant">Rit</span></span>
-                  <div className="text-[11px] font-semibold text-secondary">Volume: {num(ritase.volume)} m³</div>
-                </div>
-              }
-            />
+            <div className="flex items-start justify-between gap-space-sm">
+              <div className="min-w-0">
+                <h3 className="font-headline-md text-headline-md text-primary">Ritase Dump Truck Hari Ini</h3>
+                <p className="font-body-sm text-body-sm text-on-surface-variant">Site Golo Mori</p>
+              </div>
+              <div className="shrink-0 text-right">
+                <span className="font-numeric-metric text-headline-lg text-primary tabular">{num(ritase.trips)} <span className="font-label-md text-label-md font-normal text-on-surface-variant">Rit</span></span>
+                <div className="text-[11px] font-semibold text-secondary">Volume: {num(ritase.volume)} m³</div>
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-space-sm pt-space-xs">
               {ritase.byCommodity.length === 0 && (
                 <div className="col-span-2">
