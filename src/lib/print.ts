@@ -111,7 +111,8 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
   const termDays = daysBetween(new Date(inv.date), new Date(inv.dueDate));
   const isGabungan = inv.kind === "Gabungan" || new Set(ctx.rows.map((r) => r.customerId)).size > 1;
   const isCarryForward = !!inv.carryFromInvoiceId;
-  const carryFromNo = isCarryForward ? (CUSTOMERS.find((c) => c.id === inv.customerId)?.name ? inv.carryFromInvoiceId : inv.carryFromInvoiceId) : undefined;
+  const hasCarryOut = (inv.revisions ?? []).some((r) => r.type === "Carry Forward");
+  const carryFromNo = isCarryForward ? inv.carryFromInvoiceId : undefined;
 
   /* Kelompokkan surat jalan per pelanggan asal muatan */
   const groups = (() => {
@@ -159,7 +160,9 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
   ${kop("Invoice / Faktur Penagihan", inv.no)}
   ${
     isCarryForward
-      ? `<div style="margin:10px 0"><span class="badge badge-cf">◆ Carry Forward</span></div>`
+      ? `<div style="margin:10px 0"><span class="badge badge-cf">◆ Carry Forward</span> ${carryFromNo ? `<span class="mini">dari invoice ${carryFromNo}</span>` : ""}</div>`
+      : hasCarryOut
+      ? `<div style="margin:10px 0"><span class="badge badge-cf">→ Diteruskan</span> <span class="mini">sebagian surat jalan diteruskan ke invoice lain</span></div>`
       : ""
   }
   ${
