@@ -400,13 +400,13 @@ export default function Dashboard() {
                 <div className="text-[11px] font-semibold text-secondary">Volume: {num(ritase.volume)} m³</div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-space-sm pt-space-xs">
+            <div className="grid grid-cols-2 gap-space-sm pt-space-xs sm:grid-cols-3 lg:grid-cols-4">
               {ritase.byCommodity.length === 0 && (
-                <div className="col-span-2">
+                <div className="col-span-2 sm:col-span-3 lg:col-span-4">
                   <EmptyState icon="local_shipping" title="Belum ada ritase hari ini" detail="Surat jalan baru akan otomatis muncul pada widget ini." />
                 </div>
               )}
-              {ritase.byCommodity.slice(0, 4).map((c) => (
+              {ritase.byCommodity.map((c) => (
                 <div key={c.name} className="flex flex-col rounded-lg bg-surface-container-low p-space-sm">
                   <span className="font-body-sm text-body-sm text-on-surface-variant">Komoditas {c.name}</span>
                   <span className="mt-1 font-headline-sm text-headline-sm text-primary">{c.trips} Ritase</span>
