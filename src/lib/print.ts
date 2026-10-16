@@ -1,6 +1,6 @@
 import type { Invoice, SJ } from "./data";
-import { CUSTOMERS, accountName, commodityName, customerName, driverName, vehiclePlate } from "./data";
-import { d, num, parseISO, rupiah } from "./format";
+import { CUSTOMERS, commodityName, customerName, driverName, vehiclePlate } from "./data";
+import { d, daysBetween, num, parseISO, rupiah } from "./format";
 
 const shell = (title: string, body: string) => `
 <html lang="id"><head><meta charset="utf-8"><title>${title}</title>
@@ -22,7 +22,7 @@ const shell = (title: string, body: string) => `
   .sign{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:38px;text-align:center}
   .sign div{border-top:1px solid #c3c6d1;padding-top:6px;font-size:11px;color:#43474f}
   .sign-one{margin:38px 0 0 auto;width:280px;text-align:center;font-size:12px;color:#43474f}
-  .sign-one .line{border-top:1px solid #c3c6d1;margin:52px 0 6px}
+  .sign-one .line{border-top:1px solid #c3c6d1;margin:-4px 0 6px}
   .sign-one b{display:block;font-size:12.5px;color:#00274e}
   .sign-one span{font-size:11px}
   .note{margin-top:16px;padding:10px 12px;background:#ffdea0;border-left:4px solid #795900;font-size:11px;color:#261a00}
@@ -34,6 +34,7 @@ const shell = (title: string, body: string) => `
   .grp-head b{font-size:12.5px;color:#00274e}
   .grp-head span{font-size:10.5px;color:#43474f}
   .grp table{margin-top:0}
+  .grp, .grp table, .grp tbody, .grp tr { break-inside: avoid; page-break-inside: avoid; }
   .mini{font-size:10px;color:#737780}
   .tick{background:#fff8e6}
 </style></head><body>${body}</body></html>`;
@@ -42,9 +43,9 @@ const kop = (docTitle: string, docNo: string) => `
 <div class="kop">
   <div>
     <p class="brand">PT LOGAM BUMI SANTOSA</p>
-    <p class="sub">Mining, Quarry &amp; Hauling Contractor — Site Golo Mori, Manggarai Barat, NTT</p>
-    <p class="sub">Jl. Trans Flores KM 12, Labuan Bajo · Telp (0385) 41120 · finance@lbs-group.co.id</p>
-    <p class="sub">NPWP: 01.234.567.8-901.000</p>
+    <p class="sub">Quarry &amp; Hauling Contractor — Site Golo Mori, Manggarai Barat, NTT</p>
+    <p class="sub">Ruko Pemda No.9 Jl. Wae Medu, Komodo, Manggarai Barat, NTT </p> 
+    <p class="sub">Telp. +62 812 - 3796 - 9981 | +62 823 - 1411 - 8179 | logambumisantosa@gmail.com, adminlbs.gm@gmail.com</p>
   </div>
   <div class="doc">
     <h2>${docTitle}</h2>
@@ -69,8 +70,7 @@ function run(title: string, body: string) {
   }, 300);
 }
 
-export function printSuratJalan(row: SJ, extras: { site: string }) {
-  const value = row.volume * row.trips * row.price;
+export function printSuratJalan(row: SJ, extras: { site: string; note?: string }) {
   const body = `
   ${kop("Surat Jalan / Delivery Order", row.no)}
   <div class="grid">
@@ -82,13 +82,13 @@ export function printSuratJalan(row: SJ, extras: { site: string }) {
     <div class="kv"><b>Jumlah Ritase</b> ${num(row.trips)} rit</div>
   </div>
   <table>
-    <thead><tr><th>Komoditas</th><th>Volume</th><th>Harga Satuan</th><th>Jumlah</th></tr></thead>
+    <thead><tr><th>Komoditas</th><th>Volume</th></tr></thead>
     <tbody>
-      <tr><td>${commodityName(row.commodityId)}</td><td>${num(row.volume)} m³</td><td>${rupiah(row.price)}</td><td>${rupiah(value)}</td></tr>
+      <tr><td>${commodityName(row.commodityId)}</td><td>${num(row.volume)} m³</td></tr>
     </tbody>
-    <tfoot><tr><td colspan="3">Total Nilai Muatan (belum PPN)</td><td>${rupiah(value)}</td></tr></tfoot>
+    <tfoot><tr><td colspan="2">Total Volume Muatan ${num(row.volume)} m³</td></tr></tfoot>
   </table>
-  ${row.note ? `<div class="note"><b>Catatan operasional:</b> ${row.note}</div>` : ""}
+  ${extras.note ? `<div class="note"><b>Catatan operasional:</b> ${extras.note}</div>` : ""}
   <div class="sign">
     <div>Driver<br/><br/>${driverName(row.driverId)}</div>
     <div>Petugas Timbangan<br/><br/>…………………………</div>
@@ -105,6 +105,7 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
   const rate = inv.ppnRate ?? 0.11;
   const ratePct = rate * 100;
   const rateLabel = `PPN ${ratePct % 1 === 0 ? ratePct.toFixed(0) : ratePct.toFixed(2).replace(/0$/, "")}%`;
+  const termDays = daysBetween(new Date(inv.date), new Date(inv.dueDate));
   const isGabungan = inv.kind === "Gabungan" || new Set(ctx.rows.map((r) => r.customerId)).size > 1;
 
   /* Kelompokkan surat jalan per pelanggan asal muatan */
@@ -141,7 +142,7 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
   const summaryRows = groups
     .map(
       (g) => `<tr>
-        <td>${g.name}<br/><span class="mini">${g.code} • ${g.city}${g.cid === inv.customerId ? " • penagih" : " • asal muatan"}</span></td>
+        <td>${g.name}<br/><span class="mini">${g.code} • ${g.city}${g.cid === inv.customerId ? "" : " • asal muatan"}</span></td>
         <td style="text-align:center">${g.rows.length}</td>
         <td style="text-align:right">${num(g.volume)} m³</td>
         <td style="text-align:right">${rupiah(g.value)}</td>
@@ -160,7 +161,7 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
     <div class="kv"><b>Ditagihkan Kepada</b> ${cust?.name ?? "-"}</div>
     <div class="kv"><b>Kode Pelanggan</b> ${cust?.code ?? "-"} • ${cust?.city ?? "-"}</div>
     <div class="kv"><b>Kontak</b> ${cust?.contact ?? "-"} — ${cust?.phone ?? "-"}</div>
-    <div class="kv"><b>Termin Pembayaran</b> ${cust?.term ?? 30} hari</div>
+    <div class="kv"><b>Termin Pembayaran</b> ${termDays} hari</div>
     <div class="kv"><b>Tanggal Invoice</b> ${d(parseISO(inv.date))}</div>
     <div class="kv"><b>Jatuh Tempo</b> ${d(parseISO(inv.dueDate))}</div>
     <div class="kv"><b>Status Sistem</b> ${ctx.status}</div>
@@ -189,12 +190,13 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
     </tfoot>
   </table>
 
-  <div class="note">Pembayaran ditransfer ke <b>Bank BCA 822-0199-3000</b> a/n PT Logam Bumi Santosa, atau <b>${accountName("A-002")}</b>. Mohon cantumkan nomor invoice pada berita transfer.</div>
+  <div class="note">Pembayaran ditransfer ke <b>Bank Mandiri 181-00-7788787-6</b> a/n PT Logam Bumi Santosa. Mohon cantumkan nomor invoice pada berita transfer.</div>
 
   <div class="sign-one">
     <div>Manggarai Barat, ${d(parseISO(inv.date))}<br/>Hormat kami,</div>
+    <img src="/ttd_direktur.png" alt="Tanda tangan Direktur" style="height:64px;display:inline-block;margin:0 0 -2px 18px;" />
     <div class="line"></div>
-    <b>Gunawan Santosa</b>
+    <b>JEMY LASMONO NDAY</b>
     <span>Direktur</span>
   </div>
   <p class="foot">${inv.note ?? ""} — Lampiran surat jalan lengkap: halaman 2 dan seterusnya. Dokumen dihasilkan otomatis oleh LBS System 1.0.</p>`;
@@ -205,22 +207,22 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
       const rows = g.rows
         .map(
           (r) => `<tr>
-            <td>${r.no}<br/><span class="mini">${d(parseISO(r.date))} • ${r.site}</span></td>
-            <td>${driverName(r.driverId)}</td>
-            <td>${vehiclePlate(r.vehicleId)}</td>
-            <td>${commodityName(r.commodityId)}</td>
-            <td style="text-align:right">${num(r.volume * r.trips)} m³</td>
-            <td style="text-align:right">${rupiah(r.volume * r.trips * r.price)}</td>
+            <td style="font-size:9px">${r.no}<br/><span class="mini" style="font-size:9px">${d(parseISO(r.date))} • ${r.site}</span></td>
+            <td style="font-size:9px">${driverName(r.driverId)}</td>
+            <td style="font-size:9px">${vehiclePlate(r.vehicleId)}</td>
+            <td style="font-size:9px">${commodityName(r.commodityId)}</td>
+            <td style="text-align:right;font-size:9px">${num(r.volume * r.trips)} m³</td>
+            <td style="text-align:right;font-size:9px">${rupiah(r.volume * r.trips * r.price)}</td>
           </tr>`,
         )
         .join("");
       return `
-      <div class="${idx > 0 ? "page" : ""}">
+      <div style="break-inside:avoid;page-break-inside:avoid;">
         <div class="grp">
           <div class="grp-head">
             <div>
               <b>LAMPIRAN ${idx + 1} — ASAL MUATAN: ${g.name}</b><br/>
-              <span>Kode ${g.code} • ${g.city} • termin ${g.term} hari${g.cid === inv.customerId ? " • pelanggan penagih (bill to)" : ""}</span>
+              <span>Kode ${g.code} • ${g.city} • termin ${g.term} hari</span>
             </div>
             <div style="text-align:right">
               <span>${g.rows.length} surat jalan • ${num(g.volume)} m³</span><br/>
@@ -230,28 +232,25 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
           <table>
             <thead>
               <tr>
-                <th>Nomor Surat Jalan</th><th>Driver</th><th>Nopol</th><th>Jenis Komoditas</th>
-                <th style="text-align:right">Volume</th><th style="text-align:right">Nilai Muatan</th>
+                <th style="font-size:9px">Nomor Surat Jalan</th><th style="font-size:9px">Driver</th><th style="font-size:9px">Nopol</th><th style="font-size:9px">Jenis Komoditas</th>
+                <th style="text-align:right;font-size:9px">Volume</th><th style="text-align:right;font-size:9px">Nilai Muatan</th>
               </tr>
             </thead>
             <tbody>${rows}</tbody>
             <tfoot>
               <tr>
-                <td colspan="4">Subtotal ${g.name}</td>
-                <td style="text-align:right">${num(g.volume)} m³</td>
-                <td style="text-align:right">${rupiah(g.value)}</td>
+                <td colspan="4" style="font-size:9px">Subtotal ${g.name}</td>
+                <td style="text-align:right;font-size:9px">${num(g.volume)} m³</td>
+                <td style="text-align:right;font-size:9px">${rupiah(g.value)}</td>
               </tr>
             </tfoot>
           </table>
         </div>
-        <p class="mini" style="margin-top:6px">
-          Surat jalan di atas telah diverifikasi timbangan site dan ditandatangani driver serta penerima. Nilai muatan belum termasuk pajak (${rateLabel}).
-        </p>
       </div>`;
     })
     .join("");
 
-  const recap = `
+  const recap = isGabungan ? `
   <div class="sec-title">Rekapitulasi Lampiran Surat Jalan — ${inv.no}</div>
   <table>
     <thead><tr><th>Pelanggan Asal Muatan</th><th style="text-align:center">Jumlah SJ</th><th style="text-align:right">Volume</th><th style="text-align:right">Nilai Muatan (DPP)</th></tr></thead>
@@ -269,19 +268,14 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
       <tr><td>Sudah Dibayar</td><td style="text-align:right">${rupiah(ctx.paid)}</td></tr>
       <tr><td>Sisa Kewajiban</td><td style="text-align:right">${rupiah(Math.max(0, inv.total - ctx.paid))}</td></tr>
     </tfoot>
-  </table>
-  <p class="foot">Lampiran ini merupakan bagian tidak terpisahkan dari Invoice ${inv.no} • ${totalSj} surat jalan • ${groups.length} pelanggan asal muatan • dicetak dari LBS System 1.0.</p>`;
+  </table>` : "";
 
   const lampiran = `
   <div class="page">
-    ${kop("Lampiran Surat Jalan", inv.no)}
-    <p class="mini" style="margin-top:8px">
-      Lampiran ini memuat rincian lengkap surat jalan yang ditagihkan pada Invoice ${inv.no}${isGabungan ? ` — disusun per pelanggan asal muatan (${groups.length} pelanggan)` : ""}.
-      Total ${totalSj} dokumen • ${num(totalVolume)} m³.
-    </p>
-  </div>
-  ${groupBlocks || '<div class="page"><p>Tidak ada surat jalan terlampir pada invoice ini.</p></div>'}
-  <div class="page">${recap}</div>`;
+    ${groupBlocks || '<p>Tidak ada surat jalan terlampir pada invoice ini.</p>'}
+    ${recap}
+    <p class="foot">Lampiran ini merupakan bagian tidak terpisahkan dari Invoice ${inv.no} • ${totalSj} surat jalan • ${groups.length} pelanggan asal muatan • dicetak dari LBS System 1.0.</p>
+  </div>`;
 
   const body = `${page1}${totalSj > 0 ? lampiran : ""}`;
   return { title: `Invoice ${inv.no}`, body };
@@ -536,7 +530,7 @@ export function printOpeningBalance(
   <div class="sign-one">
     <div>Manggarai Barat, ${d(new Date())}<br/>Hormat kami,</div>
     <div class="line"></div>
-    <b>Gunawan Santosa</b>
+    <b>Jemy Lasmono Nday</b>
     <span>Direktur</span>
   </div>`;
   run(`Saldo Awal ${label(ym)}`, body);

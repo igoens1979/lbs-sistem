@@ -12,13 +12,13 @@ export default function KasBank() {
   const [direction, setDirection] = useState<"all" | "in" | "out">("all");
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<"periode" | "semua">("semua");
-  const [txOpen, setTxOpen] = useState(false);
-  const [transferOpen, setTransferOpen] = useState(false);
-  const [openBalOpen, setOpenBalOpen] = useState(false);
-  const [firstTimeOpen, setFirstTimeOpen] = useState(false);
-  const [saldoYm, setSaldoYm] = useState(monthKey(iso(TODAY)));
-  const canCreate = app.can("kas-bank", "create");
-  const canEdit = app.can("kas-bank", "edit");
+const [txOpen, setTxOpen] = useState(false);
+const [transferOpen, setTransferOpen] = useState(false);
+const [openBalOpen, setOpenBalOpen] = useState(false);
+const [firstTimeOpen, setFirstTimeOpen] = useState(false);
+const [saldoYm, setSaldoYm] = useState(monthKey(iso(TODAY)));
+const canCreate = app.can("kas-bank", "create");
+const canEdit = app.can("kas-bank", "edit");
 
   const accounts = app.accountsWithBalance;
   const liquidity = accounts.reduce((s, a) => s + a.balance, 0);
@@ -50,12 +50,13 @@ export default function KasBank() {
           <PeriodActions
             onExport={() =>
               csvDownload("mutasi-kas-bank-lbs.csv", [
-                ["Tanggal", "Rekening", "Uraian", "Kategori", "Arah", "Nominal"],
+                ["Tanggal", "Rekening", "Uraian", "Kategori", "Alokasi", "Arah", "Nominal"],
                 ...ledger.map((tx) => [
                   d(parseISO(tx.date)),
                   accounts.find((a) => a.id === tx.accountId)?.name ?? "",
                   tx.desc,
                   tx.category,
+                  tx.allocation ?? "-",
                   tx.direction === "in" ? "Masuk" : "Keluar",
                   tx.amount,
                 ]),
@@ -175,6 +176,7 @@ export default function KasBank() {
                   <Th>Uraian</Th>
                   <Th>Rekening</Th>
                   <Th align="center">Kategori</Th>
+                  <Th align="center">Alokasi</Th>
                   <Th align="right">Nominal</Th>
                   <Th align="center">Aksi</Th>
                 </tr>
@@ -190,6 +192,9 @@ export default function KasBank() {
                     <Td>{accounts.find((a) => a.id === tx.accountId)?.name}</Td>
                     <Td align="center">
                       <Pill tone="outline">{tx.category}</Pill>
+                    </Td>
+                    <Td align="center" className="font-mono text-label-sm">
+                      {tx.allocation ?? "-"}
                     </Td>
                     <Td align="right" className={cn("font-mono font-semibold", tx.direction === "in" ? "text-primary" : "text-error")}>
                       {tx.direction === "in" ? "+" : "-"} {rupiah(tx.amount)}
@@ -219,7 +224,7 @@ export default function KasBank() {
               {ledger.length > 0 && (
                 <tfoot>
                   <tr className="bg-surface-container font-label-md text-label-md font-bold text-primary">
-                    <Td colSpan={4}>Total {Math.min(ledger.length, 18)} baris terfilter</Td>
+                    <Td colSpan={5}>Total {Math.min(ledger.length, 18)} baris terfilter</Td>
                     <Td align="right" className="font-mono">
                       {rupiah(ledger.slice(0, 18).reduce((s, tx) => s + (tx.direction === "in" ? tx.amount : -tx.amount), 0))}
                     </Td>
@@ -377,7 +382,10 @@ export default function KasBank() {
 
 function TxModal({ onClose }: { onClose: () => void }) {
   const app = useApp();
-  const [form, setForm] = useState({ accountId: "A-002", direction: "out" as "in" | "out", amount: 5_000_000, date: iso(TODAY), desc: "", category: "Operasional Site" });
+  const [form, setForm] = useState({ accountId: "A-002", direction: "out" as "in" | "out", amount: 5_000_000, date: iso(TODAY), desc: "", category: "Operasional Site", allocation: "LBS" as "LBS" | "KMS" | undefined });
+
+  const selectedAccount = app.accountsWithBalance.find((a) => a.id === form.accountId);
+  const isOperational = Boolean(selectedAccount?.isOperational);
 
   return (
     <Modal
@@ -422,6 +430,14 @@ function TxModal({ onClose }: { onClose: () => void }) {
             <option value="in">Kas Masuk (+)</option>
           </Select>
         </Field>
+        {isOperational && (
+          <Field label="Alokasi Rekening Operasional">
+            <Select value={form.allocation ?? "LBS"} onChange={(e) => setForm({ ...form, allocation: e.target.value as "LBS" | "KMS" })}>
+              <option value="LBS">LBS (Logam Bumi Santosa)</option>
+              <option value="KMS">KMS</option>
+            </Select>
+          </Field>
+        )}
         <Field label="Nominal (Rp)">
           <Input type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: Number(e.target.value) })} />
         </Field>

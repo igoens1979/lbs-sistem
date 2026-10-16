@@ -21,6 +21,7 @@ export default function Invoices() {
   const [gabunganOpen, setGabunganOpen] = useState(false);
   const [reviseTarget, setReviseTarget] = useState<Invoice | null>(null);
   const [carryTarget, setCarryTarget] = useState<Invoice | null>(null);
+  const [termByCustomer, setTermByCustomer] = useState<Record<string, number>>({});
 
   const rows = useMemo(() => {
     return app.invoices
@@ -428,24 +429,30 @@ export default function Invoices() {
                   {g.list.length} surat jalan • {num(g.list.reduce((s, r) => s + r.volume * r.trips, 0))} m³ • termin {g.c.term} hari
                 </p>
               </div>
-              <div className="flex items-center gap-space-md">
-                <div className="text-right">
-                  <p className="font-mono font-bold text-primary">{rupiah(g.dpp + Math.round(g.dpp * (app.bulkTaxRate ?? app.tax.ppnRate)))}</p>
-                  <p className="font-body-sm text-body-sm text-on-surface-variant">
-                    DPP {rupiahShort(g.dpp)} + PPN {((app.bulkTaxRate ?? app.tax.ppnRate) * 100).toFixed(2).replace(".", ",")}% {rupiahShort(Math.round(g.dpp * (app.bulkTaxRate ?? app.tax.ppnRate)))}
-                  </p>
+                <div className="flex items-center gap-space-md">
+                  <div className="flex flex-col items-end gap-1 min-w-[120px]">
+                    <p className="font-mono font-bold text-primary">{rupiah(g.dpp + Math.round(g.dpp * (app.bulkTaxRate ?? app.tax.ppnRate)))}</p>
+                    <p className="font-body-sm text-body-sm text-on-surface-variant">
+                      DPP {rupiahShort(g.dpp)} + PPN {((app.bulkTaxRate ?? app.tax.ppnRate) * 100).toFixed(2).replace(".", ",")}% {rupiahShort(Math.round(g.dpp * (app.bulkTaxRate ?? app.tax.ppnRate)))}
+                    </p>
+                    <input
+                      type="number"
+                      value={termByCustomer[g.c.id] ?? g.c.term}
+                      onChange={(e) => setTermByCustomer({ ...termByCustomer, [g.c.id]: Number(e.target.value) || g.c.term })}
+                      className="w-20 rounded-lg border border-outline-variant bg-surface-container-lowest px-2 py-1 text-right font-mono text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    icon="receipt_long"
+                    onClick={() => {
+                      const inv = app.createInvoice(g.list.map((r) => r.id), { ppnRate: app.bulkTaxRate ?? app.tax.ppnRate, term: termByCustomer[g.c.id] ?? g.c.term });
+                      if (inv && unbilled.length === 1) setBulkOpen(false);
+                    }}
+                  >
+                    Terbitkan
+                  </Button>
                 </div>
-                <Button
-                  size="sm"
-                  icon="receipt_long"
-                  onClick={() => {
-                    const inv = app.createInvoice(g.list.map((r) => r.id), { ppnRate: app.bulkTaxRate ?? app.tax.ppnRate });
-                    if (inv && unbilled.length === 1) setBulkOpen(false);
-                  }}
-                >
-                  Terbitkan
-                </Button>
-              </div>
             </div>
           ))}
         </div>

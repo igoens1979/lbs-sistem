@@ -16,6 +16,8 @@ export default function SuratJalan() {
   const [selected, setSelected] = useState<string[]>([]);
   const [detail, setDetail] = useState<SJ | null>(null);
   const [formOpen, setFormOpen] = useState(false);
+  const [printRow, setPrintRow] = useState<SJ | null>(null);
+  const [printNote, setPrintNote] = useState("");
   const [page, setPage] = useState(1);
   const [scope, setScope] = useState<"periode" | "semua">("periode");
   const canCreate = app.can("surat-jalan", "create");
@@ -245,7 +247,7 @@ export default function SuratJalan() {
                   </Td>
                   <Td align="center">
                     <div className="flex items-center justify-center gap-1">
-                      <button type="button" title="Cetak surat jalan" onClick={() => printSuratJalan(r, { site: r.site })} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary">
+                      <button type="button" title="Cetak surat jalan" onClick={() => { setPrintRow(r); setPrintNote(r.note ?? ""); }} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary">
                         <Icon name="print" size={18} />
                       </button>
                       <button type="button" title="Rincian dokumen" onClick={() => setDetail(r)} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary">
@@ -312,7 +314,7 @@ export default function SuratJalan() {
               <Button variant="outline" onClick={() => setDetail(null)}>
                 Tutup
               </Button>
-              <Button variant="secondary" icon="print" onClick={() => printSuratJalan(detail, { site: detail.site })}>
+              <Button variant="secondary" icon="print" onClick={() => { setPrintRow(detail); setPrintNote(detail.note ?? ""); setDetail(null); }}>
                 Cetak Surat Jalan
               </Button>
               {!detail.invoiceId && (
@@ -388,6 +390,26 @@ export default function SuratJalan() {
           </div>
         )}
       </Drawer>
+
+      {printRow && (
+        <Modal open onClose={() => { setPrintRow(null); setPrintNote(""); }} width="max-w-md" title="Cetak Surat Jalan" subtitle="Isi catatan operasional sebelum mencetak dokumen">
+          <Field label="Catatan Operasional" className="sm:col-span-2">
+            <Textarea value={printNote} onChange={(e) => setPrintNote(e.target.value)} placeholder="Contoh: timbangan ulang, kondisi jalan, atau instruksi khusus site" />
+          </Field>
+          <div className="mt-space-md flex justify-end gap-2">
+            <Button variant="outline" onClick={() => { setPrintRow(null); setPrintNote(""); }}>
+              Batal
+            </Button>
+            <Button icon="print" onClick={() => {
+              printSuratJalan(printRow, { site: printRow.site, note: printNote.trim() || undefined });
+              setPrintRow(null);
+              setPrintNote("");
+            }}>
+              Cetak Sekarang
+            </Button>
+          </div>
+        </Modal>
+      )}
 
       {formOpen && <SJForm onClose={() => setFormOpen(false)} />}
     </PageBody>
