@@ -429,7 +429,7 @@ export default function Dashboard() {
       </section>
 
       {/* ---------------- Widget operasional & CRM ---------------- */}
-      <section className="grid grid-cols-1 items-start gap-space-lg lg:grid-cols-12">
+      <section className="grid grid-cols-1 items-stretch gap-space-lg lg:grid-cols-12">
         <Card className="flex flex-col gap-space-md p-space-md sm:p-space-lg lg:col-span-4">
           <SectionHeading
             icon="summarize"
