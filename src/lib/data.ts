@@ -236,6 +236,7 @@ export const CUSTOMERS: Customer[] = [
   { id: "C-005", code: "MJ-005", name: "CV Tunas Konstruksi Flores", city: "Ende", contact: "Andreas Bria", phone: "0812-7700-3388", term: 21, segment: "Korporasi", status: "Aktif", since: "2022-11-02" },
   { id: "C-006", code: "MJ-006", name: "PT Adhi Pratama Infrastruktur", city: "Mataram", contact: "Hendra Wijaya", phone: "0811-3399-7620", term: 30, segment: "Enterprise", status: "Aktif", since: "2024-02-11" },
   { id: "C-007", code: "MJ-007", name: "CV Mitra Tambang Komodo", city: "Labuan Bajo", contact: "Ferdi Sulaeman", phone: "0822-6655-9091", term: 14, segment: "UMKM", status: "Aktif", since: "2025-06-23" },
+  { id: "CUS-GP5H", code: "CTM-001", name: "BPK VEDI", city: "LENTENG GOLO MORI", contact: "", phone: "", term: 7, segment: "Korporasi", status: "Aktif", since: "2026-10-15" },
 ];
 
 export const SUPPLIERS: Supplier[] = [
