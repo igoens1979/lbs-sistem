@@ -161,9 +161,9 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
   ${kop("Invoice / Faktur Penagihan", inv.no)}
   ${
     isCarryForward
-      ? `<div style="margin:10px 0"><span class="badge badge-cf">◆ Carry Forward</span> ${carryFromNo ? `<span class="mini">dari invoice ${carryFromNo}</span>` : ""}</div>`
+      ? `<div style="margin:10px 0"><span class="badge badge-cf">CARRY FORWARD</span> ${carryFromNo ? `<span class="mini">dari invoice ${carryFromNo}</span>` : ""}</div>`
       : hasCarryOut
-      ? `<div style="margin:10px 0"><span class="badge badge-cf">→ Diteruskan</span> <span class="mini">sebagian surat jalan diteruskan ke invoice lain</span></div>`
+      ? `<div style="margin:10px 0"><span class="badge badge-cf">DITERUSKAN</span> <span class="mini">ke invoice selanjutnya atau lain</span></div>`
       : ""
   }
   ${
