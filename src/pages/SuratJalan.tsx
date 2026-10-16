@@ -21,9 +21,8 @@ export default function SuratJalan() {
   const [printNote, setPrintNote] = useState("");
   const [page, setPage] = useState(1);
   const [scope, setScope] = useState<"periode" | "semua">("periode");
-  const canCreate = app.can("surat-jalan", "create");
+const canCreate = app.can("surat-jalan", "create");
   const canEdit = app.can("surat-jalan", "edit");
-  const canInvoice = app.can("invoice", "create");
 
   const filtered = useMemo(() => {
     return app.sj.filter((r) => {
@@ -159,18 +158,6 @@ export default function SuratJalan() {
                 onClick={() => setSelected([])}
               >
                 Bersihkan Pilihan
-              </Button>
-              <Button
-                variant="amber"
-                size="sm"
-                icon="receipt_long"
-                disabled={!canInvoice}
-                onClick={async () => {
-                  const inv = await app.createInvoice(selectedRows.map((r) => r.id));
-                  if (inv) setSelected([]);
-                }}
-              >
-                Buat Invoice Penagihan
               </Button>
             </div>
           </div>
@@ -334,21 +321,6 @@ footer={
                     onClick={() => { setDetail(null); setEditing(detail); }}
                   >
                     Ubah Surat Jalan
-                  </Button>
-                )}
-                {!detail.invoiceId && (
-                  <Button
-                    icon="receipt_long"
-                    disabled={!canInvoice}
-                    onClick={async () => {
-                      const inv = await app.createInvoice([detail.id]);
-                      if (inv) {
-                        app.toast("Invoice diterbitkan", inv.no, "success");
-                        setDetail(null);
-                      }
-                    }}
-                  >
-                    Terbitkan Invoice
                   </Button>
                 )}
               </>
