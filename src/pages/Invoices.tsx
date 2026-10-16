@@ -182,6 +182,7 @@ export default function Invoices() {
                       <Td>
                         <div className="flex flex-col gap-1">
                           <span className="font-label-md text-label-md font-semibold text-primary">{i.no}</span>
+                          {i.carryFromInvoiceId && <span className="ml-2 rounded bg-secondary-fixed px-1.5 py-0.5 text-[10px] font-semibold text-on-secondary-fixed">CF dari {app.invoices.find((x) => x.id === i.carryFromInvoiceId)?.no ?? "-"}</span>}
                           <span className="flex flex-wrap items-center gap-1 text-[11px] text-on-surface-variant">
                             {i.sjIds.length} surat jalan
                             {i.kind === "Gabungan" && <Pill tone="navy">Gabungan {i.coveredCustomerIds?.length ?? 0} pelanggan</Pill>}
