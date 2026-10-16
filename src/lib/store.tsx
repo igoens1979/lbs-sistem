@@ -242,7 +242,7 @@ const toInvoice = (r: DbInvoice, sjIds: ID[] = [], revs: DbInvoiceRevision[] = [
   kind: r.jenis as any,
   coveredCustomerIds: [r.customer_id],
   revisions: revs.map(toInvoiceRevision),
-  carryFromInvoiceId: r.carry_from_invoice_id ?? undefined,
+  carryFromInvoiceId: undefined,
 });
 
 const toInvoiceRevision = (r: DbInvoiceRevision): InvoiceRevision => ({
@@ -459,10 +459,8 @@ const dbInvoice = (inv: Invoice) => ({
   total: inv.total,
   ppn_rate: inv.ppnRate ?? 0.11,
   status: inv.status,
-  catatan: inv.note ?? null,
   jenis: inv.kind ?? "Reguler",
-  carry_from_invoice_id: inv.carryFromInvoiceId ?? null,
-  created_at: new Date().toISOString(),
+  catatan: inv.note ?? null,
 });
 
 const dbInvoiceRevision = (rev: InvoiceRevision, invoiceId: string) => ({
@@ -712,6 +710,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
         supabase.from("fuel_logs").select("*").order("fuel_date", { ascending: false }),
       ]);
 
+      const invoiceRows = invoices.data ?? [];
+      const revByInv = new Map<string, DbInvoiceRevision[]>();
+      for (const r of invoiceRevs.data ?? []) {
+        const arr = revByInv.get(r.invoice_id) ?? [];
+        arr.push(r);
+        revByInv.set(r.invoice_id, arr);
+      }
+      const builtInvoices = invoiceRows.map((r) => toInvoice(r, (invoiceSJ.data ?? []).filter((x) => x.invoice_id === r.id).map((x) => x.sj_id), revByInv.get(r.id) ?? []));
+      const noToId = new Map(builtInvoices.map((i) => [i.no, i.id]));
+      for (const inv of builtInvoices) {
+        const cfRev = inv.revisions?.find((r) => r.type === "Carry Forward");
+        if (cfRev && cfRev.detail.startsWith("Diteruskan dari ")) {
+          const originNo = cfRev.detail.split(" • ")[0].replace("Diteruskan dari ", "").trim();
+          const originId = noToId.get(originNo);
+          if (originId) inv.carryFromInvoiceId = originId;
+        }
+      }
       setState((s) => ({
         ...s,
         accounts: (accounts.data ?? []).map(toAccount),
@@ -722,7 +737,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         vehicles: (vehicles.data ?? []).map(toVehicle),
         drivers: (drivers.data ?? []).map(toDriver),
         sj: (sj.data ?? []).map(toSJ),
-        invoices: (invoices.data ?? []).map((r) => toInvoice(r, (invoiceSJ.data ?? []).filter((x) => x.invoice_id === r.id).map((x) => x.sj_id), (invoiceRevs.data ?? []).filter((x) => x.invoice_id === r.id))),
+        invoices: builtInvoices,
         invoiceRevisions: (invoiceRevs.data ?? []).map(toInvoiceRevision),
         payments: (payments.data ?? []).map(toPayment),
         invoiceSJ: (invoiceSJ.data ?? []).map((x) => ({ invoiceId: x.invoice_id, sjId: x.sj_id })),

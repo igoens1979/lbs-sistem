@@ -127,7 +127,6 @@ export type DbInvoice = {
   status: string;
   catatan: string | null;
   jenis: string;
-  carry_from_invoice_id: string | null;
   created_at: string;
 };
 
