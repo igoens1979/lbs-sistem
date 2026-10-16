@@ -250,7 +250,7 @@ export default function Invoices() {
                           <button
                             type="button"
                             title={`Cetak invoice + lampiran surat jalan (${1 + new Set(app.sj.filter((r) => i.sjIds.includes(r.id)).map((r) => r.customerId)).size} halaman lampiran)`}
-                            onClick={() => printInvoice(i, { paid: app.paidOf(i.id), status: app.computedStatus(i), rows: app.sj.filter((r) => i.sjIds.includes(r.id)) })}
+                            onClick={() => printInvoice(i, { paid: app.paidOf(i.id), status: app.computedStatus(i), rows: app.sj.filter((r) => i.sjIds.includes(r.id)), allInvoices: app.invoices })}
                             className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary"
                           >
                             <Icon name="print" size={18} />
@@ -368,7 +368,7 @@ export default function Invoices() {
               <Button variant="outline" onClick={() => setDetail(null)}>
                 Tutup
               </Button>
-              <Button variant="secondary" icon="print" onClick={() => printInvoice(detail, { paid: app.paidOf(detail.id), status: app.computedStatus(detail), rows: app.sj.filter((r) => detail.sjIds.includes(r.id)) })}>
+              <Button variant="secondary" icon="print" onClick={() => printInvoice(detail, { paid: app.paidOf(detail.id), status: app.computedStatus(detail), rows: app.sj.filter((r) => detail.sjIds.includes(r.id)), allInvoices: app.invoices })}>
                 Cetak Invoice + Lampiran
               </Button>
               <Button

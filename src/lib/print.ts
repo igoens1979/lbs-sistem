@@ -102,7 +102,7 @@ export function printSuratJalan(row: SJ, extras: { site: string; note?: string }
 }
 
 /** Membangun HTML invoice: halaman 1 ringkasan, halaman 2+ lampiran surat jalan (dikelompokkan per pelanggan asal muatan). */
-export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; rows: SJ[] }) {
+export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; rows: SJ[]; allInvoices?: Invoice[] }) {
   const cust = CUSTOMERS.find((c) => c.id === inv.customerId);
   /** Tarif pajak per invoice (dapat diisi manual) — fallback 11%. */
   const rate = inv.ppnRate ?? 0.11;
@@ -112,7 +112,8 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
   const isGabungan = inv.kind === "Gabungan" || new Set(ctx.rows.map((r) => r.customerId)).size > 1;
   const isCarryForward = !!inv.carryFromInvoiceId;
   const hasCarryOut = (inv.revisions ?? []).some((r) => r.type === "Carry Forward");
-  const carryFromNo = isCarryForward ? inv.carryFromInvoiceId : undefined;
+  const carryFromInv = isCarryForward ? (ctx.allInvoices ?? []).find((i) => i.id === inv.carryFromInvoiceId) : undefined;
+  const carryFromNo = carryFromInv?.no ?? inv.carryFromInvoiceId ?? undefined;
 
   /* Kelompokkan surat jalan per pelanggan asal muatan */
   const groups = (() => {
@@ -294,7 +295,7 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
   return { title: `Invoice ${inv.no}`, body };
 }
 
-export function printInvoice(inv: Invoice, ctx: { paid: number; status: string; rows: SJ[] }) {
+export function printInvoice(inv: Invoice, ctx: { paid: number; status: string; rows: SJ[]; allInvoices?: Invoice[] }) {
   const { title, body } = invoiceHtml(inv, ctx);
   run(title, body);
 }
