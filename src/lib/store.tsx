@@ -226,7 +226,7 @@ const toSJ = (r: DbSuratJalan): SJ => ({
   note: r.catatan ?? undefined,
 });
 
-const toInvoice = (r: DbInvoice, sjIds: ID[] = []): Invoice => ({
+const toInvoice = (r: DbInvoice, sjIds: ID[] = [], revs: DbInvoiceRevision[] = []): Invoice => ({
   id: r.id,
   no: r.no,
   customerId: r.customer_id,
@@ -241,8 +241,8 @@ const toInvoice = (r: DbInvoice, sjIds: ID[] = []): Invoice => ({
   note: r.catatan ?? undefined,
   kind: r.jenis as any,
   coveredCustomerIds: [r.customer_id],
-  revisions: [],
-  carryFromInvoiceId: undefined,
+  revisions: revs.map(toInvoiceRevision),
+  carryFromInvoiceId: r.carry_from_invoice_id ?? undefined,
 });
 
 const toInvoiceRevision = (r: DbInvoiceRevision): InvoiceRevision => ({
@@ -461,6 +461,8 @@ const dbInvoice = (inv: Invoice) => ({
   status: inv.status,
   catatan: inv.note ?? null,
   jenis: inv.kind ?? "Reguler",
+  carry_from_invoice_id: inv.carryFromInvoiceId ?? null,
+  created_at: new Date().toISOString(),
 });
 
 const dbInvoiceRevision = (rev: InvoiceRevision, invoiceId: string) => ({
@@ -720,7 +722,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         vehicles: (vehicles.data ?? []).map(toVehicle),
         drivers: (drivers.data ?? []).map(toDriver),
         sj: (sj.data ?? []).map(toSJ),
-        invoices: (invoices.data ?? []).map((r) => toInvoice(r, (invoiceSJ.data ?? []).filter((x) => x.invoice_id === r.id).map((x) => x.sj_id))),
+        invoices: (invoices.data ?? []).map((r) => toInvoice(r, (invoiceSJ.data ?? []).filter((x) => x.invoice_id === r.id).map((x) => x.sj_id), (invoiceRevs.data ?? []).filter((x) => x.invoice_id === r.id))),
         invoiceRevisions: (invoiceRevs.data ?? []).map(toInvoiceRevision),
         payments: (payments.data ?? []).map(toPayment),
         invoiceSJ: (invoiceSJ.data ?? []).map((x) => ({ invoiceId: x.invoice_id, sjId: x.sj_id })),
