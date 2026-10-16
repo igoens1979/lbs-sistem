@@ -492,7 +492,7 @@ export default function Dashboard() {
               Pemeliharaan
             </Button>
           </div>
-          <div className="flex items-center justify-between rounded-lg bg-surface-container-low px-space-sm py-2 font-body-sm text-body-sm text-on-surface-variant">
+          <div className="mt-auto flex items-center justify-between rounded-lg bg-surface-container-low px-space-sm py-2 font-body-sm text-body-sm text-on-surface-variant">
             <span>{app.vehicles.filter((v) => v.status === "Servis").length} unit masuk bengkel</span>
             <span>{app.vehicles.filter((v) => v.type === "Dump Truck").length} dump truck terdaftar</span>
           </div>
