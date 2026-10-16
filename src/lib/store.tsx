@@ -874,7 +874,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       })
       .filter((c) => c.trips > 0);
 
-    const consumption = state.sj.filter((r) => inPeriod(r.date)).reduce((s, r) => s + r.trips * FUEL_STATE.literPerRit, 0);
+    const consumption = state.sj.filter((r) => inPeriod(r.date) && r.status !== "Batal").reduce((s, r) => s + r.trips * FUEL_STATE.literPerRit, 0);
 
     const dayMap = new Map<string, { in: number; out: number }>();
     state.bankTx.forEach((tx) => {

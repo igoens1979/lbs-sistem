@@ -41,7 +41,7 @@ export default function SuratJalan() {
   }, [app.sj, app.customers, app.period, scope, status, customerId, query]);
 
   const totals = useMemo(() => {
-    const rows = filtered;
+    const rows = filtered.filter((r) => r.status !== "Batal");
     return {
       count: rows.length,
       volume: rows.reduce((s, r) => s + r.volume * r.trips, 0),
