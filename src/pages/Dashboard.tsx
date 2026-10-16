@@ -429,7 +429,7 @@ export default function Dashboard() {
       </section>
 
       {/* ---------------- Widget operasional & CRM ---------------- */}
-      <section className="grid grid-cols-1 items-stretch gap-space-lg lg:grid-cols-12">
+      <section className="grid grid-cols-1 items-start gap-space-lg lg:grid-cols-12">
         <Card className="flex flex-col gap-space-md p-space-md sm:p-space-lg lg:col-span-4">
           <SectionHeading
             icon="summarize"
@@ -492,10 +492,13 @@ export default function Dashboard() {
               Pemeliharaan
             </Button>
           </div>
-          <div className="mt-auto flex items-center justify-between rounded-lg bg-surface-container-low px-space-sm py-2 font-body-sm text-body-sm text-on-surface-variant">
+          <div className="flex items-center justify-between rounded-lg bg-surface-container-low px-space-sm py-2 font-body-sm text-body-sm text-on-surface-variant">
             <span>{app.vehicles.filter((v) => v.status === "Servis").length} unit masuk bengkel</span>
             <span>{app.vehicles.filter((v) => v.type === "Dump Truck").length} dump truck terdaftar</span>
           </div>
+          <Button variant="secondary" icon="local_gas_station" onClick={() => app.go("bbm")}>
+            Buka Modul BBM
+          </Button>
         </Card>
 
         <Card className="flex flex-col gap-space-md p-space-md sm:p-space-lg lg:col-span-4">
