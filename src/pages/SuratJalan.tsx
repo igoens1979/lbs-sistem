@@ -474,8 +474,9 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
     date: iso(TODAY),
     customerId: app.customers[0]?.id ?? "",
     commodityId: app.commodities[0]?.id ?? "",
-    volume: 28,
+    volume: 5,
     trips: 1,
+    price: app.commodities[0]?.price ?? 0,
     vehicleId: app.vehicles[0]?.id ?? "",
     driverId: app.drivers[0]?.id ?? "",
     site: "SITE GOLO MORI",
@@ -491,6 +492,7 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
         commodityId: editing.commodityId,
         volume: editing.volume,
         trips: editing.trips,
+        price: editing.price,
         vehicleId: editing.vehicleId,
         driverId: editing.driverId,
         site: editing.site,
@@ -499,8 +501,7 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
     }
   }, [editing]);
 
-  const commodity = app.commodities.find((c) => c.id === form.commodityId)!;
-  const value = form.volume * form.trips * (commodity?.price ?? 0);
+  const value = form.volume * form.trips * form.price;
 
   const isEdit = !!editing;
 
@@ -521,17 +522,17 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
             disabled={isEdit && !!editing.invoiceId}
             onClick={async () => {
               if (isEdit) {
-                await app.updateSJ(editing.id, { ...form, price: commodity.price });
+                await app.updateSJ(editing.id, { ...form });
                 onClose();
                 app.toast("Surat jalan diperbarui", form.no, "success");
               } else {
-                const row = await app.addSJ({ ...form, price: commodity.price });
+                const row = await app.addSJ({ ...form });
                 onClose();
                 app.toast("Dokumen siap dicetak", row.no, "info");
               }
             }}
           >
-            {isEdit ? "Simpan Perubahan" : "Terbitkan &amp; Simpan"}
+            {isEdit ? "Simpan Perubahan" : "Terbitkan & Simpan"}
           </Button>
         </>
       }
@@ -560,7 +561,10 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
           </Select>
         </Field>
         <Field label="Komoditas">
-          <Select value={form.commodityId} onChange={(e) => setForm({ ...form, commodityId: e.target.value })}>
+          <Select value={form.commodityId} onChange={(e) => {
+            const selected = app.commodities.find((c) => c.id === e.target.value);
+            setForm({ ...form, commodityId: e.target.value, price: selected?.price ?? 0 });
+          }}>
             {app.commodities.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name} — {rupiah(c.price)}/{c.unit}
@@ -568,8 +572,8 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
             ))}
           </Select>
         </Field>
-        <Field label="Harga Satuan (otomatis)">
-          <Input value={rupiah(commodity.price)} readOnly className="bg-surface-container font-mono" />
+        <Field label="Harga Satuan (bisa diubah, default mengikuti master)">
+          <Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} className="font-mono" />
         </Field>
         <Field label="Volume per Ritase (m³)">
           <Input type="number" value={form.volume} onChange={(e) => setForm({ ...form, volume: Number(e.target.value) })} />
