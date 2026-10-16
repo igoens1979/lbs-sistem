@@ -31,8 +31,8 @@ export default function Dashboard() {
   const fuel = app.fuelStock;
 
   // Rekap kinerja keuangan bulanan (untuk widget Laba Rugi ringkas)
-  const monthStats = Array.from({ length: 4 }, (_, i) => {
-    const m = new Date(2026, 9 - (3 - i), 1);
+  const monthStats = Array.from({ length: 3 }, (_, i) => {
+    const m = new Date(2026, 9 - (2 - i), 1);
     const ym = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, "0")}`;
     const tx = app.bankTx.filter((t) => t.date.startsWith(ym));
     const payroll = app.payrollRuns.filter((x) => x.date.startsWith(ym)).reduce((s, x) => s + x.net, 0);
