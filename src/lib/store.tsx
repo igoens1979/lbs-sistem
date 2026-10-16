@@ -984,7 +984,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   /* ---------- actions ---------- */
 
   const addSJ: Ctx["addSJ"] = async (payload) => {
-    const nextNo = `SJ/LBS/2026/10/${String(state.sj.filter((r) => r.date.startsWith("2026-10")).length + 1).padStart(4, "0")}`;
+    const nextNo = payload.no?.trim() || `SJ/LBS/2026/10/${String(state.sj.filter((r) => r.date.startsWith("2026-10")).length + 1).padStart(4, "0")}`;
     const row: SJ = {
       id: uid("SJ"),
       no: nextNo,

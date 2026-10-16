@@ -470,6 +470,7 @@ function Info({ label, value, icon }: { label: string; value: string; icon: stri
 function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null }) {
   const app = useApp();
   const [form, setForm] = useState({
+    no: "",
     date: iso(TODAY),
     customerId: app.customers[0]?.id ?? "",
     commodityId: app.commodities[0]?.id ?? "",
@@ -484,6 +485,7 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
   useEffect(() => {
     if (editing) {
       setForm({
+        no: editing.no,
         date: editing.date,
         customerId: editing.customerId,
         commodityId: editing.commodityId,
@@ -508,7 +510,7 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
       onClose={onClose}
       width="max-w-2xl"
       title={isEdit ? `Ubah Surat Jalan ${editing.no}` : "Terbitkan Surat Jalan Baru"}
-      subtitle={isEdit ? "Perbarui data surat jalan. Dokumen hanya bisa diubah selama belum diinvoice." : "Nomor dokumen dibuat otomatis oleh sistem berdasarkan urutan periode berjalan"}
+      subtitle={isEdit ? "Perbarui data surat jalan. Dokumen hanya bisa diubah selama belum diinvoice." : "Isi nomor surat jalan secara manual atau biarkan kosong untuk nomor otomatis"}
       footer={
         <>
           <Button variant="outline" onClick={onClose}>
@@ -521,7 +523,7 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
               if (isEdit) {
                 await app.updateSJ(editing.id, { ...form, price: commodity.price });
                 onClose();
-                app.toast("Surat jalan diperbarui", editing.no, "success");
+                app.toast("Surat jalan diperbarui", form.no, "success");
               } else {
                 const row = await app.addSJ({ ...form, price: commodity.price });
                 onClose();
@@ -535,6 +537,9 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
       }
     >
       <div className="grid grid-cols-1 gap-space-md sm:grid-cols-2">
+        <Field label="Nomor Surat Jalan" className="sm:col-span-2">
+          <Input value={form.no} onChange={(e) => setForm({ ...form, no: e.target.value })} placeholder="Contoh: SJ/LBS/2026/10/0001 — biarkan kosong untuk otomatis" />
+        </Field>
         <Field label="Tanggal Muat">
           <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
         </Field>
