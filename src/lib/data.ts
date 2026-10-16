@@ -438,7 +438,8 @@ function genSuratJalan(): { rows: SJ[]; invoices: Invoice[]; payments: Payment[]
       return;
     }
     inv.status = "Lunas";
-    const payDate = iso(addDays(new Date(inv.date), Math.min(inv.sjIds.length + 5, 20)));
+    const payRaw = addDays(new Date(inv.date), Math.min(inv.sjIds.length + 5, 20));
+    const payDate = iso(payRaw > TODAY ? TODAY : payRaw);
     payments.push({
       id: `PAY-${String(payments.length + 1).padStart(4, "0")}`,
       invoiceId: inv.id,

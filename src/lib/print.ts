@@ -50,7 +50,7 @@ const kop = (docTitle: string, docNo: string) => `
   <div class="doc">
     <h2>${docTitle}</h2>
     <p class="no">${docNo}</p>
-    <p class="sub">Tanggal cetak: ${d(parseISO(new Date().toISOString().slice(0, 10)))}</p>
+    <p class="sub">Tanggal cetak: ${d(new Date())}</p>
     <p class="sub">Sistem: LBS System 1.0</p>
   </div>
 </div>`;
