@@ -129,7 +129,7 @@ for (const cust of pickCustomers) {
     ppn_rate: PPN_RATE,
     status: "Belum Jatuh Tempo",
     catatan: `Invoice ${cust.name} — ${custSJ.length} surat jalan`,
-    jenis: custSJ.length > 1 ? "Gabungan" : "Reguler",
+    jenis: "Reguler",
     created_at: invDate,
   });
 
