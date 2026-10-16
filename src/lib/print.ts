@@ -36,8 +36,11 @@ const shell = (title: string, body: string) => `
   .grp table{margin-top:0}
   .grp, .grp table, .grp tbody, .grp tr { break-inside: avoid; page-break-inside: avoid; }
   .mini{font-size:10px;color:#737780}
-  .tick{background:#fff8e6}
-</style></head><body>${body}</body></html>`;
+.tick{background:#fff8e6}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase}
+  .badge-cf{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
+  .badge-gab{background:#e0e7ff;color:#3730a3;border:1px solid #c7d2fe}
+  </style></head><body>${body}</body></html>`;
 
 const kop = (docTitle: string, docNo: string) => `
 <div class="kop">
@@ -107,6 +110,8 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
   const rateLabel = `PPN ${ratePct % 1 === 0 ? ratePct.toFixed(0) : ratePct.toFixed(2).replace(/0$/, "")}%`;
   const termDays = daysBetween(new Date(inv.date), new Date(inv.dueDate));
   const isGabungan = inv.kind === "Gabungan" || new Set(ctx.rows.map((r) => r.customerId)).size > 1;
+  const isCarryForward = !!inv.carryFromInvoiceId;
+  const carryFromNo = isCarryForward ? (CUSTOMERS.find((c) => c.id === inv.customerId)?.name ? inv.carryFromInvoiceId : inv.carryFromInvoiceId) : undefined;
 
   /* Kelompokkan surat jalan per pelanggan asal muatan */
   const groups = (() => {
@@ -152,6 +157,11 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
 
   const page1 = `
   ${kop("Invoice / Faktur Penagihan", inv.no)}
+  ${
+    isCarryForward
+      ? `<div style="margin:10px 0"><span class="badge badge-cf">◆ Carry Forward</span></div>`
+      : ""
+  }
   ${
     isGabungan
       ? `<div class="note"><b>INVOICE GABUNGAN</b> — ditagihkan kepada <b>${cust?.name ?? "-"}</b> dan mencakup surat jalan dari <b>${groups.length} pelanggan asal muatan</b>. Rincian lengkap tiap surat jalan (nomor, driver, nopol, komoditas, volume, nilai muatan) terdapat pada <b>halaman lampiran</b>.</div>`
