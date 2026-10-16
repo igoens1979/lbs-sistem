@@ -642,7 +642,7 @@ function SaldoAwalSection({ ym, onYm, onInput, onFirstTime }: { ym: string; onYm
             </thead>
             <tbody className="divide-y divide-surface-container font-body-sm text-body-sm">
               {rows.map((r) => {
-                const meta = SOURCE_META[r.explicit ? (r.source === "rollforward" ? "rollforward" : r.source) : "rollforward"];
+                const meta = SOURCE_META[(r.explicit ? (r.source === "rollforward" ? "rollforward" : (r.source || "manual")) : "rollforward") as keyof typeof SOURCE_META] ?? SOURCE_META.rollforward;
                 return (
                   <tr key={r.account.id} className="transition-colors hover:bg-surface-container-lowest/60">
                     <Td>
@@ -735,7 +735,7 @@ function SaldoAwalSection({ ym, onYm, onInput, onFirstTime }: { ym: string; onYm
           ) : (
             <div className="flex flex-col divide-y divide-surface-container">
               {log.map((l) => {
-                const meta = SOURCE_META[l.type];
+                const meta = SOURCE_META[(l.type || "manual") as keyof typeof SOURCE_META] ?? SOURCE_META.manual;
                 return (
                   <div key={l.id} className="flex items-start justify-between gap-2 py-2 first:pt-0">
                     <div className="flex items-start gap-space-sm">
