@@ -30,7 +30,7 @@ const canEdit = app.can("kas-bank", "edit");
           if (scope === "periode" && (tx.date < app.period.from || tx.date > app.period.to)) return false;
           if (accountId !== "all" && tx.accountId !== accountId) return false;
           if (direction !== "all" && tx.direction !== direction) return false;
-          if (query.trim() && !tx.desc.toLowerCase().includes(query.toLowerCase()) && !tx.category.toLowerCase().includes(query.toLowerCase())) return false;
+          if (query.trim() && !(tx.desc ?? "").toLowerCase().includes(query.toLowerCase()) && !(tx.category ?? "").toLowerCase().includes(query.toLowerCase())) return false;
           return true;
         })
         .sort((a, b) => (a.date < b.date ? 1 : -1)),
@@ -607,7 +607,7 @@ function SaldoAwalSection({ ym, onYm, onInput, onFirstTime }: { ym: string; onYm
         </Card>
         <Card accentTop="bg-secondary-container">
           <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Selisih Bulan Lalu → Bulan Ini</span>
-          <p className="mt-1 font-numeric-metric text-primary tabular">{rupiah(totalOpening - app.closingOf(app.accountsWithBalance[0].id, prev))}</p>
+          <p className="mt-1 font-numeric-metric text-primary tabular">{rupiah(totalOpening - (app.accountsWithBalance[0] ? app.closingOf(app.accountsWithBalance[0].id, prev) : 0))}</p>
           <p className="mt-space-md rounded-lg bg-surface-container-low px-space-sm py-1.5 font-body-sm text-body-sm text-on-surface-variant">
             Saldo akhir {ymLabel(prev)} = {rupiah(rows.reduce((s, r) => s + app.closingOf(r.account.id, prev), 0))} (seluruh akun)
           </p>

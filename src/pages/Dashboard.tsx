@@ -426,7 +426,7 @@ export default function Dashboard() {
                 Buka Surat Jalan <Icon name="chevron_right" size={14} />
               </Link>
               <span className="font-body-sm text-body-sm text-on-surface-variant">
-                {ritase.vehiclesActive} unit aktif • {vehiclePlate(app.vehicles[0].id)} sebagai lead unit
+                {ritase.vehiclesActive} unit aktif • {app.vehicles[0]?.id ? vehiclePlate(app.vehicles[0].id) : "-"} sebagai lead unit
               </span>
             </div>
           </Card>

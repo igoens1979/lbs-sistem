@@ -53,7 +53,7 @@ export default function RekapKeuangan() {
   /* ---------- Rincian kas keluar & masuk per kategori ---------- */
   const byCategory = (dir: "in" | "out") => {
     const map = new Map<string, number>();
-    periodTx.filter((t) => t.direction === dir).forEach((t) => map.set(t.category, (map.get(t.category) ?? 0) + t.amount));
+    periodTx.filter((t) => t.direction === dir).forEach((t) => map.set(t.category ?? "Lainnya", (map.get(t.category ?? "Lainnya") ?? 0) + t.amount));
     return [...map.entries()].map(([category, amount]) => ({ category, amount })).sort((a, b) => b.amount - a.amount);
   };
   const biaya = byCategory("out");

@@ -445,8 +445,8 @@ export default function Invoices() {
                   <Button
                     size="sm"
                     icon="receipt_long"
-                    onClick={() => {
-                      const inv = app.createInvoice(g.list.map((r) => r.id), { ppnRate: app.bulkTaxRate ?? app.tax.ppnRate, term: termByCustomer[g.c.id] ?? g.c.term });
+                    onClick={async () => {
+                      const inv = await app.createInvoice(g.list.map((r) => r.id), { ppnRate: app.bulkTaxRate ?? app.tax.ppnRate, term: termByCustomer[g.c.id] ?? g.c.term });
                       if (inv && unbilled.length === 1) setBulkOpen(false);
                     }}
                   >
@@ -797,8 +797,8 @@ function ConsolidatedInvoiceModal({ onClose }: { onClose: () => void }) {
           <Button
             icon="call_merge"
             disabled={!rows.length}
-            onClick={() => {
-              const inv = app.createInvoice(rows.map((r) => r.id), { billTo, term, note: note || undefined, kind: asal.length > 1 ? "Gabungan" : "Reguler", ppnRate, saveRateAsDefault: saveDefault });
+            onClick={async () => {
+              const inv = await app.createInvoice(rows.map((r) => r.id), { billTo, term, note: note || undefined, kind: asal.length > 1 ? "Gabungan" : "Reguler", ppnRate, saveRateAsDefault: saveDefault });
               if (inv) onClose();
             }}
           >
@@ -958,8 +958,8 @@ function ReviseInvoiceModal({ invoice, onClose }: { invoice: Invoice; onClose: (
           <Button
             icon="rule"
             disabled={!check.ok || finalRows.length === 0 || (!removeIds.length && !added.length)}
-            onClick={() => {
-              const inv = app.reviseInvoice(invoice.id, { addSjIds: addIds, removeSjIds: removeIds, note, ppnRate });
+            onClick={async () => {
+              const inv = await app.reviseInvoice(invoice.id, { addSjIds: addIds, removeSjIds: removeIds, note, ppnRate });
               if (inv) onClose();
             }}
           >
@@ -1127,8 +1127,8 @@ function CarryForwardModal({ invoice, onClose }: { invoice: Invoice; onClose: ()
             variant="amber"
             icon="east"
             disabled={!valid}
-            onClick={() => {
-              const inv = app.carryForward(invoice.id, ids, { date, term, note: note || undefined, ppnRate });
+            onClick={async () => {
+              const inv = await app.carryForward(invoice.id, ids, { date, term, note: note || undefined, ppnRate });
               if (inv) onClose();
             }}
           >

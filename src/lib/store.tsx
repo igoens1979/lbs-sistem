@@ -2,30 +2,16 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
 import {
-  ACCOUNTS,
-  BANK_TX,
   MAINT_DEFAULT,
   nextServiceKm,
   remainingServiceKm,
-  COMMODITIES,
-  CUSTOMERS,
-  DRIVERS,
-  EMPLOYEES,
-  FUEL_LOGS,
   FUEL_STATE,
-  LEGACY_DEBTS,
-  LEADS,
-  PAYROLL_RUNS,
-  SEED_INVOICES,
-  SEED_PAYMENTS,
-  SUPPLIERS,
-  SURAT_JALAN,
-  VEHICLES,
   legacyOutstanding,
   type Account,
   type BankTx,
@@ -49,6 +35,7 @@ import {
   type Supplier,
   type Vehicle,
 } from "./data";
+import { supabase, type DbAccount, type DbBankTx, type DbCustomer, type DbCommodity, type DbDriver, type DbEmployee, type DbFuelLog, type DbInvoice, type DbInvoiceRevision, type DbLead, type DbLegacyDebt, type DbOpeningBalance, type DbOpeningLog, type DbPayrollRun, type DbPayment, type DbSupplier, type DbSuratJalan, type DbUser, type DbVehicle } from "./supabase";
 import { addDays, daysBetween, iso, monthKey, nextYm, prevYm, rupiah, TODAY, ymLabel } from "./format";
 import type { Route } from "./routes";
 import {
@@ -76,10 +63,13 @@ interface Session {
 }
 
 interface State {
+  accounts: Account[];
   sj: SJ[];
   invoices: Invoice[];
+  invoiceRevisions: InvoiceRevision[];
   payments: Payment[];
   bankTx: BankTx[];
+  invoiceSJ: { invoiceId: string; sjId: string }[];
   customers: Customer[];
   suppliers: Supplier[];
   commodities: Commodity[];
@@ -99,49 +89,33 @@ interface State {
   users: UserAccount[];
   userFormRequest: string | null;
   user: Session | null;
+  loaded: boolean;
 }
 
 const initialState: State = {
-  sj: SURAT_JALAN,
-  invoices: SEED_INVOICES,
-  payments: SEED_PAYMENTS,
-  bankTx: BANK_TX,
-  customers: CUSTOMERS,
-  suppliers: SUPPLIERS,
-  commodities: COMMODITIES,
-  vehicles: VEHICLES,
-  drivers: DRIVERS,
-  employees: EMPLOYEES,
-  payrollRuns: PAYROLL_RUNS,
-  leads: LEADS,
-  fuelLogs: FUEL_LOGS,
+  accounts: [],
+  sj: [],
+  invoices: [],
+  invoiceRevisions: [],
+  payments: [],
+  bankTx: [],
+  invoiceSJ: [],
+  customers: [],
+  suppliers: [],
+  commodities: [],
+  vehicles: [],
+  drivers: [],
+  employees: [],
+  payrollRuns: [],
+  leads: [],
+  fuelLogs: [],
   fuelLiter: 12_400,
   maintenance: { ...MAINT_DEFAULT },
   tax: { ppnRate: 0.11 },
   bulkTaxRate: null,
-  legacyDebts: LEGACY_DEBTS,
-  // Saldo awal sistem: dicatat sekali saat aplikasi pertama digunakan (bukan pemasukan).
-  // Bulan-bulan berikutnya otomatis membaca saldo akhir bulan sebelumnya (roll forward).
-  openingBalances: ACCOUNTS.reduce<Record<string, OpeningBalanceEntry>>((acc, a) => {
-    acc[`${a.id}|2026-10`] = {
-      amount: a.opening,
-      type: "sistem",
-      note: `Saldo awal sistem per 01/10/2026 — input awal saat aplikasi pertama digunakan (bukan pemasukan)`,
-      by: "Super Admin",
-      at: "2026-10-01",
-    };
-    return acc;
-  }, {}),
-  openingLog: ACCOUNTS.map((a, i) => ({
-    id: `OP-SYS-${i + 1}`,
-    ym: "2026-10",
-    accountId: a.id,
-    amount: a.opening,
-    by: "Super Admin",
-    at: "2026-10-01",
-    note: `Inisialisasi saldo awal sistem (penggunaan pertama) untuk ${a.name}`,
-    type: "sistem" as OpeningSource,
-  })),
+  legacyDebts: [],
+  openingBalances: {},
+  openingLog: [],
   users: DEFAULT_USERS,
   userFormRequest: null,
   user: {
@@ -151,9 +125,466 @@ const initialState: State = {
     accountId: "U-001",
     division: "Finance & Strategy",
   },
+  loaded: false,
 };
 
-interface Ctx extends State {
+/* ---------- Converters DB -> App ---------- */
+
+const toAccount = (r: DbAccount): Account => ({
+  id: r.id,
+  code: r.code,
+  name: r.name,
+  bank: r.bank,
+  accountNo: r.account_no,
+  opening: r.opening,
+  type: r.account_type,
+  role: r.role,
+});
+
+const toBankTx = (r: DbBankTx): BankTx => ({
+  id: r.id,
+  accountId: r.account_id,
+  date: r.tx_date,
+  desc: r.keterangan,
+  category: r.kategori,
+  direction: r.arah,
+  amount: r.jumlah,
+  allocation: r.alokasi ?? undefined,
+  ref: r.ref ?? undefined,
+});
+
+const toCustomer = (r: DbCustomer): Customer => ({
+  id: r.id,
+  code: r.code,
+  name: r.name,
+  city: r.city,
+  contact: r.contact,
+  phone: r.phone,
+  term: r.term,
+  segment: r.segment as any,
+  status: r.status as any,
+  since: r.since,
+});
+
+const toSupplier = (r: DbSupplier): Supplier => ({
+  id: r.id,
+  code: r.code,
+  name: r.name,
+  category: r.category as any,
+  contact: r.contact,
+  phone: r.phone,
+  hutang: r.hutang,
+  dueDays: r.due_days,
+});
+
+const toCommodity = (r: DbCommodity): Commodity => ({
+  id: r.id,
+  name: r.name,
+  unit: r.unit,
+  price: r.price,
+  stock: r.stock,
+});
+
+const toVehicle = (r: DbVehicle): Vehicle => ({
+  id: r.id,
+  plate: r.plate,
+  model: r.model,
+  type: r.vehicle_type as any,
+  capacity: r.capacity,
+  status: r.status as any,
+  driverId: r.driver_id ?? undefined,
+  odometer: r.odometer,
+  lastServiceOdometer: r.last_service_odometer,
+  serviceIntervalKm: r.service_interval_km,
+  lastServiceDate: r.last_service_date ?? "",
+  serviceNote: r.service_note ?? undefined,
+});
+
+const toDriver = (r: DbDriver): Driver => ({
+  id: r.id,
+  name: r.name,
+  phone: r.phone,
+  sim: r.sim,
+  rating: r.rating,
+  status: r.status as any,
+});
+
+const toSJ = (r: DbSuratJalan): SJ => ({
+  id: r.id,
+  no: r.no,
+  date: r.sj_date,
+  customerId: r.customer_id,
+  commodityId: r.commodity_id,
+  volume: r.volume,
+  trips: r.trips,
+  vehicleId: r.vehicle_id,
+  driverId: r.driver_id,
+  price: r.price,
+  status: r.status as any,
+  invoiceId: r.invoice_id ?? null,
+  site: r.site,
+  note: r.catatan ?? undefined,
+});
+
+const toInvoice = (r: DbInvoice): Invoice => ({
+  id: r.id,
+  no: r.no,
+  customerId: r.customer_id,
+  date: r.inv_date,
+  dueDate: r.due_date,
+  dpp: r.dpp,
+  ppn: r.ppn,
+  total: r.total,
+  ppnRate: r.ppn_rate,
+  status: r.status as any,
+  sjIds: [],
+  note: r.catatan ?? undefined,
+  kind: r.jenis as any,
+  coveredCustomerIds: [r.customer_id],
+  revisions: [],
+  carryFromInvoiceId: undefined,
+});
+
+const toInvoiceRevision = (r: DbInvoiceRevision): InvoiceRevision => ({
+  id: r.id,
+  date: r.rev_date,
+  by: r.by_user,
+  type: r.rev_type as any,
+  detail: r.detail,
+});
+
+const toPayment = (r: DbPayment): Payment => ({
+  id: r.id,
+  invoiceId: r.invoice_id,
+  date: r.pay_date,
+  amount: r.amount,
+  method: r.method as any,
+  accountId: r.account_id,
+  ref: r.ref,
+});
+
+const toLegacyDebt = (r: DbLegacyDebt): LegacyDebt => ({
+  id: r.id,
+  tahap: r.tahap,
+  pokok: r.pokok,
+  tenor: r.tenor,
+  cicilan: r.cicilan,
+  paidCount: r.paid_count,
+  nextDue: r.next_due ?? "",
+  kreditur: r.kreditur,
+});
+
+const toOpeningBalanceEntry = (r: DbOpeningBalance): OpeningBalanceEntry => ({
+  amount: r.amount,
+  type: r.opening_type as OpeningSource,
+  note: r.note ?? "",
+  by: r.by_user,
+  at: r.at_date ?? "",
+  refMonth: r.ref_month ?? undefined,
+});
+
+const toOpeningLogEntry = (r: DbOpeningLog): OpeningLogEntry => ({
+  id: r.id,
+  ym: r.ym,
+  accountId: r.account_id,
+  amount: r.amount,
+  by: r.by_user,
+  at: r.at_date ?? "",
+  note: r.note ?? "",
+  type: r.log_type as OpeningSource | "koreksi",
+});
+
+const toUserAccount = (r: DbUser): UserAccount => ({
+  id: r.id,
+  employeeId: r.employee_id,
+  username: r.username,
+  email: r.email,
+  role: r.role as any,
+  status: r.user_status as any,
+  scope: r.scope as any,
+  createdAt: r.user_created_at ?? "",
+  lastLogin: r.last_login ?? "",
+  note: r.note ?? undefined,
+  permissions: r.permissions ?? {},
+});
+
+const toEmployee = (r: DbEmployee): Employee => ({
+  id: r.id,
+  code: r.code,
+  name: r.name,
+  role: r.emp_role as any,
+  division: r.division,
+  joinDate: r.join_date ?? "",
+  basic: r.basic,
+  allowance: r.allowance,
+  bank: r.bank,
+  status: r.emp_status as any,
+  hadir: r.hadir,
+  izin: r.izin,
+  alpha: r.alpha,
+});
+
+const toLead = (r: DbLead): Lead => ({
+  id: r.id,
+  company: r.company,
+  contact: r.contact,
+  phone: r.phone,
+  value: r.value,
+  stage: r.stage as any,
+  probability: r.probability,
+  owner: r.owner,
+  source: r.source,
+  need: r.need,
+  nextAction: r.next_action,
+  nextDate: r.next_date ?? "",
+  activities: [],
+});
+
+const toFuelLog = (r: DbFuelLog): FuelLog => ({
+  id: r.id,
+  date: r.fuel_date ?? "",
+  accountId: r.account_id,
+  supplierId: r.supplier_id ?? null,
+  liter: r.liter,
+  pricePerLiter: r.price_per_liter,
+  note: r.note,
+});
+
+const toPayrollRun = (r: DbPayrollRun): PayrollRun => ({
+  id: r.id,
+  period: r.period,
+  date: r.run_date ?? "",
+  gross: r.gross,
+  potongan: r.potongan,
+  net: r.net,
+  headcount: r.headcount,
+  status: r.run_status as any,
+});
+
+/* ---------- Converters App -> DB ---------- */
+
+const dbBankTx = (tx: BankTx) => ({
+  id: tx.id,
+  account_id: tx.accountId,
+  tx_date: tx.date,
+  keterangan: tx.desc,
+  kategori: tx.category,
+  arah: tx.direction,
+  jumlah: tx.amount,
+  alokasi: tx.allocation ?? null,
+  ref: tx.ref ?? null,
+});
+
+const dbCustomer = (c: Customer) => ({
+  id: c.id,
+  code: c.code,
+  name: c.name,
+  city: c.city,
+  contact: c.contact,
+  phone: c.phone,
+  term: c.term,
+  segment: c.segment,
+  status: c.status,
+  since: c.since,
+});
+
+const dbSupplier = (s: Supplier) => ({
+  id: s.id,
+  code: s.code,
+  name: s.name,
+  category: s.category,
+  contact: s.contact,
+  phone: s.phone,
+  hutang: s.hutang,
+  due_days: s.dueDays,
+});
+
+const dbCommodity = (c: Commodity) => ({
+  id: c.id,
+  name: c.name,
+  unit: c.unit,
+  price: c.price,
+  stock: c.stock,
+});
+
+const dbVehicle = (v: Vehicle) => ({
+  id: v.id,
+  plate: v.plate,
+  model: v.model,
+  vehicle_type: v.type,
+  capacity: v.capacity,
+  status: v.status,
+  driver_id: v.driverId ?? null,
+  odometer: v.odometer,
+  last_service_odometer: v.lastServiceOdometer,
+  service_interval_km: v.serviceIntervalKm,
+  last_service_date: v.lastServiceDate || null,
+  service_note: v.serviceNote ?? null,
+});
+
+const dbDriver = (d: Driver) => ({
+  id: d.id,
+  name: d.name,
+  phone: d.phone,
+  sim: d.sim,
+  rating: d.rating,
+  status: d.status,
+});
+
+const dbSJ = (s: SJ) => ({
+  id: s.id,
+  no: s.no,
+  sj_date: s.date,
+  customer_id: s.customerId,
+  commodity_id: s.commodityId,
+  volume: s.volume,
+  trips: s.trips,
+  vehicle_id: s.vehicleId,
+  driver_id: s.driverId,
+  price: s.price,
+  status: s.status,
+  invoice_id: s.invoiceId,
+  site: s.site,
+  catatan: s.note ?? null,
+});
+
+const dbInvoice = (inv: Invoice) => ({
+  id: inv.id,
+  no: inv.no,
+  customer_id: inv.customerId,
+  inv_date: inv.date,
+  due_date: inv.dueDate,
+  dpp: inv.dpp,
+  ppn: inv.ppn,
+  total: inv.total,
+  ppn_rate: inv.ppnRate ?? 0.11,
+  status: inv.status,
+  catatan: inv.note ?? null,
+  jenis: inv.kind ?? "Reguler",
+});
+
+const dbInvoiceRevision = (rev: InvoiceRevision, invoiceId: string) => ({
+  id: rev.id,
+  invoice_id: invoiceId,
+  rev_date: rev.date,
+  by_user: rev.by,
+  rev_type: rev.type,
+  detail: rev.detail,
+});
+
+const dbPayment = (p: Payment) => ({
+  id: p.id,
+  invoice_id: p.invoiceId,
+  pay_date: p.date,
+  amount: p.amount,
+  method: p.method,
+  account_id: p.accountId,
+  ref: p.ref,
+});
+
+const dbOpeningBalance = (accountId: string, ym: string, amount: number, type: OpeningSource, note: string, by: string, at: string, refMonth?: string) => ({
+  account_id: accountId,
+  ym,
+  amount,
+  opening_type: type,
+  note,
+  by_user: by,
+  at_date: at,
+  ref_month: refMonth ?? null,
+});
+
+const dbOpeningLog = (ym: string, accountId: string, amount: number, by: string, at: string, note: string, type: OpeningSource | "koreksi") => ({
+  ym,
+  account_id: accountId,
+  amount,
+  by_user: by,
+  at_date: at,
+  note,
+  log_type: type,
+});
+
+const dbUser = (u: UserAccount) => ({
+  id: u.id,
+  employee_id: u.employeeId,
+  username: u.username,
+  email: u.email,
+  role: u.role,
+  user_status: u.status,
+  scope: u.scope,
+  user_created_at: u.createdAt,
+  last_login: u.lastLogin,
+  note: u.note ?? null,
+  permissions: u.permissions,
+});
+
+const dbEmployee = (e: Employee) => ({
+  id: e.id,
+  code: e.code,
+  name: e.name,
+  emp_role: e.role,
+  division: e.division,
+  join_date: e.joinDate || null,
+  basic: e.basic,
+  allowance: e.allowance,
+  bank: e.bank,
+  emp_status: e.status,
+  hadir: e.hadir,
+  izin: e.izin,
+  alpha: e.alpha,
+});
+
+const dbLead = (l: Lead) => ({
+  id: l.id,
+  company: l.company,
+  contact: l.contact,
+  phone: l.phone,
+  value: l.value,
+  stage: l.stage,
+  probability: l.probability,
+  owner: l.owner,
+  source: l.source,
+  need: l.need,
+  next_action: l.nextAction,
+  next_date: l.nextDate || null,
+});
+
+const dbLeadActivity = (a: { id: string; date: string; type: string; note: string; by: string }) => ({
+  id: a.id,
+  lead_id: "", // filled on insert
+  act_date: a.date,
+  act_type: a.type,
+  note: a.note,
+  by_user: a.by,
+});
+
+const dbFuelLog = (p: { id: string; liter: number; pricePerLiter: number; accountId: string; supplierId: string | null; date: string; note: string }) => ({
+  id: p.id,
+  fuel_date: p.date,
+  account_id: p.accountId,
+  supplier_id: p.supplierId,
+  liter: p.liter,
+  price_per_liter: p.pricePerLiter,
+  note: p.note,
+});
+
+const dbPayrollRun = (r: PayrollRun) => ({
+  id: r.id,
+  period: r.period,
+  run_date: r.date,
+  gross: r.gross,
+  potongan: r.potongan,
+  net: r.net,
+  headcount: r.headcount,
+  run_status: r.status,
+});
+
+/* ---------- Context ---------- */
+
+const AppCtx = createContext<Ctx | null>(null);
+
+const uid = (prefix: string) => `${prefix}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+
+export interface Ctx extends State {
   route: Route;
   go: (r: Route) => void;
   period: { from: string; to: string };
@@ -163,27 +594,23 @@ interface Ctx extends State {
   dismissToast: (id: number) => void;
   login: (emailOrUsername: string) => boolean;
   logout: () => void;
-  /* manajemen pengguna & hak akses */
   currentAccount: UserAccount | null;
   can: (route: Route, action: PermAction) => boolean;
-  saveUser: (user: UserAccount) => void;
-  removeUser: (id: ID) => void;
-  setUserStatus: (id: ID, status: UserAccount["status"]) => void;
+  saveUser: (user: UserAccount) => Promise<void>;
+  removeUser: (id: ID) => Promise<void>;
+  setUserStatus: (id: ID, status: UserAccount["status"]) => Promise<void>;
   resetUserPassword: (id: ID) => void;
   requestUserForm: (employeeId: string | null) => void;
 
-  /* derivations */
   accountBalance: (id: ID) => number;
   accountsWithBalance: (Account & { balance: number; opening: number; openingSource: OpeningSource; openingFrom?: string; masuk: number; keluar: number; txCount: number })[];
-  openingBalances: Record<string, OpeningBalanceEntry>;
-  openingLog: OpeningLogEntry[];
   openingOf: (accountId: ID, ym: string) => { amount: number; source: OpeningSource; fromMonth?: string; explicit: boolean };
   closingOf: (accountId: ID, ym: string) => number;
   monthlyMutations: (accountId: ID, ym: string) => { masuk: number; keluar: number; count: number };
   monthSummary: (ym: string) => { account: Account; opening: number; source: OpeningSource; fromMonth?: string; explicit: boolean; masuk: number; keluar: number; closing: number; count: number }[];
-  setOpeningBalance: (ym: string, entries: { accountId: ID; amount: number; note?: string }[], opts?: { firstTime?: boolean; globalNote?: string }) => void;
-  rollForwardMonth: (ym: string) => void;
-  clearOpening: (accountId: ID, ym: string) => void;
+  setOpeningBalance: (ym: string, entries: { accountId: ID; amount: number; note?: string }[], opts?: { firstTime?: boolean; globalNote?: string }) => Promise<void>;
+  rollForwardMonth: (ym: string) => Promise<void>;
+  clearOpening: (accountId: ID, ym: string) => Promise<void>;
   paidOf: (invoiceId: ID) => number;
   outstandingOf: (invoice: Invoice) => number;
   computedStatus: (invoice: Invoice) => Invoice["status"];
@@ -206,42 +633,36 @@ interface Ctx extends State {
   cashFlowDaily: { date: string; in: number; out: number; net: number }[];
   notifications: { id: string; tone: "warn" | "error" | "info"; title: string; detail: string; route: Route }[];
 
-  /* actions */
-  addSJ: (payload: Partial<SJ>) => SJ;
-  updateSJ: (id: ID, patch: Partial<SJ>) => void;
-  deleteSJ: (id: ID) => void;
-  createInvoice: (sjIds: ID[], opts?: { note?: string; term?: number; billTo?: ID; kind?: Invoice["kind"]; ppnRate?: number; saveRateAsDefault?: boolean }) => Invoice | null;
-  reviseInvoice: (invoiceId: ID, p: { addSjIds?: ID[]; removeSjIds?: ID[]; note?: string; ppnRate?: number }) => Invoice | null;
-  carryForward: (invoiceId: ID, sjIds: ID[], opts?: { date?: string; term?: number; note?: string; ppnRate?: number }) => Invoice | null;
+  addSJ: (payload: Partial<SJ>) => Promise<SJ>;
+  updateSJ: (id: ID, patch: Partial<SJ>) => Promise<void>;
+  deleteSJ: (id: ID) => Promise<void>;
+  createInvoice: (sjIds: ID[], opts?: { note?: string; term?: number; billTo?: ID; kind?: Invoice["kind"]; ppnRate?: number; saveRateAsDefault?: boolean }) => Promise<Invoice | null>;
+  reviseInvoice: (invoiceId: ID, p: { addSjIds?: ID[]; removeSjIds?: ID[]; note?: string; ppnRate?: number }) => Promise<Invoice | null>;
+  carryForward: (invoiceId: ID, sjIds: ID[], opts?: { date?: string; term?: number; note?: string; ppnRate?: number }) => Promise<Invoice | null>;
   setTaxRate: (ppnRate: number) => void;
   setBulkTaxRate: (ppnRate: number | null) => void;
   taxRateLabel: (rate?: number) => string;
   canRevise: (invoice: Invoice) => { ok: boolean; reason?: string };
   invoiceCoverage: (invoiceId: ID) => { sj: SJ; value: number; covered: number; remaining: number }[];
-  recordPayment: (p: { invoiceId: ID; amount: number; accountId: ID; method: Payment["method"]; date?: string; ref?: string }) => void;
-  addBankTx: (tx: Omit<BankTx, "id">) => void;
-  transfer: (from: ID, to: ID, amount: number, note: string, date?: string) => void;
-  paySupplier: (id: ID, amount: number, accountId: ID) => void;
-  payLegacy: (id: ID, accountId: ID, count?: number) => void;
-  addFuelPurchase: (p: { liter: number; pricePerLiter: number; accountId: ID; supplierId: ID | null; date: string; note: string }) => void;
-  /* pemeliharaan / servis berkala */
+  recordPayment: (p: { invoiceId: ID; amount: number; accountId: ID; method: Payment["method"]; date?: string; ref?: string }) => Promise<void>;
+  addBankTx: (tx: Omit<BankTx, "id">) => Promise<void>;
+  transfer: (from: ID, to: ID, amount: number, note: string, date?: string) => Promise<void>;
+  paySupplier: (id: ID, amount: number, accountId: ID) => Promise<void>;
+  payLegacy: (id: ID, accountId: ID, count?: number) => Promise<void>;
+  addFuelPurchase: (p: { liter: number; pricePerLiter: number; accountId: ID; supplierId: ID | null; date: string; note: string }) => Promise<void>;
   setMaintenanceParams: (p: { defaultIntervalKm: number; warnKm: number }, applyToAll?: boolean) => void;
   updateOdometer: (vehicleId: ID, odometer: number, note?: string) => void;
-  recordService: (vehicleId: ID, p: { date: string; odometerAtService: number; intervalKm: number; cost: number; accountId: ID; note: string; nextStatus?: Vehicle["status"] }) => void;
-  runPayroll: (periodLabel: string, accountId: ID) => void;
-  addLead: (lead: Lead) => void;
-  setLeadStage: (id: ID, stage: LeadStage) => void;
-  addLeadActivity: (id: ID, a: { date: string; type: Lead["activities"][number]["type"]; note: string; by: string }) => void;
+  recordService: (vehicleId: ID, p: { date: string; odometerAtService: number; intervalKm: number; cost: number; accountId: ID; note: string; nextStatus?: Vehicle["status"] }) => Promise<void>;
+  runPayroll: (periodLabel: string, accountId: ID) => Promise<void>;
+  addLead: (lead: Lead) => Promise<void>;
+  setLeadStage: (id: ID, stage: LeadStage) => Promise<void>;
+  addLeadActivity: (id: ID, a: { date: string; type: Lead["activities"][number]["type"]; note: string; by: string }) => Promise<void>;
   saveMaster: <K extends "customers" | "suppliers" | "commodities" | "vehicles" | "drivers" | "employees">(
     collection: K,
     item: State[K][number],
-  ) => void;
-  removeMaster: (collection: "customers" | "suppliers" | "commodities" | "vehicles" | "drivers" | "employees", id: ID) => void;
+  ) => Promise<void>;
+  removeMaster: (collection: "customers" | "suppliers" | "commodities" | "vehicles" | "drivers" | "employees", id: ID) => Promise<void>;
 }
-
-const AppCtx = createContext<Ctx | null>(null);
-
-const uid = (prefix: string) => `${prefix}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<State>(initialState);
@@ -262,7 +683,72 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  /* ---------------- derivations ---------------- */
+  /* ---------- Load data from Supabase ---------- */
+
+  const loadAll = useCallback(async () => {
+    try {
+      const [accounts, bankTx, customers, suppliers, commodities, vehicles, drivers, sj, invoices, invoiceRevs, payments, invoiceSJ, legacyDebts, openingBalances, openingLog, users, employees, payrollRuns, leads, fuelLogs] = await Promise.all([
+        supabase.from("accounts").select("*"),
+        supabase.from("bank_tx").select("*").order("tx_date", { ascending: false }),
+        supabase.from("customers").select("*"),
+        supabase.from("suppliers").select("*"),
+        supabase.from("commodities").select("*"),
+        supabase.from("vehicles").select("*"),
+        supabase.from("drivers").select("*"),
+        supabase.from("surat_jalan").select("*").order("sj_date", { ascending: false }),
+        supabase.from("invoices").select("*").order("inv_date", { ascending: false }),
+        supabase.from("invoice_revisions").select("*"),
+        supabase.from("payments").select("*").order("pay_date", { ascending: false }),
+        supabase.from("invoice_sj").select("*"),
+        supabase.from("legacy_debts").select("*"),
+        supabase.from("opening_balances").select("*"),
+        supabase.from("opening_log").select("*").order("at_date", { ascending: false }),
+        supabase.from("users").select("*"),
+        supabase.from("employees").select("*"),
+        supabase.from("payroll_runs").select("*"),
+        supabase.from("leads").select("*"),
+        supabase.from("fuel_logs").select("*").order("fuel_date", { ascending: false }),
+      ]);
+
+      setState((s) => ({
+        ...s,
+        accounts: (accounts.data ?? []).map(toAccount),
+        bankTx: (bankTx.data ?? []).map(toBankTx),
+        customers: (customers.data ?? []).map(toCustomer),
+        suppliers: (suppliers.data ?? []).map(toSupplier),
+        commodities: (commodities.data ?? []).map(toCommodity),
+        vehicles: (vehicles.data ?? []).map(toVehicle),
+        drivers: (drivers.data ?? []).map(toDriver),
+        sj: (sj.data ?? []).map(toSJ),
+        invoices: (invoices.data ?? []).map(toInvoice),
+        invoiceRevisions: (invoiceRevs.data ?? []).map(toInvoiceRevision),
+        payments: (payments.data ?? []).map(toPayment),
+        invoiceSJ: (invoiceSJ.data ?? []).map((x) => ({ invoiceId: x.invoice_id, sjId: x.sj_id })),
+        legacyDebts: (legacyDebts.data ?? []).map(toLegacyDebt),
+        openingBalances: (openingBalances.data ?? []).reduce<Record<string, OpeningBalanceEntry>>((acc, r) => {
+          acc[`${r.account_id}|${r.ym}`] = toOpeningBalanceEntry(r);
+          return acc;
+        }, {}),
+        openingLog: (openingLog.data ?? []).map(toOpeningLogEntry),
+        users: (users.data ?? []).length > 0 ? (users.data ?? []).map(toUserAccount) : DEFAULT_USERS,
+        employees: (employees.data ?? []).map(toEmployee),
+        payrollRuns: (payrollRuns.data ?? []).map(toPayrollRun),
+        leads: (leads.data ?? []).map(toLead),
+        fuelLogs: (fuelLogs.data ?? []).map(toFuelLog),
+        loaded: true,
+      }));
+    } catch (err) {
+      console.error("Gagal memuat data dari Supabase:", err);
+      toast("Gagal memuat data", "Periksa koneksi dan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY di .env", "error");
+      setState((s) => ({ ...s, loaded: true }));
+    }
+  }, []);
+
+  useEffect(() => {
+    loadAll();
+  }, [loadAll]);
+
+  /* ---------- derivations ---------- */
 
   const derived = useMemo(() => {
     const paidOf = (invoiceId: ID) => state.payments.filter((p) => p.invoiceId === invoiceId).reduce((s, p) => s + p.amount, 0);
@@ -277,7 +763,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return "Belum Jatuh Tempo";
     };
 
-    /* ---- Saldo awal bulanan: input manual (bukan pemasukan) + roll forward otomatis ---- */
     const SYSTEM_YM = "2026-10";
     const monthlyMutations = (accountId: ID, ym: string) => {
       const tx = state.bankTx.filter((t) => t.accountId === accountId && t.date.startsWith(ym));
@@ -292,15 +777,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return m.masuk - m.keluar;
     };
     const explicitOpening = (accountId: ID, ym: string) => state.openingBalances[`${accountId}|${ym}`];
-    const systemOpening = (accountId: ID) => ACCOUNTS.find((a) => a.id === accountId)?.opening ?? 0;
+    const systemOpening = (accountId: ID) => state.accounts.find((a) => a.id === accountId)?.opening ?? 0;
 
-    /** Saldo awal bulan: pakai input manual bila ada, jika tidak dihitung dari saldo akhir bulan sebelumnya. */
     const openingOf = (accountId: ID, ym: string) => {
       const direct = explicitOpening(accountId, ym);
       if (direct) {
         return { amount: direct.amount, source: direct.type, fromMonth: direct.refMonth, explicit: true };
       }
-      // Ambil titik jangkar (bulan dengan input manual terakhir sebelum ym, atau saldo awal sistem)
       const anchorKeys = Object.keys(state.openingBalances)
         .filter((k) => k.startsWith(`${accountId}|`))
         .map((k) => k.split("|")[1])
@@ -317,7 +800,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           amount = explicitNext.amount;
           fromMonth = following;
         } else {
-          amount += monthlyNet(accountId, cursor); // saldo akhir bulan sebelumnya
+          amount += monthlyNet(accountId, cursor);
           fromMonth = cursor;
         }
         cursor = following;
@@ -331,21 +814,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
     const closingOf = (accountId: ID, ym: string) => openingOf(accountId, ym).amount + monthlyNet(accountId, ym);
     const monthSummary = (ym: string) =>
-      ACCOUNTS.map((a) => {
+      state.accounts.map((a) => {
         const o = openingOf(a.id, ym);
         const m = monthlyMutations(a.id, ym);
         return { account: a, opening: o.amount, source: o.source, fromMonth: o.fromMonth, explicit: o.explicit, ...m, closing: o.amount + m.masuk - m.keluar };
       });
 
-    /* ---- Posisi rekening mengikuti periode laporan (saldo awal = saldo awal bulan laporan) ---- */
     const periodYm = monthKey(period.from);
-    const accountList = ACCOUNTS.map((a) => {
-      const manual = explicitOpening(a.id, periodYm);
+    const accountList = state.accounts.map((a) => {
       const o = openingOf(a.id, periodYm);
       const tx = state.bankTx.filter((t) => t.accountId === a.id && t.date >= period.from && t.date <= period.to);
       const masuk = tx.filter((t) => t.direction === "in").reduce((s, t) => s + t.amount, 0);
       const keluar = tx.filter((t) => t.direction === "out").reduce((s, t) => s + t.amount, 0);
-      void manual;
       return { ...a, opening: o.amount, openingSource: o.source, openingFrom: o.fromMonth, masuk, keluar, txCount: tx.length, balance: o.amount + masuk - keluar };
     });
     const accountBalance = (id: ID) => {
@@ -501,41 +981,43 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } satisfies Partial<Ctx>;
   }, [period, state]);
 
-  /* ---------------- actions ---------------- */
+  /* ---------- actions ---------- */
 
-  const addSJ: Ctx["addSJ"] = (payload) => {
+  const addSJ: Ctx["addSJ"] = async (payload) => {
     const nextNo = `SJ/LBS/2026/10/${String(state.sj.filter((r) => r.date.startsWith("2026-10")).length + 1).padStart(4, "0")}`;
     const row: SJ = {
       id: uid("SJ"),
       no: nextNo,
       date: payload.date ?? iso(TODAY),
-      customerId: payload.customerId ?? state.customers[0].id,
-      commodityId: payload.commodityId ?? state.commodities[0].id,
+      customerId: payload.customerId ?? state.customers[0]?.id ?? "",
+      commodityId: payload.commodityId ?? state.commodities[0]?.id ?? "",
       volume: payload.volume ?? 28,
       trips: payload.trips ?? 1,
-      vehicleId: payload.vehicleId ?? state.vehicles[0].id,
-      driverId: payload.driverId ?? state.drivers[0].id,
-      price: payload.price ?? state.commodities[0].price,
+      vehicleId: payload.vehicleId ?? state.vehicles[0]?.id ?? "",
+      driverId: payload.driverId ?? state.drivers[0]?.id ?? "",
+      price: payload.price ?? state.commodities[0]?.price ?? 0,
       status: payload.status ?? "Terkirim",
       invoiceId: null,
       site: payload.site ?? "SITE GOLO MORI",
       note: payload.note ?? "",
     };
+    await supabase.from("surat_jalan").insert([dbSJ(row)]);
     setState((s) => ({ ...s, sj: [row, ...s.sj] }));
     toast("Surat jalan diterbitkan", `${row.no} • ${row.volume} m³`, "success");
     return row;
   };
 
-  const updateSJ: Ctx["updateSJ"] = (id, patch) => {
+  const updateSJ: Ctx["updateSJ"] = async (id, patch) => {
+    await supabase.from("surat_jalan").update({ ...dbSJ({ ...state.sj.find((r) => r.id === id)!, ...patch }), id }).eq("id", id);
     setState((s) => ({ ...s, sj: s.sj.map((r) => (r.id === id ? { ...r, ...patch } : r)) }));
   };
 
-  const deleteSJ: Ctx["deleteSJ"] = (id) => {
+  const deleteSJ: Ctx["deleteSJ"] = async (id) => {
+    await supabase.from("surat_jalan").delete().eq("id", id);
     setState((s) => ({ ...s, sj: s.sj.filter((r) => r.id !== id) }));
     toast("Surat jalan dihapus", undefined, "info");
   };
 
-  /* ---------------- Utilitas invoice ---------------- */
   const sjValue = (r: SJ) => r.volume * r.trips * r.price;
   const calcTotals = (rows: SJ[], rate = state.tax.ppnRate) => {
     const dpp = rows.reduce((s, r) => s + sjValue(r), 0);
@@ -553,14 +1035,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
   const actor = () => state.user?.name ?? "Sistem LBS";
 
-  const createInvoice: Ctx["createInvoice"] = (sjIds, opts) => {
+  const createInvoice: Ctx["createInvoice"] = async (sjIds, opts) => {
     const rows = state.sj.filter((r) => sjIds.includes(r.id) && !r.invoiceId && r.status !== "Batal");
     if (!rows.length) {
       toast("Tidak ada surat jalan terpilih", "Pilih minimal satu surat jalan yang belum diinvoice", "warn");
       return null;
     }
     const distinct = [...new Set(rows.map((r) => r.customerId))];
-    // Bill-to default: pelanggan dengan nilai muatan terbesar pada pilihan
     const valueByCustomer = distinct.map((id) => ({ id, value: rows.filter((r) => r.customerId === id).reduce((s, r) => s + sjValue(r), 0) }));
     const billToId = opts?.billTo ?? valueByCustomer.sort((a, b) => b.value - a.value)[0].id;
     const billTo = state.customers.find((c) => c.id === billToId) ?? state.customers[0];
@@ -594,6 +1075,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
       ],
     };
+    await supabase.from("invoices").insert([dbInvoice(invoice)]);
+    await supabase.from("invoice_revisions").insert([dbInvoiceRevision(invoice.revisions![0], invoice.id)]);
+    await supabase.from("invoice_sj").insert([...rows.map((r) => ({ invoice_id: invoice.id, sj_id: r.id }))]);
+    await supabase.from("surat_jalan").update({ invoice_id: invoice.id, status: "Diinvoice" }).in("id", rows.map((r) => r.id));
     setState((s) => ({
       ...s,
       invoices: [invoice, ...s.invoices],
@@ -608,7 +1093,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return invoice;
   };
 
-  /** Revisi hanya untuk invoice yang sudah terbit & belum menerima pembayaran. */
   const canRevise: Ctx["canRevise"] = (invoice) => {
     const paid = derived.paidOf(invoice.id);
     if ((invoice.status as string) === "Batal") return { ok: false, reason: "Invoice sudah dibatalkan." };
@@ -617,7 +1101,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return { ok: true };
   };
 
-  const reviseInvoice: Ctx["reviseInvoice"] = (invoiceId, p) => {
+  const reviseInvoice: Ctx["reviseInvoice"] = async (invoiceId, p) => {
     const inv = state.invoices.find((i) => i.id === invoiceId);
     if (!inv) return null;
     const check = canRevise(inv);
@@ -661,6 +1145,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       status: (derived.paidOf(inv.id) >= total - 1 ? "Lunas" : "Sebagian") as Invoice["status"],
       revisions: [...(inv.revisions ?? []), revision],
     };
+    await supabase.from("invoices").update(dbInvoice(updated)).eq("id", invoiceId);
+    await supabase.from("invoice_revisions").insert([dbInvoiceRevision(revision, invoiceId)]);
+    await supabase.from("invoice_sj").delete().eq("invoice_id", invoiceId);
+    await supabase.from("invoice_sj").insert([...finalRows.map((r) => ({ invoice_id: invoiceId, sj_id: r.id }))]);
+    await supabase.from("surat_jalan").update({ invoice_id: null, status: "Terkirim" }).in("id", removeIds);
+    await supabase.from("surat_jalan").update({ invoice_id: invoiceId, status: "Diinvoice" }).in("id", addRows.map((r) => r.id));
     setState((s) => ({
       ...s,
       invoices: s.invoices.map((i) => (i.id === invoiceId ? updated : i)),
@@ -680,8 +1170,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return updated;
   };
 
-  /** Sisa surat jalan pada invoice yang dibayar bertahap → ditarik ke invoice baru. */
-  const carryForward: Ctx["carryForward"] = (invoiceId, sjIds, opts) => {
+  const carryForward: Ctx["carryForward"] = async (invoiceId, sjIds, opts) => {
     const inv = state.invoices.find((i) => i.id === invoiceId);
     if (!inv) return null;
     const paid = derived.paidOf(inv.id);
@@ -751,6 +1240,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       type: "Carry Forward",
       detail: `${carried.length} surat jalan (${rupiah(carriedTotal)}) diteruskan ke ${newInvoice.no} • total invoice disesuaikan menjadi ${rupiah(origin.total)}`,
     };
+    await supabase.from("invoices").insert([dbInvoice(newInvoice)]);
+    await supabase.from("invoice_revisions").insert([dbInvoiceRevision(newInvoice.revisions![0], newInvoice.id), dbInvoiceRevision(originRevision, invoiceId)]);
+    await supabase.from("invoice_sj").delete().eq("invoice_id", invoiceId);
+    await supabase.from("invoice_sj").insert([...carried.map((r) => ({ invoice_id: newInvoice.id, sj_id: r.id })), ...keptRows.map((r) => ({ invoice_id: invoiceId, sj_id: r.id }))]);
+    await supabase.from("surat_jalan").update({ invoice_id: newInvoice.id, status: "Diinvoice" }).in("id", carried.map((r) => r.id));
+    await supabase.from("invoices").update({ dpp: origin.dpp, ppn: origin.ppn, total: origin.total, ppnRate: rate, status: paid >= origin.total - 1 ? "Lunas" : "Sebagian" }).eq("id", invoiceId);
     setState((s) => ({
       ...s,
       invoices: [
@@ -781,7 +1276,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return newInvoice;
   };
 
-  /** Alokasi pembayaran per surat jalan (metode FIFO berdasarkan urutan dokumen). */
   const invoiceCoverage: Ctx["invoiceCoverage"] = (invoiceId) => {
     const inv = state.invoices.find((i) => i.id === invoiceId);
     if (!inv) return [];
@@ -797,7 +1291,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       });
   };
 
-  const recordPayment: Ctx["recordPayment"] = ({ invoiceId, amount, accountId, method, date, ref }) => {
+  const recordPayment: Ctx["recordPayment"] = async ({ invoiceId, amount, accountId, method, date, ref }) => {
     const inv = state.invoices.find((i) => i.id === invoiceId);
     if (!inv) return;
     const payDate = date ?? iso(TODAY);
@@ -810,6 +1304,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       accountId,
       ref: ref ?? `TRF/${inv.no}/PT`,
     };
+    await supabase.from("payments").insert([dbPayment(payload)]);
+    const accName = state.accounts.find((a) => a.id === accountId)?.name ?? accountId;
     setState((s) => ({
       ...s,
       payments: [...s.payments, payload],
@@ -837,7 +1333,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                   date: payDate,
                   by: s.user?.name ?? "Sistem LBS",
                   type: "Pembayaran" as const,
-                  detail: `${method} ${rupiah(amount)} ke ${ACCOUNTS.find((a) => a.id === accountId)?.name ?? accountId} • sisa tagihan ${rupiah(Math.max(0, i.total - derived.paidOf(i.id) - amount))}`,
+                  detail: `${method} ${rupiah(amount)} ke ${accName} • sisa tagihan ${rupiah(Math.max(0, i.total - derived.paidOf(i.id) - amount))}`,
                 },
               ],
             }
@@ -847,49 +1343,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast("Pembayaran tercatat", `${inv.no} • ${rupiah(amount)} • sisa ${rupiah(Math.max(0, inv.total - derived.paidOf(inv.id) - amount))}`, "success");
   };
 
-  const addBankTx: Ctx["addBankTx"] = (tx) => {
-    setState((s) => ({ ...s, bankTx: [{ ...tx, id: uid("TX") }, ...s.bankTx] }));
+  const addBankTx: Ctx["addBankTx"] = async (tx) => {
+    const fullTx: BankTx = { ...tx, id: uid("TX") };
+    await supabase.from("bank_tx").insert([dbBankTx(fullTx)]);
+    setState((s) => ({ ...s, bankTx: [fullTx, ...s.bankTx] }));
     toast("Mutasi kas/bank tersimpan", tx.desc, "success");
   };
 
-  const transfer: Ctx["transfer"] = (from, to, amount, note, date) => {
+  const transfer: Ctx["transfer"] = async (from, to, amount, note, date) => {
     const d = date ?? iso(TODAY);
+    const txIn: BankTx = { id: uid("TX"), accountId: to, date: d, desc: `Transfer masuk dari ${from} — ${note}`, category: "Internal Transfer", direction: "in", amount };
+    const txOut: BankTx = { id: uid("TX"), accountId: from, date: d, desc: `Transfer keluar ke ${to} — ${note}`, category: "Internal Transfer", direction: "out", amount };
+    await supabase.from("bank_tx").insert([dbBankTx(txIn), dbBankTx(txOut)]);
     setState((s) => ({
       ...s,
-      bankTx: [
-        { id: uid("TX"), accountId: to, date: d, desc: `Transfer masuk dari ${from} — ${note}`, category: "Internal Transfer", direction: "in", amount },
-        { id: uid("TX"), accountId: from, date: d, desc: `Transfer keluar ke ${to} — ${note}`, category: "Internal Transfer", direction: "out", amount },
-        ...s.bankTx,
-      ],
+      bankTx: [txIn, txOut, ...s.bankTx],
     }));
     toast("Transfer antar rekening selesai", `${amount.toLocaleString("id-ID")} dipindahkan`, "success");
   };
 
-  const paySupplier: Ctx["paySupplier"] = (id, amount, accountId) => {
+  const paySupplier: Ctx["paySupplier"] = async (id, amount, accountId) => {
     const sup = state.suppliers.find((s) => s.id === id);
     if (!sup) return;
     const pay = Math.min(amount, sup.hutang);
+    await supabase.from("suppliers").update({ hutang: Math.max(0, sup.hutang - pay) }).eq("id", id);
+    const tx: BankTx = { id: uid("TX"), accountId, date: iso(TODAY), desc: `Pembayaran hutang ${sup.name}`, category: "Hutang Supplier", direction: "out", amount: pay, ref: sup.code };
+    await supabase.from("bank_tx").insert([dbBankTx(tx)]);
     setState((s) => ({
       ...s,
       suppliers: s.suppliers.map((x) => (x.id === id ? { ...x, hutang: Math.max(0, x.hutang - pay) } : x)),
-      bankTx: [
-        {
-          id: uid("TX"),
-          accountId,
-          date: iso(TODAY),
-          desc: `Pembayaran hutang ${sup.name}`,
-          category: "Hutang Supplier",
-          direction: "out",
-          amount: pay,
-          ref: sup.code,
-        },
-        ...s.bankTx,
-      ],
+      bankTx: [tx, ...s.bankTx],
     }));
     toast("Pembayaran supplier tercatat", `${sup.name} • ${pay.toLocaleString("id-ID")}`, "success");
   };
 
-  const payLegacy: Ctx["payLegacy"] = (id, accountId, count = 1) => {
+  const payLegacy: Ctx["payLegacy"] = async (id, accountId, count = 1) => {
     const dbt = state.legacyDebts.find((x) => x.id === id);
     if (!dbt) return;
     const amount = Math.min(dbt.cicilan * count, legacyOutstanding(dbt));
@@ -897,43 +1385,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toast("Kewajiban sudah lunas", dbt.tahap, "info");
       return;
     }
+    await supabase.from("legacy_debts").update({ paid_count: Math.min(dbt.tenor, dbt.paidCount + count) }).eq("id", id);
+    const tx: BankTx = { id: uid("TX"), accountId, date: iso(TODAY), desc: `Angsuran ${dbt.tahap}`, category: "Kewajiban Historis", direction: "out", amount };
+    await supabase.from("bank_tx").insert([dbBankTx(tx)]);
     setState((s) => ({
       ...s,
       legacyDebts: s.legacyDebts.map((x) => (x.id === id ? { ...x, paidCount: Math.min(x.tenor, x.paidCount + count) } : x)),
-      bankTx: [
-        {
-          id: uid("TX"),
-          accountId,
-          date: iso(TODAY),
-          desc: `Angsuran ${dbt.tahap}`,
-          category: "Kewajiban Historis",
-          direction: "out",
-          amount,
-        },
-        ...s.bankTx,
-      ],
+      bankTx: [tx, ...s.bankTx],
     }));
     toast("Angsuran kewajiban historis dibayar", `${dbt.tahap} • ${amount.toLocaleString("id-ID")}`, "success");
   };
 
-  const addFuelPurchase: Ctx["addFuelPurchase"] = (p) => {
+  const addFuelPurchase: Ctx["addFuelPurchase"] = async (p) => {
+    const id = uid("FL");
+    const log: FuelLog = { id, ...p };
+    await supabase.from("fuel_logs").insert([dbFuelLog({ id, liter: p.liter, pricePerLiter: p.pricePerLiter, accountId: p.accountId, supplierId: p.supplierId, date: p.date, note: p.note })]);
+    const tx: BankTx = {
+      id: uid("TX"),
+      accountId: p.accountId,
+      date: p.date,
+      desc: `Pembelian solar industrial ${p.liter.toLocaleString("id-ID")} L @ ${p.pricePerLiter.toLocaleString("id-ID")}`,
+      category: "BBM & Solar",
+      direction: "out",
+      amount: p.liter * p.pricePerLiter,
+      ref: p.supplierId ?? undefined,
+    };
+    await supabase.from("bank_tx").insert([dbBankTx(tx)]);
     setState((s) => ({
       ...s,
-      fuelLogs: [{ id: uid("FL"), ...p }, ...s.fuelLogs],
+      fuelLogs: [log, ...s.fuelLogs],
       fuelLiter: s.fuelLiter + p.liter,
-      bankTx: [
-        {
-          id: uid("TX"),
-          accountId: p.accountId,
-          date: p.date,
-          desc: `Pembelian solar industrial ${p.liter.toLocaleString("id-ID")} L @ ${p.pricePerLiter.toLocaleString("id-ID")}`,
-          category: "BBM & Solar",
-          direction: "out",
-          amount: p.liter * p.pricePerLiter,
-          ref: p.supplierId ?? undefined,
-        },
-        ...s.bankTx,
-      ],
+      bankTx: [tx, ...s.bankTx],
     }));
     toast("Pembelian solar tersimpan", `${p.liter.toLocaleString("id-ID")} liter masuk tangki`, "success");
   };
@@ -970,7 +1452,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const recordService: Ctx["recordService"] = (vehicleId, p) => {
+  const recordService: Ctx["recordService"] = async (vehicleId, p) => {
     const veh = state.vehicles.find((v) => v.id === vehicleId);
     if (!veh) return;
     const odo = Math.max(p.odometerAtService, 0);
@@ -989,23 +1471,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
             }
           : v,
       ),
-      bankTx:
-        p.cost > 0
-          ? [
-              {
-                id: uid("TX"),
-                accountId: p.accountId,
-                date: p.date,
-                desc: `Servis berkala ${veh.plate} (${veh.model}) pada ${odo.toLocaleString("id-ID")} km`,
-                category: "Pemeliharaan",
-                direction: "out" as const,
-                amount: p.cost,
-                ref: veh.id,
-              },
-              ...s.bankTx,
-            ]
-          : s.bankTx,
     }));
+    if (p.cost > 0) {
+      const tx: BankTx = {
+        id: uid("TX"),
+        accountId: p.accountId,
+        date: p.date,
+        desc: `Servis berkala ${veh.plate} (${veh.model}) pada ${odo.toLocaleString("id-ID")} km`,
+        category: "Pemeliharaan",
+        direction: "out",
+        amount: p.cost,
+        ref: veh.id,
+      };
+      await supabase.from("bank_tx").insert([dbBankTx(tx)]);
+      setState((s) => ({ ...s, bankTx: [tx, ...s.bankTx] }));
+    }
     toast(
       "Servis tercatat",
       `${veh.plate} • odometer ${odo.toLocaleString("id-ID")} km • target berikutnya ${(odo + p.intervalKm).toLocaleString("id-ID")} km${p.cost > 0 ? ` • biaya Rp ${p.cost.toLocaleString("id-ID")} dibebankan ke kas/bank` : ""}`,
@@ -1013,9 +1493,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  /* ---------------- Saldo awal bulan & roll forward ---------------- */
-
-  const setOpeningBalance: Ctx["setOpeningBalance"] = (ym, entries, opts) => {
+  const setOpeningBalance: Ctx["setOpeningBalance"] = async (ym, entries, opts) => {
     const valid = entries.filter((e) => Number.isFinite(e.amount));
     if (!valid.length) {
       toast("Tidak ada saldo awal diisi", "Isi minimal satu akun", "warn");
@@ -1024,28 +1502,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const now = iso(TODAY);
     const who = state.user?.name ?? "Sistem LBS";
     const type: OpeningSource = opts?.firstTime ? "sistem" : "manual";
+    const toInsert = valid.map((e) => dbOpeningBalance(e.accountId, ym, e.amount, type, e.note?.trim() || opts?.globalNote?.trim() || (opts?.firstTime ? "Inisialisasi saldo awal saat aplikasi pertama digunakan" : `Saldo awal ${ymLabel(ym)} diinput manual (bukan pemasukan)`), who, now));
+    const toLog = valid.map((e) => dbOpeningLog(ym, e.accountId, e.amount, who, now, toInsert.find((x) => x.account_id === e.accountId)!.note, type));
+    await supabase.from("opening_balances").upsert(toInsert, { onConflict: "account_id,ym" });
+    await supabase.from("opening_log").insert(toLog);
     setState((s) => {
       const next = { ...s.openingBalances };
       const log = [...s.openingLog];
       valid.forEach((e) => {
         const key = `${e.accountId}|${ym}`;
-        next[key] = {
-          amount: e.amount,
-          type,
-          note: e.note?.trim() || opts?.globalNote?.trim() || (opts?.firstTime ? "Inisialisasi saldo awal saat aplikasi pertama digunakan" : `Saldo awal ${ymLabel(ym)} diinput manual (bukan pemasukan)`),
-          by: who,
-          at: now,
-        };
-        log.unshift({
-          id: uid("OP"),
-          ym,
-          accountId: e.accountId,
-          amount: e.amount,
-          by: who,
-          at: now,
-          note: next[key].note,
-          type,
-        });
+        next[key] = { amount: e.amount, type, note: e.note?.trim() || opts?.globalNote?.trim() || (opts?.firstTime ? "Inisialisasi saldo awal saat aplikasi pertama digunakan" : `Saldo awal ${ymLabel(ym)} diinput manual (bukan pemasukan)`), by: who, at: now };
+        log.unshift({ id: uid("OP"), ym, accountId: e.accountId, amount: e.amount, by: who, at: now, note: next[key].note, type });
       });
       return { ...s, openingBalances: next, openingLog: log };
     });
@@ -1057,28 +1524,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const rollForwardMonth: Ctx["rollForwardMonth"] = (ym) => {
+  const rollForwardMonth: Ctx["rollForwardMonth"] = async (ym) => {
     const prev = prevYm(ym);
-    const pending = ACCOUNTS.filter((a) => !state.openingBalances[`${a.id}|${ym}`]);
+    const pending = state.accounts.filter((a) => !state.openingBalances[`${a.id}|${ym}`]);
     if (!pending.length) {
       toast("Roll forward tidak diperlukan", `Seluruh akun sudah memiliki saldo awal tersimpan untuk ${ymLabel(ym)}`, "info");
       return;
     }
     const now = iso(TODAY);
     const who = state.user?.name ?? "Sistem LBS";
+    const toInsert = pending.map((a) => {
+      const amount = derived.closingOf(a.id, prev);
+      return dbOpeningBalance(a.id, ym, amount, "rollforward", `Otomatis dibaca dari saldo akhir ${ymLabel(prev)} — bukan pemasukan`, who, now, prev);
+    });
+    const toLog = pending.map((_, i) => dbOpeningLog(ym, pending[i].id, toInsert[i].amount, who, now, `Roll forward saldo awal ${ymLabel(ym)} dari saldo akhir ${ymLabel(prev)}`, "rollforward"));
+    await supabase.from("opening_balances").insert(toInsert);
+    await supabase.from("opening_log").insert(toLog);
     setState((s) => {
       const next = { ...s.openingBalances };
       const log = [...s.openingLog];
       pending.forEach((a) => {
         const amount = derived.closingOf(a.id, prev);
-        next[`${a.id}|${ym}`] = {
-          amount,
-          type: "rollforward",
-          note: `Otomatis dibaca dari saldo akhir ${ymLabel(prev)} — bukan pemasukan`,
-          by: who,
-          at: now,
-          refMonth: prev,
-        };
+        next[`${a.id}|${ym}`] = { amount, type: "rollforward", note: `Otomatis dibaca dari saldo akhir ${ymLabel(prev)} — bukan pemasukan`, by: who, at: now, refMonth: prev };
         log.unshift({ id: uid("OP"), ym, accountId: a.id, amount, by: who, at: now, note: `Roll forward saldo awal ${ymLabel(ym)} dari saldo akhir ${ymLabel(prev)}`, type: "rollforward" });
       });
       return { ...s, openingBalances: next, openingLog: log };
@@ -1090,7 +1557,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const clearOpening: Ctx["clearOpening"] = (accountId, ym) => {
+  const clearOpening: Ctx["clearOpening"] = async (accountId, ym) => {
     const key = `${accountId}|${ym}`;
     const existing = state.openingBalances[key];
     if (!existing) {
@@ -1098,6 +1565,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return;
     }
     const who = state.user?.name ?? "Sistem LBS";
+    await supabase.from("opening_balances").delete().match({ account_id: accountId, ym });
+    await supabase.from("opening_log").insert([dbOpeningLog(ym, accountId, existing.amount, who, nowIso(), `Koreksi: saldo awal ${ymLabel(ym)} dihapus — bulan ini kembali memakai perhitungan roll forward otomatis`, "koreksi")]);
     setState((s) => {
       const next = { ...s.openingBalances };
       delete next[key];
@@ -1113,6 +1582,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast("Saldo awal dihapus", `${ymLabel(ym)} kembali dihitung otomatis dari bulan sebelumnya`, "info");
   };
 
+  const nowIso = () => iso(TODAY);
+
   const setTaxRate: Ctx["setTaxRate"] = (ppnRate) => {
     const rate = Math.max(0, Math.min(1, ppnRate));
     setState((s) => ({ ...s, tax: { ppnRate: rate } }));
@@ -1123,7 +1594,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, bulkTaxRate: ppnRate === null ? null : Math.max(0, Math.min(1, ppnRate)) }));
   };
 
-  const runPayroll: Ctx["runPayroll"] = (periodLabel, accountId) => {
+  const runPayroll: Ctx["runPayroll"] = async (periodLabel, accountId) => {
     const gross = state.employees.filter((e) => e.status !== "Resign").reduce((s, e) => s + e.basic + e.allowance, 0);
     const potongan = Math.round(gross * 0.105);
     const net = gross - potongan;
@@ -1137,42 +1608,63 @@ export function AppProvider({ children }: { children: ReactNode }) {
       headcount: state.employees.filter((e) => e.status !== "Resign").length,
       status: "Disetujui",
     };
+    await supabase.from("payroll_runs").insert([dbPayrollRun(run)]);
+    const tx: BankTx = {
+      id: uid("TX"),
+      accountId,
+      date: iso(TODAY),
+      desc: `Pembayaran payroll ${periodLabel} (${run.headcount} karyawan)`,
+      category: "Payroll",
+      direction: "out",
+      amount: net,
+    };
+    await supabase.from("bank_tx").insert([dbBankTx(tx)]);
     setState((s) => ({
       ...s,
       payrollRuns: [run, ...s.payrollRuns],
-      bankTx: [
-        {
-          id: uid("TX"),
-          accountId,
-          date: iso(TODAY),
-          desc: `Pembayaran payroll ${periodLabel} (${run.headcount} karyawan)`,
-          category: "Payroll",
-          direction: "out",
-          amount: net,
-        },
-        ...s.bankTx,
-      ],
+      bankTx: [tx, ...s.bankTx],
     }));
     toast("Payroll dijalankan", `${periodLabel} • netto ${net.toLocaleString("id-ID")}`, "success");
   };
 
-  const addLead: Ctx["addLead"] = (lead) => {
+  const addLead: Ctx["addLead"] = async (lead) => {
+    await supabase.from("leads").insert([dbLead(lead)]);
     setState((s) => ({ ...s, leads: [lead, ...s.leads] }));
   };
 
-  const setLeadStage: Ctx["setLeadStage"] = (id, stage) => {
+  const setLeadStage: Ctx["setLeadStage"] = async (id, stage) => {
+    await supabase.from("leads").update({ stage, probability: stage === "Deal" ? 100 : stage === "Gagal" ? 0 : undefined }).eq("id", id);
     setState((s) => ({ ...s, leads: s.leads.map((l) => (l.id === id ? { ...l, stage, probability: stage === "Deal" ? 100 : stage === "Gagal" ? 0 : l.probability } : l)) }));
   };
 
-  const addLeadActivity: Ctx["addLeadActivity"] = (id, a) => {
-    setState((s) => ({
-      ...s,
-      leads: s.leads.map((l) => (l.id === id ? { ...l, activities: [{ id: uid("ACT"), ...a }, ...l.activities] } : l)),
-    }));
+  const addLeadActivity: Ctx["addLeadActivity"] = async (id, a) => {
+    const act = { id: uid("ACT"), ...a };
+    await supabase.from("lead_activities").insert([{ ...dbLeadActivity(act), lead_id: id }]);
+    setState((s) => ({ ...s, leads: s.leads.map((l) => (l.id === id ? { ...l, activities: [act, ...l.activities] } : l)) }));
     toast("Aktivitas CRM tercatat", a.note, "success");
   };
 
-  const saveMaster: Ctx["saveMaster"] = (collection, item) => {
+  const saveMaster: Ctx["saveMaster"] = async (collection, item) => {
+    const tableMap: Record<string, string> = {
+      customers: "customers",
+      suppliers: "suppliers",
+      commodities: "commodities",
+      vehicles: "vehicles",
+      drivers: "drivers",
+      employees: "employees",
+    };
+    const table = tableMap[collection];
+    const dbItem = (() => {
+      switch (collection) {
+        case "customers": return dbCustomer(item as Customer);
+        case "suppliers": return dbSupplier(item as Supplier);
+        case "commodities": return dbCommodity(item as Commodity);
+        case "vehicles": return dbVehicle(item as Vehicle);
+        case "drivers": return dbDriver(item as Driver);
+        case "employees": return dbEmployee(item as Employee);
+      }
+    })();
+    await supabase.from(table).upsert([dbItem]);
     setState((s) => {
       const list = s[collection] as { id: ID }[];
       const exists = list.some((x) => x.id === item.id);
@@ -1182,7 +1674,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast("Master data tersimpan", (item as { name: string }).name, "success");
   };
 
-  const removeMaster: Ctx["removeMaster"] = (collection, id) => {
+  const removeMaster: Ctx["removeMaster"] = async (collection, id) => {
+    const tableMap: Record<string, string> = {
+      customers: "customers",
+      suppliers: "suppliers",
+      commodities: "commodities",
+      vehicles: "vehicles",
+      drivers: "drivers",
+      employees: "employees",
+    };
+    await supabase.from(tableMap[collection]).delete().eq("id", id);
     setState((s) => {
       const list = s[collection] as { id: ID }[];
       return { ...s, [collection]: list.filter((x) => x.id !== id) } as State;
@@ -1223,9 +1724,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast("Sesi diakhiri", "Anda telah keluar dari LBS System", "info");
   };
 
-  /* ---------------- Manajemen pengguna ---------------- */
+  const currentAccount = state.user ? state.users.find((u) => u.id === state.user!.accountId) ?? null : null;
 
-  const saveUser: Ctx["saveUser"] = (user) => {
+  const can: Ctx["can"] = (rt, action) => {
+    if (!state.user) return false;
+    const acc = state.users.find((u) => u.id === state.user!.accountId);
+    if (!acc) return false;
+    if (acc.role === "super-admin") return true;
+    return Boolean(acc.permissions[rt]?.[action]);
+  };
+
+  const saveUser: Ctx["saveUser"] = async (user) => {
+    await supabase.from("users").upsert([dbUser(user)]);
     setState((s) => {
       const exists = s.users.some((u) => u.id === user.id);
       return { ...s, users: exists ? s.users.map((u) => (u.id === user.id ? user : u)) : [user, ...s.users] };
@@ -1233,9 +1743,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast("Akun pengguna tersimpan", `${user.username} • ${roleLabel(user.role)} • ${user.status}`, "success");
   };
 
-  const removeUser: Ctx["removeUser"] = (id) => {
+  const removeUser: Ctx["removeUser"] = async (id) => {
     const target = state.users.find((u) => u.id === id);
     const isSelf = state.user?.accountId === id;
+    await supabase.from("users").delete().eq("id", id);
     setState((s) => ({
       ...s,
       users: s.users.filter((u) => u.id !== id),
@@ -1249,7 +1760,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast("Akun pengguna dihapus", target ? `${target.username} tidak lagi dapat login` : undefined, "info");
   };
 
-  const setUserStatus: Ctx["setUserStatus"] = (id, status) => {
+  const setUserStatus: Ctx["setUserStatus"] = async (id, status) => {
+    await supabase.from("users").update({ user_status: status }).eq("id", id);
     setState((s) => ({ ...s, users: s.users.map((u) => (u.id === id ? { ...u, status } : u)) }));
     toast(`Status akun: ${status}`, status === "Aktif" ? "Akses login diaktifkan kembali" : "Pengguna tidak dapat login sampai diaktifkan", status === "Aktif" ? "success" : "warn");
   };
@@ -1262,16 +1774,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const requestUserForm: Ctx["requestUserForm"] = (employeeId) => {
     setState((s) => ({ ...s, userFormRequest: employeeId }));
-  };
-
-  const currentAccount = state.user ? state.users.find((u) => u.id === state.user!.accountId) ?? null : null;
-
-  const can: Ctx["can"] = (rt, action) => {
-    if (!state.user) return false;
-    const acc = state.users.find((u) => u.id === state.user!.accountId);
-    if (!acc) return false;
-    if (acc.role === "super-admin") return true;
-    return Boolean(acc.permissions[rt]?.[action]);
   };
 
   const value: Ctx = {

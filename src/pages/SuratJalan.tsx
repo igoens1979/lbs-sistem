@@ -165,8 +165,8 @@ export default function SuratJalan() {
                 size="sm"
                 icon="receipt_long"
                 disabled={!canInvoice}
-                onClick={() => {
-                  const inv = app.createInvoice(selectedRows.map((r) => r.id));
+                onClick={async () => {
+                  const inv = await app.createInvoice(selectedRows.map((r) => r.id));
                   if (inv) setSelected([]);
                 }}
               >
@@ -321,8 +321,8 @@ export default function SuratJalan() {
                 <Button
                   icon="receipt_long"
                   disabled={!canInvoice}
-                  onClick={() => {
-                    const inv = app.createInvoice([detail.id]);
+                  onClick={async () => {
+                    const inv = await app.createInvoice([detail.id]);
                     if (inv) {
                       app.toast("Invoice diterbitkan", inv.no, "success");
                       setDetail(null);
@@ -476,8 +476,8 @@ function SJForm({ onClose }: { onClose: () => void }) {
           </Button>
           <Button
             icon="add_road"
-            onClick={() => {
-              const row = app.addSJ({ ...form, price: commodity.price });
+            onClick={async () => {
+              const row = await app.addSJ({ ...form, price: commodity.price });
               onClose();
               app.toast("Dokumen siap dicetak", row.no, "info");
             }}
