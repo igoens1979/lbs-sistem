@@ -226,7 +226,7 @@ const toSJ = (r: DbSuratJalan): SJ => ({
   note: r.catatan ?? undefined,
 });
 
-const toInvoice = (r: DbInvoice): Invoice => ({
+const toInvoice = (r: DbInvoice, sjIds: ID[] = []): Invoice => ({
   id: r.id,
   no: r.no,
   customerId: r.customer_id,
@@ -237,7 +237,7 @@ const toInvoice = (r: DbInvoice): Invoice => ({
   total: r.total,
   ppnRate: r.ppn_rate,
   status: r.status as any,
-  sjIds: [],
+  sjIds,
   note: r.catatan ?? undefined,
   kind: r.jenis as any,
   coveredCustomerIds: [r.customer_id],
@@ -720,7 +720,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         vehicles: (vehicles.data ?? []).map(toVehicle),
         drivers: (drivers.data ?? []).map(toDriver),
         sj: (sj.data ?? []).map(toSJ),
-        invoices: (invoices.data ?? []).map(toInvoice),
+        invoices: (invoices.data ?? []).map((r) => toInvoice(r, (invoiceSJ.data ?? []).filter((x) => x.invoice_id === r.id).map((x) => x.sj_id))),
         invoiceRevisions: (invoiceRevs.data ?? []).map(toInvoiceRevision),
         payments: (payments.data ?? []).map(toPayment),
         invoiceSJ: (invoiceSJ.data ?? []).map((x) => ({ invoiceId: x.invoice_id, sjId: x.sj_id })),
