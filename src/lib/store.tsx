@@ -1008,7 +1008,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const updateSJ: Ctx["updateSJ"] = async (id, patch) => {
-    await supabase.from("surat_jalan").update({ ...dbSJ({ ...state.sj.find((r) => r.id === id)!, ...patch }), id }).eq("id", id);
+    const current = state.sj.find((r) => r.id === id);
+    if (current?.invoiceId) {
+      toast("Gagal mengubah", "Surat jalan sudah diinvoice dan tidak dapat diubah.", "error");
+      return;
+    }
+    await supabase.from("surat_jalan").update({ ...dbSJ({ ...current!, ...patch }), id }).eq("id", id);
     setState((s) => ({ ...s, sj: s.sj.map((r) => (r.id === id ? { ...r, ...patch } : r)) }));
   };
 

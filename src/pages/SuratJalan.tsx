@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PageBody, PageHeader, PeriodActions } from "@/components/Shell";
 import { Button, Card, Drawer, Field, Icon, Input, Modal, Pill, SectionHeading, Select, StatusPill, Td, Th, Textarea } from "@/components/ui";
 import { commodityName, driverName, vehiclePlate, type SJ, type SJStatus } from "@/lib/data";
@@ -15,6 +15,7 @@ export default function SuratJalan() {
   const [customerId, setCustomerId] = useState("all");
   const [selected, setSelected] = useState<string[]>([]);
   const [detail, setDetail] = useState<SJ | null>(null);
+  const [editing, setEditing] = useState<SJ | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [printRow, setPrintRow] = useState<SJ | null>(null);
   const [printNote, setPrintNote] = useState("");
@@ -245,28 +246,37 @@ export default function SuratJalan() {
                   <Td align="center">
                     <StatusPill status={r.invoiceId ? "Diinvoice" : r.status} />
                   </Td>
-                  <Td align="center">
-                    <div className="flex items-center justify-center gap-1">
-                      <button type="button" title="Cetak surat jalan" onClick={() => { setPrintRow(r); setPrintNote(r.note ?? ""); }} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary">
-                        <Icon name="print" size={18} />
-                      </button>
-                      <button type="button" title="Rincian dokumen" onClick={() => setDetail(r)} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary">
-                        <Icon name="visibility" size={18} />
-                      </button>
-                      <button
-                        type="button"
-                        title="Batalkan surat jalan"
-                        disabled={!!r.invoiceId || !canEdit}
-                        onClick={() => {
-                          app.updateSJ(r.id, { status: "Batal" });
-                          app.toast("Surat jalan dibatalkan", r.no, "warn");
-                        }}
-                        className="rounded-lg p-1.5 text-on-surface-variant hover:bg-error-container hover:text-error disabled:opacity-30"
-                      >
-                        <Icon name="cancel" size={18} />
-                      </button>
-                    </div>
-                  </Td>
+<Td align="center">
+                       <div className="flex items-center justify-center gap-1">
+                         <button type="button" title="Cetak surat jalan" onClick={() => { setPrintRow(r); setPrintNote(r.note ?? ""); }} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary">
+                           <Icon name="print" size={18} />
+                         </button>
+                         <button type="button" title="Rincian dokumen" onClick={() => setDetail(r)} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary">
+                           <Icon name="visibility" size={18} />
+                         </button>
+                         <button
+                           type="button"
+                           title="Ubah surat jalan"
+                           disabled={!!r.invoiceId || !canEdit}
+                           onClick={() => setEditing(r)}
+                           className="rounded-lg p-1.5 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container disabled:opacity-30"
+                         >
+                           <Icon name="edit" size={18} />
+                         </button>
+                         <button
+                           type="button"
+                           title="Batalkan surat jalan"
+                           disabled={!!r.invoiceId || !canEdit}
+                           onClick={() => {
+                             app.updateSJ(r.id, { status: "Batal" });
+                             app.toast("Surat jalan dibatalkan", r.no, "warn");
+                           }}
+                           className="rounded-lg p-1.5 text-on-surface-variant hover:bg-error-container hover:text-error disabled:opacity-30"
+                         >
+                           <Icon name="cancel" size={18} />
+                         </button>
+                       </div>
+                     </Td>
                 </tr>
               ))}
             </tbody>
@@ -308,33 +318,43 @@ export default function SuratJalan() {
         onClose={() => setDetail(null)}
         title={detail?.no ?? ""}
         subtitle={detail ? `${d(parseISO(detail.date))} • ${detail.site}` : ""}
-        footer={
-          detail && (
-            <>
-              <Button variant="outline" onClick={() => setDetail(null)}>
-                Tutup
-              </Button>
-              <Button variant="secondary" icon="print" onClick={() => { setPrintRow(detail); setPrintNote(detail.note ?? ""); setDetail(null); }}>
-                Cetak Surat Jalan
-              </Button>
-              {!detail.invoiceId && (
-                <Button
-                  icon="receipt_long"
-                  disabled={!canInvoice}
-                  onClick={async () => {
-                    const inv = await app.createInvoice([detail.id]);
-                    if (inv) {
-                      app.toast("Invoice diterbitkan", inv.no, "success");
-                      setDetail(null);
-                    }
-                  }}
-                >
-                  Terbitkan Invoice
+footer={
+            detail && (
+              <>
+                <Button variant="outline" onClick={() => setDetail(null)}>
+                  Tutup
                 </Button>
-              )}
-            </>
-          )
-        }
+                <Button variant="secondary" icon="print" onClick={() => { setPrintRow(detail); setPrintNote(detail.note ?? ""); setDetail(null); }}>
+                  Cetak Surat Jalan
+                </Button>
+                {!detail.invoiceId && (
+                  <Button
+                    variant="primary"
+                    icon="edit"
+                    disabled={!canEdit}
+                    onClick={() => { setDetail(null); setEditing(detail); }}
+                  >
+                    Ubah Surat Jalan
+                  </Button>
+                )}
+                {!detail.invoiceId && (
+                  <Button
+                    icon="receipt_long"
+                    disabled={!canInvoice}
+                    onClick={async () => {
+                      const inv = await app.createInvoice([detail.id]);
+                      if (inv) {
+                        app.toast("Invoice diterbitkan", inv.no, "success");
+                        setDetail(null);
+                      }
+                    }}
+                  >
+                    Terbitkan Invoice
+                  </Button>
+                )}
+              </>
+            )
+          }
       >
         {detail && (
           <div className="flex flex-col gap-space-md">
@@ -411,7 +431,8 @@ export default function SuratJalan() {
         </Modal>
       )}
 
-      {formOpen && <SJForm onClose={() => setFormOpen(false)} />}
+      {formOpen && <SJForm onClose={() => setFormOpen(false)} editing={null} />}
+      {editing && <SJForm onClose={() => setEditing(null)} editing={editing} />}
     </PageBody>
   );
 }
@@ -446,43 +467,69 @@ function Info({ label, value, icon }: { label: string; value: string; icon: stri
   );
 }
 
-function SJForm({ onClose }: { onClose: () => void }) {
+function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null }) {
   const app = useApp();
   const [form, setForm] = useState({
     date: iso(TODAY),
-    customerId: app.customers[0].id,
-    commodityId: app.commodities[0].id,
+    customerId: app.customers[0]?.id ?? "",
+    commodityId: app.commodities[0]?.id ?? "",
     volume: 28,
     trips: 1,
-    vehicleId: app.vehicles[0].id,
-    driverId: app.drivers[0].id,
+    vehicleId: app.vehicles[0]?.id ?? "",
+    driverId: app.drivers[0]?.id ?? "",
     site: "SITE GOLO MORI",
     note: "",
   });
+
+  useEffect(() => {
+    if (editing) {
+      setForm({
+        date: editing.date,
+        customerId: editing.customerId,
+        commodityId: editing.commodityId,
+        volume: editing.volume,
+        trips: editing.trips,
+        vehicleId: editing.vehicleId,
+        driverId: editing.driverId,
+        site: editing.site,
+        note: editing.note ?? "",
+      });
+    }
+  }, [editing]);
+
   const commodity = app.commodities.find((c) => c.id === form.commodityId)!;
-  const value = form.volume * form.trips * commodity.price;
+  const value = form.volume * form.trips * (commodity?.price ?? 0);
+
+  const isEdit = !!editing;
 
   return (
     <Modal
       open
       onClose={onClose}
       width="max-w-2xl"
-      title="Terbitkan Surat Jalan Baru"
-      subtitle="Nomor dokumen dibuat otomatis oleh sistem berdasarkan urutan periode berjalan"
+      title={isEdit ? `Ubah Surat Jalan ${editing.no}` : "Terbitkan Surat Jalan Baru"}
+      subtitle={isEdit ? "Perbarui data surat jalan. Dokumen hanya bisa diubah selama belum diinvoice." : "Nomor dokumen dibuat otomatis oleh sistem berdasarkan urutan periode berjalan"}
       footer={
         <>
           <Button variant="outline" onClick={onClose}>
             Batal
           </Button>
           <Button
-            icon="add_road"
+            icon={isEdit ? "edit" : "add_road"}
+            disabled={isEdit && !!editing.invoiceId}
             onClick={async () => {
-              const row = await app.addSJ({ ...form, price: commodity.price });
-              onClose();
-              app.toast("Dokumen siap dicetak", row.no, "info");
+              if (isEdit) {
+                await app.updateSJ(editing.id, { ...form, price: commodity.price });
+                onClose();
+                app.toast("Surat jalan diperbarui", editing.no, "success");
+              } else {
+                const row = await app.addSJ({ ...form, price: commodity.price });
+                onClose();
+                app.toast("Dokumen siap dicetak", row.no, "info");
+              }
             }}
           >
-            Terbitkan &amp; Simpan
+            {isEdit ? "Simpan Perubahan" : "Terbitkan &amp; Simpan"}
           </Button>
         </>
       }
