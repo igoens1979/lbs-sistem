@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { PageBody, PageHeader, PeriodActions } from "@/components/Shell";
 import { Button, Card, Drawer, EmptyState, Field, Icon, Input, Modal, Pill, ProgressBar, SectionHeading, Select, StatusPill, Tabs, Td, Textarea, Th } from "@/components/ui";
-import { commodityName, type Invoice } from "@/lib/data";
+import { commodityName, type Invoice, vehiclePlate } from "@/lib/data";
 import { cn, csvDownload, d, daysBetween, iso, num, parseISO, pct, rupiah, rupiahShort, TODAY } from "@/lib/format";
 import { printInvoice } from "@/lib/print";
 import { useApp } from "@/lib/store";
@@ -935,6 +935,10 @@ function ReviseInvoiceModal({ invoice, onClose }: { invoice: Invoice; onClose: (
   const available = app.sj.filter(
     (r) => !r.invoiceId && r.status !== "Batal" && (allCustomers || r.customerId === invoice.customerId),
   );
+  const availableByCustomer = app.customers
+    .map((c) => ({ c, list: available.filter((r) => r.customerId === c.id) }))
+    .filter((g) => g.list.length > 0)
+    .sort((a, b) => b.list.reduce((s, r) => s + r.volume * r.trips * r.price, 0) - a.list.reduce((s, r) => s + r.volume * r.trips * r.price, 0));
   const kept = current.filter((r) => !removeIds.includes(r.id));
   const added = available.filter((r) => addIds.includes(r.id));
   const finalRows = [...kept, ...added];
@@ -1013,7 +1017,28 @@ function ReviseInvoiceModal({ invoice, onClose }: { invoice: Invoice; onClose: (
           <div className="max-h-72 overflow-y-auto rounded-lg bg-surface-container-low">
             <table className="w-full border-collapse text-left">
               <tbody className="divide-y divide-surface-container font-body-sm text-body-sm">
-                {available.map((r) => (
+                {allCustomers ? availableByCustomer.map((g) => (
+                  <div key={g.c.id}>
+                    <tr className="bg-surface-container-lowest font-label-md text-label-md font-bold text-primary">
+                      <Td colSpan={4}>{g.c.name} • {g.list.length} SJ • {rupiah(g.list.reduce((s, r) => s + r.volume * r.trips * r.price, 0))}</Td>
+                    </tr>
+                    {g.list.map((r) => (
+                      <tr key={r.id} className={cn("cursor-pointer hover:bg-surface-container-lowest/60", addIds.includes(r.id) && "bg-secondary-fixed/40")} onClick={() => setAddIds((p) => (p.includes(r.id) ? p.filter((x) => x !== r.id) : [...p, r.id]))}>
+                        <Td align="center" className="w-10">
+                          <input type="checkbox" checked={addIds.includes(r.id)} onChange={() => setAddIds((p) => (p.includes(r.id) ? p.filter((x) => x !== r.id) : [...p, r.id]))} className="h-4 w-4 accent-[#00274e]" />
+                        </Td>
+                        <Td>
+                          <span className="font-label-md text-label-md text-primary">{r.no}</span>
+                          <span className="block text-[11px] text-on-surface-variant">
+                            {d(parseISO(r.date))} • {num(r.volume * r.trips)} m³
+                          </span>
+                        </Td>
+                        <Td align="right" className="font-mono">{rupiah(r.volume * r.trips * r.price)}</Td>
+                        <Td align="right" className="font-mono text-on-surface-variant">{vehiclePlate(r.vehicleId)}</Td>
+                      </tr>
+                    ))}
+                  </div>
+                )) : available.map((r) => (
                   <tr key={r.id} className={cn("cursor-pointer hover:bg-surface-container-lowest/60", addIds.includes(r.id) && "bg-secondary-fixed/40")} onClick={() => setAddIds((p) => (p.includes(r.id) ? p.filter((x) => x !== r.id) : [...p, r.id]))}>
                     <Td align="center" className="w-10">
                       <input type="checkbox" checked={addIds.includes(r.id)} onChange={() => setAddIds((p) => (p.includes(r.id) ? p.filter((x) => x !== r.id) : [...p, r.id]))} className="h-4 w-4 accent-[#00274e]" />
@@ -1027,9 +1052,9 @@ function ReviseInvoiceModal({ invoice, onClose }: { invoice: Invoice; onClose: (
                     <Td align="right" className="font-mono">{rupiah(r.volume * r.trips * r.price)}</Td>
                   </tr>
                 ))}
+                {available.length === 0 && <tr><Td colSpan={4} className="p-space-sm font-body-sm text-body-sm text-on-surface-variant">Tidak ada surat jalan tersedia untuk ditambahkan.</Td></tr>}
               </tbody>
             </table>
-            {available.length === 0 && <p className="p-space-sm font-body-sm text-body-sm text-on-surface-variant">Tidak ada surat jalan tersedia untuk ditambahkan.</p>}
           </div>
           <p className="font-body-sm text-body-sm text-on-surface-variant">
             Ditambahkan: <b className="text-primary">{added.length} surat jalan</b> ({rupiah(added.reduce((s, r) => s + r.volume * r.trips * r.price, 0))})
