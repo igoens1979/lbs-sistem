@@ -176,19 +176,21 @@ export default function Invoices() {
               <tbody className="divide-y divide-surface-container font-body-sm text-body-sm">
                 {rows.slice(0, 20).map((i) => {
                   const due = app.outstandingOf(i);
+                  const paid = app.paidOf(i.id);
                   const late = daysBetween(new Date(i.dueDate), TODAY);
+                  const isPartiallyPaid = paid > 0 && due > 0;
                   return (
                     <tr key={i.id} className="transition-colors hover:bg-surface-container-lowest/60">
                       <Td>
                         <div className="flex flex-col gap-1">
                           <span className="font-label-md text-label-md font-semibold text-primary">{i.no}</span>
-                          {i.carryFromInvoiceId && (
+                          {i.carryFromInvoiceId && isPartiallyPaid && (
                             <span className="ml-2 rounded bg-secondary-fixed px-1.5 py-0.5 text-[9px] font-semibold text-on-secondary-fixed uppercase">Carry Forward</span>
                           )}
                           <span className="flex flex-wrap items-center gap-1 text-[9px] text-on-surface-variant">
                             {i.sjIds.length} surat jalan
                             {i.kind === "Gabungan" && <Pill tone="navy">Gabungan {i.coveredCustomerIds?.length ?? 0} pelanggan</Pill>}
-                            {!i.carryFromInvoiceId && (i.revisions ?? []).some((r) => r.type === "Carry Forward") && (
+                            {!i.carryFromInvoiceId && isPartiallyPaid && (i.revisions ?? []).some((r) => r.type === "Carry Forward") && (
                               <Pill tone="amberSoft" className="text-[9px]">Diteruskan ke invoice lain</Pill>
                             )}
                             {(i.revisions?.filter((r) => r.type === "Revisi").length ?? 0) > 0 && (

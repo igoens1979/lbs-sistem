@@ -157,10 +157,13 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
     )
     .join("");
 
+  const isPartiallyPaid = ctx.paid > 0 && ctx.paid < inv.total;
   const page1 = `
   ${kop("Invoice / Faktur Penagihan", inv.no)}
   ${
-    isCarryForward
+    isPartiallyPaid
+      ? ""
+      : isCarryForward
       ? `<div style="margin:10px 0"><span class="badge badge-cf">CARRY FORWARD</span> ${carryFromNo ? `<span class="mini">dari invoice ${carryFromNo}</span>` : ""}</div>`
       : hasCarryOut
       ? `<div style="margin:10px 0"><span class="badge badge-cf">DITERUSKAN</span> <span class="mini">ke invoice selanjutnya atau lain</span></div>`
