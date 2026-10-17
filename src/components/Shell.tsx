@@ -16,7 +16,6 @@ export function Shell({ children }: { children: ReactNode }) {
   const [oldPwd, setOldPwd] = useState("");
   const [newPwd1, setNewPwd1] = useState("");
   const [newPwd2, setNewPwd2] = useState("");
-  const [savingPwd, setSavingPwd] = useState(false);
 
   const current = routeMeta(app.route);
   const visibleNav = NAV.filter((n) => app.can(n.id, "view"));
@@ -371,9 +370,7 @@ export function Shell({ children }: { children: ReactNode }) {
           <Button icon="key" onClick={async () => {
             if (newPwd1 !== newPwd2) { app.toast("Konfirmasi password tidak cocok", "Masukkan ulang password baru", "warn"); return; }
             if (newPwd1.length < 6) { app.toast("Password terlalu pendek", "Minimal 6 karakter", "warn"); return; }
-            setSavingPwd(true);
             const ok = await app.changeMyPassword(oldPwd, newPwd1);
-            setSavingPwd(false);
             if (ok) { setPwdOpen(false); setOldPwd(""); setNewPwd1(""); setNewPwd2(""); }
           }}>Simpan Password</Button>
         </>

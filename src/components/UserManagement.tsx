@@ -55,7 +55,7 @@ export function UserForm({ draft, onSave, onClose, canEdit }: { draft: UserAccou
       <div className="flex flex-col gap-space-lg">
         <div className="grid grid-cols-1 gap-space-md sm:grid-cols-2">
           <Field label="Karyawan Terhubung" className="sm:col-span-2">
-            <Select value={form.employeeId} onChange={(e) => { const eid = e.target.value; const emp2 = employeeOf(eid); const baseUser = emp2?.name.split(" ")[0].toLowerCase().replace(/\s+/g,"") ?? ""; const emailBase = emp2?.email ?? (baseUser ? `${baseUser}@lbs-group.co.id` : form.email); setForm(f => ({ ...f, employeeId: eid, username: baseUser || f.username, email: emailBase.toLowerCase() })); }} disabled={!canEdit}>
+            <Select value={form.employeeId} onChange={(e) => { const eid = e.target.value; const emp2 = app.employees.find(x=>x.id===eid); const baseUser = emp2?.name.split(" ")[0].toLowerCase().replace(/\s+/g,"") ?? ""; const emailBase = (emp2 as any)?.email ?? (baseUser ? `${baseUser}@lbs-group.co.id` : form.email); setForm(f => ({ ...f, employeeId: eid, username: baseUser || f.username, email: emailBase.toLowerCase() })); }} disabled={!canEdit}>
               <option value="">- Pilih karyawan -</option>
               {app.employees.filter(e => e.status !== "Resign").sort((a,b) => a.name.localeCompare(b.name)).map(e => <option key={e.id} value={e.id}>{e.name} - {e.division} ({e.role})</option>)}
             </Select>
@@ -262,7 +262,7 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
                   <Td align="center"><StatusPill status={u.status} /></Td>
                   <Td align="center">
                     <div className="flex items-center justify-center gap-1">
-                      <button type="button" disabled={!canEdit} onClick={() => setDraft({ ...u, permissions: { ...u.permissions } })} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary disabled:opacity-30"><Icon name="manage_accounts" size={18} /></button>
+                      <button type="button" disabled={!canEdit} onClick={() => setDraft({ ...u, permissions: { ...u.permissions }, employeeId: u.employeeId })} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary disabled:opacity-30"><Icon name="manage_accounts" size={18} /></button>
                       <button type="button" disabled={!canEdit} onClick={() => app.resetUserPassword(u.id)} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary disabled:opacity-30"><Icon name="key" size={18} /></button>
                       <button type="button" disabled={!canEdit} onClick={() => app.setUserStatus(u.id, u.status === "Aktif" ? "Nonaktif" : "Aktif")} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary disabled:opacity-30"><Icon name={u.status === "Aktif" ? "toggle_on" : "toggle_off"} size={18} /></button>
                       <button type="button" disabled={!canDelete} onClick={() => setConfirmDelete(u)} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-error-container hover:text-error disabled:opacity-30"><Icon name="delete" size={18} /></button>

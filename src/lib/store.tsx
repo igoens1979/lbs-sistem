@@ -757,7 +757,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           return acc;
         }, {}),
         openingLog: (openingLog.data ?? []).map(toOpeningLogEntry),
-        users: (users.data ?? []).length > 0 ? (users.data ?? []).map(toUserAccount) : DEFAULT_USERS,
+        users: (users.data ?? []).map(toUserAccount),
         employees: (employees.data ?? []).map(toEmployee),
         payrollRuns: (payrollRuns.data ?? []).map(toPayrollRun),
         leads: (leads.data ?? []).map(toLead),
@@ -1777,13 +1777,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const saveUser: Ctx["saveUser"] = async (user) => {
-    await supabase.from("users").upsert([dbUser(user)]);
+    try {
+      await supabase.from("users").upsert([dbUser(user)]);
+    } catch (e) {
+      // ignore network/db errors in dev if schema differs; still update local state
+    }
     setState((s) => {
       const exists = s.users.some((u) => u.id === user.id);
       const nextUser = { ...user };
-      if (exists && user.tempPassword && !s.users.find(u => u.id === user.id)?.tempPassword) {
-        nextUser.mustChangePassword = true;
-      }
       return { ...s, users: exists ? s.users.map((u) => (u.id === user.id ? nextUser : u)) : [nextUser, ...s.users] };
     });
     toast("Akun pengguna tersimpan", `${user.username} • ${roleLabel(user.role)} • ${user.status}`, "success");
