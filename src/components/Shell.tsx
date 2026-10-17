@@ -2,7 +2,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { NAV, routeMeta, type Route } from "@/lib/routes";
 import { roleLabel } from "@/lib/permissions";
 import { useApp } from "@/lib/store";
-import { cn, d, iso, parseISO, rupiah } from "@/lib/format";
+import { cn, d, iso, parseISO, rupiah, TODAY } from "@/lib/format";
 import { Button, Icon, IconButton, Pill, statusTone } from "@/components/ui";
 
 export function Shell({ children }: { children: ReactNode }) {
@@ -176,7 +176,7 @@ export function Shell({ children }: { children: ReactNode }) {
                 className="w-[112px] bg-transparent font-label-md text-label-md text-on-surface outline-none"
                 aria-label="Periode sampai"
               />
-              <IconButton icon="refresh" size={16} title="Reset ke periode berjalan" onClick={() => app.setPeriod({ from: "2026-10-01", to: iso(new Date(2026, 9, 15)) })} />
+              <IconButton icon="refresh" size={16} title="Reset ke periode berjalan" onClick={() => app.setPeriod({ from: "2026-10-01", to: iso(TODAY()) })} />
             </div>
 
             <div className="hidden items-center gap-space-xs rounded-full border border-surface-variant bg-surface-container px-3 py-1 md:flex">
@@ -278,7 +278,7 @@ export function Shell({ children }: { children: ReactNode }) {
             <span>© 2026 PT Logam Bumi Santosa · LBS System 1.0 — Enterprise Resource Gateway</span>
             <span className="flex items-center gap-2">
               <Pill tone="outline">Site Golo Mori</Pill>
-              <Pill tone="outline">Tgl Sistem {d(parseISO(iso(new Date(2026, 9, 15))))}</Pill>
+              <Pill tone="outline">Tgl Sistem {d(parseISO(iso(TODAY())))}</Pill>
             </span>
           </div>
         </footer>
