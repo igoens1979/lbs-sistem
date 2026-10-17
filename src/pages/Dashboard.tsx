@@ -2,29 +2,15 @@ import { Link } from "@/components/Link";
 import { PageBody, PageHeader, PeriodActions } from "@/components/Shell";
 import { BarPairs, Button, Card, Donut, EmptyState, HEX, Icon, Pill, ProgressBar, SectionHeading, StatusPill, Td, Th } from "@/components/ui";
 import { commodityName, vehiclePlate } from "@/lib/data";
-import { addDays, csvDownload, d, daysBetween, num, parseISO, pct, rupiah, rupiahShort } from "@/lib/format";
+import { csvDownload, d, num, parseISO, pct, rupiah, rupiahShort } from "@/lib/format";
 import { useApp } from "@/lib/store";
-import { cn, iso } from "@/lib/format";
+import { cn } from "@/lib/format";
 
 export default function Dashboard() {
   const app = useApp();
   const kpi = app.kpi;
 
-  // Perbandingan dengan periode sebelumnya (durasi sama)
-  const periodDays = Math.max(1, daysBetween(parseISO(app.period.from), parseISO(app.period.to)) + 1);
-  const prevTo = iso(addDays(parseISO(app.period.from), -1));
-  const prevFrom = iso(addDays(parseISO(app.period.from), -periodDays));
-  const prevSJ = app.sj.filter((r) => r.date >= prevFrom && r.date <= prevTo && r.status !== "Batal");
-  const prevKpi = {
-    sj: prevSJ.length,
-    invoiced: prevSJ.filter((r) => r.invoiceId).length,
-    invoiceTotal: app.invoices.filter((i) => i.date >= prevFrom && i.date <= prevTo).reduce((s, i) => s + i.total, 0),
-  };
-  const delta = (now: number, before: number) => {
-  if (before <= 0) return 0;
-  const d = ((now - before) / before) * 100;
-  return d > 999 ? 999 : d < -999 ? -999 : d;
-};
+  const agingTotal = app.aging.reduce((s, a) => s + a.amount, 0) || 1;
   const accounts = app.accountsWithBalance;
   const liquidity = accounts.reduce((s, a) => s + a.balance, 0);
   const totalMasuk = accounts.reduce((s, a) => s + a.masuk, 0);
@@ -91,7 +77,6 @@ export default function Dashboard() {
     .slice(0, 8);
 
   const chartData = app.cashFlowDaily.slice(-12).map((c) => ({ label: c.date.slice(8), a: c.in, b: c.out }));
-  const agingTotal = app.aging.reduce((s, a) => s + a.amount, 0) || 1;
 
   return (
     <PageBody>
@@ -135,7 +120,6 @@ export default function Dashboard() {
             iconClass="bg-primary-fixed text-primary"
             footLabel="Periode Berjalan"
             footValue={`${ritase.vehiclesActive} Unit Aktif`}
-            delta={{ value: delta(kpi.sjCount, prevKpi.sj), label: "vs periode sebelumnya" }}
           />
           <KpiTile
             top="bg-primary-container"
@@ -147,7 +131,6 @@ export default function Dashboard() {
             footLabel="Rasio Penerbitan"
             footValue={`${pct(kpi.sjInvoiced, kpi.sjCount).toFixed(1)}%`}
             dot="bg-primary-container"
-            delta={{ value: delta(kpi.sjInvoiced, prevKpi.invoiced), label: "penerbitan invoice" }}
           />
           <KpiTile
             top="bg-secondary-container"
@@ -156,9 +139,8 @@ export default function Dashboard() {
             unit="SJ"
             icon="pending_actions"
             iconClass="bg-secondary-fixed text-on-secondary-fixed"
-            footLabel="Kesiapan Timbang"
-            footValue={<Pill tone="amberSoft">Perlu Penagihan</Pill>}
-            delta={{ value: delta(kpi.sjPending, Math.max(0, prevKpi.sj - prevKpi.invoiced)), label: "dokumen menunggu faktur", invert: true }}
+            footLabel="Sisa dari periode"
+            footValue={`${pct(kpi.sjPending, kpi.sjCount).toFixed(1)}%`}
           />
           <KpiTile
             top="bg-primary"
@@ -169,7 +151,6 @@ export default function Dashboard() {
             iconClass="bg-primary text-on-primary"
             footLabel="Status Faktur"
             footValue={`${kpi.invoiceCount} Invoice Aktif`}
-            delta={{ value: delta(kpi.invoiceTotal, prevKpi.invoiceTotal), label: "vs periode sebelumnya" }}
           />
         </div>
       </section>
