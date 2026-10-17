@@ -17,7 +17,7 @@ export type DbAccount = {
   account_no: string;
   opening: number;
   account_type: "Bank" | "Kas";
-  role: string;
+  role?: string | null;
   is_operational: boolean;
   created_at: string;
 };

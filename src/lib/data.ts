@@ -151,7 +151,7 @@ export interface Account {
   accountNo: string;
   opening: number;
   type: "Bank" | "Kas";
-  role: string;
+  role?: string;
   isOperational?: boolean;
 }
 export interface BankTx {

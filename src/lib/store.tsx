@@ -138,7 +138,7 @@ const toAccount = (r: DbAccount): Account => ({
   accountNo: r.account_no,
   opening: r.opening,
   type: r.account_type,
-  role: r.role,
+  role: r.role ?? undefined,
 });
 
 const toBankTx = (r: DbBankTx): BankTx => ({
@@ -729,7 +729,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
       setState((s) => ({
         ...s,
-        accounts: (accounts.data ?? []).map(toAccount),
+        accounts: (accounts.data ?? []).map(toAccount).sort((a, b) => {
+          const order: Record<string, number> = { "A-002": 1, "A-001": 2, "A-003": 3 };
+          return (order[a.id] ?? 99) - (order[b.id] ?? 99);
+        }),
         bankTx: (bankTx.data ?? []).map(toBankTx),
         customers: (customers.data ?? []).map(toCustomer),
         suppliers: (suppliers.data ?? []).map(toSupplier),

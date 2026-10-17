@@ -2,7 +2,7 @@ import { Link } from "@/components/Link";
 import { PageBody, PageHeader, PeriodActions } from "@/components/Shell";
 import { BarPairs, Button, Card, Donut, EmptyState, HEX, Icon, Pill, ProgressBar, SectionHeading, StatusPill, Td, Th } from "@/components/ui";
 import { commodityName, vehiclePlate } from "@/lib/data";
-import { csvDownload, d, num, parseISO, pct, rupiah, rupiahShort } from "@/lib/format";
+import { csvDownload, d, num, parseISO, pct, rupiah, rupiahShort, TODAY } from "@/lib/format";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/format";
 
@@ -375,6 +375,44 @@ export default function Dashboard() {
           </Card>
 
           <Card className="flex flex-col gap-space-md p-space-md sm:p-space-lg lg:col-span-5">
+            <SectionHeading icon="insights" title="Ringkasan Arus Kas Periode" subtitle={`${d(parseISO(app.period.from))} – ${d(parseISO(app.period.to))}`} />
+            {(() => {
+              const rows = app.bankTx.filter((tx) => tx.date >= app.period.from && tx.date <= app.period.to);
+              const masuk = rows.filter((r) => r.direction === "in").reduce((s, r) => s + r.amount, 0);
+              const keluar = rows.filter((r) => r.direction === "out").reduce((s, r) => s + r.amount, 0);
+              const legacyOut = app.legacyOutstandingTotal;
+              return (
+                <div className="grid grid-cols-2 gap-space-sm">
+                  <div className="rounded-xl bg-surface-container-low p-space-sm">
+                    <span className="font-body-sm text-body-sm text-on-surface-variant">Kas Masuk</span>
+                    <p className="font-headline-md text-headline-md text-primary tabular">{rupiah(masuk)}</p>
+                    <span className="font-label-sm text-[10px] uppercase text-on-surface-variant">{rows.filter((r) => r.direction === "in").length} transaksi</span>
+                  </div>
+                  <div className="rounded-xl bg-surface-container-low p-space-sm">
+                    <span className="font-body-sm text-body-sm text-on-surface-variant">Kas Keluar</span>
+                    <p className="font-headline-md text-headline-md text-error tabular">{rupiah(keluar)}</p>
+                    <span className="font-label-sm text-[10px] uppercase text-on-surface-variant">{rows.filter((r) => r.direction === "out").length} transaksi</span>
+                  </div>
+                  <div className="col-span-2 flex items-center justify-between rounded-xl bg-primary p-space-sm text-on-primary">
+                    <span className="font-label-md text-label-md">Net Arus Kas</span>
+                    <span className="font-headline-md text-headline-md tabular">{rupiah(masuk - keluar)}</span>
+                  </div>
+                  <div className="col-span-2 flex items-center justify-between rounded-xl bg-surface-container-low p-space-sm">
+                    <span className="font-body-sm text-body-sm text-on-surface-variant">Rasio likuiditas terhadap total kewajiban</span>
+                    <span className="font-label-lg text-label-lg text-primary">
+                      {pct(liquidity, app.supplierDebtTotal + legacyOut || 1).toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="col-span-2 flex items-center justify-between rounded-xl bg-surface-container-low p-space-sm">
+                    <span className="font-body-sm text-body-sm text-on-surface-variant">Tgl sistem & jumlah hari transaksi</span>
+                    <span className="font-label-md text-label-md text-primary">{d(TODAY())} • {num(new Set(rows.map((r) => r.date)).size)} hari</span>
+                  </div>
+                </div>
+              );
+            })()}
+          </Card>
+
+          <Card className="flex flex-col gap-space-md p-space-md sm:p-space-lg lg:col-span-5">
             <div className="flex items-start justify-between gap-space-sm">
               <div className="min-w-0">
                 <h3 className="font-headline-md text-headline-md text-primary">Ritase Dump Truck Hari Ini</h3>
@@ -401,7 +439,7 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
-            <div className="mt-space-sm flex items-center justify-between pt-space-xs font-body-sm">
+<div className="mt-space-sm flex items-center justify-between pt-space-xs font-body-sm">
               <Link onClick={() => app.go("surat-jalan")} className="inline-flex items-center gap-0.5 font-label-sm text-label-sm font-bold text-primary hover:underline">
                 Buka Surat Jalan <Icon name="chevron_right" size={14} />
               </Link>
@@ -413,7 +451,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* ---------------- Widget operasional & CRM ---------------- */}
       <section className="grid grid-cols-1 items-start gap-space-lg lg:grid-cols-12">
         <Card className="flex flex-col gap-space-md p-space-md sm:p-space-lg lg:col-span-4">
           <SectionHeading
@@ -488,8 +525,8 @@ export default function Dashboard() {
 
         <Card className="flex flex-col gap-space-md p-space-md sm:p-space-lg lg:col-span-4">
           <SectionHeading icon="history" title="Aktivitas Terbaru Sistem" subtitle="Audit trail transaksi lintas modul" />
-          <div className="flex flex-col divide-y divide-surface-container">
-            {feed.map((f) => (
+          <div className="flex max-h-64 flex-col divide-y divide-surface-container overflow-y-auto rounded-lg">
+            {feed.slice(0, 4).map((f) => (
               <button
                 key={`${f.id}-${f.title}`}
                 type="button"

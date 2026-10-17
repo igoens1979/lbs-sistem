@@ -303,7 +303,7 @@ export function printInvoice(inv: Invoice, ctx: { paid: number; status: string; 
   run(title, body);
 }
 
-export function printCashReport(rows: { name: string; opening: number; masuk: number; keluar: number; balance: number; role: string }[], period: { from: string; to: string }) {
+export function printCashReport(rows: { name: string; opening: number; masuk: number; keluar: number; balance: number; role?: string }[], period: { from: string; to: string }) {
   const body = `
   ${kop("Laporan Arus Kas & Likuiditas", `Periode ${d(parseISO(period.from))} – ${d(parseISO(period.to))}`)}
   <table>
@@ -483,7 +483,7 @@ export function printServiceSchedule(
 }
 /* ---------------------- Kartu Saldo Awal & Roll Forward ---------------------- */
 export function printOpeningBalance(
-  rows: { account: { name: string; code: string; role: string }; opening: number; source: string; fromMonth?: string; explicit: boolean; masuk: number; keluar: number; closing: number; count: number }[],
+  rows: { account: { name: string; code: string; role?: string }; opening: number; source: string; fromMonth?: string; explicit: boolean; masuk: number; keluar: number; closing: number; count: number }[],
   ym: string,
   prevMonth: string,
   log: { id: string; accountId: string; amount: number; by: string; at: string; note: string; type: string }[],
