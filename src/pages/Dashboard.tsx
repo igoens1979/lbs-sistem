@@ -20,7 +20,11 @@ export default function Dashboard() {
     invoiced: prevSJ.filter((r) => r.invoiceId).length,
     invoiceTotal: app.invoices.filter((i) => i.date >= prevFrom && i.date <= prevTo).reduce((s, i) => s + i.total, 0),
   };
-  const delta = (now: number, before: number) => (before > 0 ? ((now - before) / before) * 100 : 0);
+  const delta = (now: number, before: number) => {
+  if (before <= 0) return 0;
+  const d = ((now - before) / before) * 100;
+  return d > 999 ? 999 : d < -999 ? -999 : d;
+};
   const accounts = app.accountsWithBalance;
   const liquidity = accounts.reduce((s, a) => s + a.balance, 0);
   const totalMasuk = accounts.reduce((s, a) => s + a.masuk, 0);
@@ -576,7 +580,7 @@ function KpiTile({
               )}
             >
               <Icon name={delta.value >= 0 ? "trending_up" : "trending_down"} size={12} />
-              {Math.abs(delta.value).toFixed(1)}% {delta.label}
+              {delta.value >= 999 ? ">999" : delta.value <= -999 ? "<-999" : Math.abs(delta.value).toFixed(1)}% {delta.label}
             </span>
           )}
         </div>
