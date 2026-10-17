@@ -3,7 +3,7 @@ import { NAV, routeMeta, type Route } from "@/lib/routes";
 import { roleLabel } from "@/lib/permissions";
 import { useApp } from "@/lib/store";
 import { cn, d, iso, parseISO, rupiah, TODAY } from "@/lib/format";
-import { Button, Icon, IconButton, Pill, statusTone } from "@/components/ui";
+import { Button, Field, Icon, IconButton, Input, Modal, Pill, statusTone } from "@/components/ui";
 
 export function Shell({ children }: { children: ReactNode }) {
   const app = useApp();
@@ -12,6 +12,11 @@ export function Shell({ children }: { children: ReactNode }) {
   const [query, setQuery] = useState("");
   const [notifOpen, setNotifOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const [pwdOpen, setPwdOpen] = useState(false);
+  const [oldPwd, setOldPwd] = useState("");
+  const [newPwd1, setNewPwd1] = useState("");
+  const [newPwd2, setNewPwd2] = useState("");
+  const [savingPwd, setSavingPwd] = useState(false);
 
   const current = routeMeta(app.route);
   const visibleNav = NAV.filter((n) => app.can(n.id, "view"));
@@ -128,11 +133,11 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
           <button
             type="button"
-            onClick={() => app.go("master-data")}
+            onClick={() => { setPwdOpen(true); setDrawer(false); }}
             className="flex items-center justify-between rounded-lg bg-surface px-space-md py-space-sm font-label-lg text-label-lg text-on-surface transition-colors hover:bg-surface-container"
           >
             <span className="flex items-center gap-1.5">
-              <Icon name="manage_accounts" size={18} />
+              <Icon name="key" size={18} />
               Ganti Password
             </span>
             <Icon name="chevron_right" size={16} />
@@ -188,7 +193,7 @@ export function Shell({ children }: { children: ReactNode }) {
                 aria-label="Periode sampai"
               />
             </div>
-            <button type="button" onClick={() => app.go("master-data")} className="inline-flex items-center gap-1.5 rounded-lg bg-surface-container px-3 py-1.5 font-label-md text-label-md hover:bg-surface-container-high">
+            <button type="button" onClick={() => setPwdOpen(true)} className="inline-flex items-center gap-1.5 rounded-lg bg-surface-container px-3 py-1.5 font-label-md text-label-md hover:bg-surface-container-high">
               <Icon name="key" size={16} />
               Ganti Password
             </button>
@@ -360,6 +365,34 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
         </div>
       )}
+      <Modal open={pwdOpen} onClose={() => setPwdOpen(false)} width="max-w-md" title="Ganti Password" footer={
+        <>
+          <Button variant="outline" onClick={() => setPwdOpen(false)}>Batal</Button>
+          <Button icon="key" onClick={async () => {
+            if (newPwd1 !== newPwd2) { app.toast("Konfirmasi password tidak cocok", "Masukkan ulang password baru", "warn"); return; }
+            if (newPwd1.length < 6) { app.toast("Password terlalu pendek", "Minimal 6 karakter", "warn"); return; }
+            setSavingPwd(true);
+            const ok = await app.changeMyPassword(oldPwd, newPwd1);
+            setSavingPwd(false);
+            if (ok) { setPwdOpen(false); setOldPwd(""); setNewPwd1(""); setNewPwd2(""); }
+          }}>Simpan Password</Button>
+        </>
+      }>
+        <div className="flex flex-col gap-space-md">
+          {app.currentAccount?.mustChangePassword && (
+            <div className="rounded-lg bg-amber-50 p-space-sm text-[11px] text-amber-900">Anda masih menggunakan password sementara. Harap ganti dengan password baru.</div>
+          )}
+          <Field label="Password Saat Ini (atau Password Sementara)">
+            <Input type="password" value={oldPwd} onChange={(e) => setOldPwd(e.target.value)} placeholder="Masukkan password saat ini" />
+          </Field>
+          <Field label="Password Baru">
+            <Input type="password" value={newPwd1} onChange={(e) => setNewPwd1(e.target.value)} placeholder="Minimal 6 karakter" />
+          </Field>
+          <Field label="Konfirmasi Password Baru">
+            <Input type="password" value={newPwd2} onChange={(e) => setNewPwd2(e.target.value)} placeholder="Ulangi password baru" />
+          </Field>
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -401,40 +434,42 @@ export function PageBody({ children }: { children: ReactNode }) {
 export function PeriodActions({ onExport, onPrint, extra }: { onExport?: () => void; onPrint?: () => void; extra?: ReactNode }) {
   const app = useApp();
   return (
-    <div className="flex flex-wrap items-center gap-space-sm rounded-xl bg-surface-container-lowest p-space-sm shadow-sm">
-      <div className="flex items-center gap-space-xs rounded-lg bg-surface-container-low px-space-sm py-1.5">
-        <Icon name="calendar_today" size={18} className="text-outline" />
-        <div className="flex flex-col">
-          <span className="font-label-sm text-[10px] uppercase leading-tight text-on-surface-variant">Dari</span>
-          <input
-            type="date"
-            value={app.period.from}
-            onChange={(e) => app.setPeriod({ ...app.period, from: e.target.value })}
-            className="w-[112px] bg-transparent font-label-md text-label-md font-semibold text-on-surface focus:outline-none"
-          />
+    <>
+      <div className="flex flex-wrap items-center gap-space-sm rounded-xl bg-surface-container-lowest p-space-sm shadow-sm">
+        <div className="flex items-center gap-space-xs rounded-lg bg-surface-container-low px-space-sm py-1.5">
+          <Icon name="calendar_today" size={18} className="text-outline" />
+          <div className="flex flex-col">
+            <span className="font-label-sm text-[10px] uppercase leading-tight text-on-surface-variant">Dari</span>
+            <input
+              type="date"
+              value={app.period.from}
+              onChange={(e) => app.setPeriod({ ...app.period, from: e.target.value })}
+              className="w-[112px] bg-transparent font-label-md text-label-md font-semibold text-on-surface focus:outline-none"
+            />
+          </div>
         </div>
-      </div>
-      <div className="flex items-center gap-space-xs rounded-lg bg-surface-container-low px-space-sm py-1.5">
-        <Icon name="calendar_month" size={18} className="text-outline" />
-        <div className="flex flex-col">
-          <span className="font-label-sm text-[10px] uppercase leading-tight text-on-surface-variant">Sampai</span>
-          <input
-            type="date"
-            value={app.period.to}
-            onChange={(e) => app.setPeriod({ ...app.period, to: e.target.value })}
-            className="w-[112px] bg-transparent font-label-md text-label-md font-semibold text-on-surface focus:outline-none"
-          />
+        <div className="flex items-center gap-space-xs rounded-lg bg-surface-container-low px-space-sm py-1.5">
+          <Icon name="calendar_month" size={18} className="text-outline" />
+          <div className="flex flex-col">
+            <span className="font-label-sm text-[10px] uppercase leading-tight text-on-surface-variant">Sampai</span>
+            <input
+              type="date"
+              value={app.period.to}
+              onChange={(e) => app.setPeriod({ ...app.period, to: e.target.value })}
+              className="w-[112px] bg-transparent font-label-md text-label-md font-semibold text-on-surface focus:outline-none"
+            />
+          </div>
         </div>
+        <Button icon="filter_alt" onClick={() => app.toast("Periode laporan diterapkan", `${d(parseISO(app.period.from))} s/d ${d(parseISO(app.period.to))}`, "info")}>
+          Tampilkan Periode
+        </Button>
+        <div className="flex items-center gap-1">
+          <IconButton icon="table_view" title="Export Excel (CSV)" onClick={onExport} className="bg-surface-container hover:bg-surface-container-high" />
+          <IconButton icon="picture_as_pdf" title="Unduh Laporan PDF" onClick={onPrint} className="bg-surface-container hover:bg-surface-container-high" />
+        </div>
+        {extra}
       </div>
-      <Button icon="filter_alt" onClick={() => app.toast("Periode laporan diterapkan", `${d(parseISO(app.period.from))} s/d ${d(parseISO(app.period.to))}`, "info")}>
-        Tampilkan Periode
-      </Button>
-      <div className="flex items-center gap-1">
-        <IconButton icon="table_view" title="Export Excel (CSV)" onClick={onExport} className="bg-surface-container hover:bg-surface-container-high" />
-        <IconButton icon="picture_as_pdf" title="Unduh Laporan PDF" onClick={onPrint} className="bg-surface-container hover:bg-surface-container-high" />
-      </div>
-      {extra}
-    </div>
+    </>
   );
 }
 
