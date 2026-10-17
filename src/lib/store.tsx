@@ -307,6 +307,8 @@ const toUserAccount = (r: DbUser): UserAccount => ({
   lastLogin: r.last_login ?? "",
   note: r.note ?? undefined,
   permissions: r.permissions && Object.keys(r.permissions).length ? r.permissions : rolePermissions(r.role as any),
+  mustChangePassword: (r as any).must_change_password ?? undefined,
+  tempPassword: (r as any).temp_password ?? undefined,
 });
 
 const toEmployee = (r: DbEmployee): Employee => ({
@@ -318,7 +320,7 @@ const toEmployee = (r: DbEmployee): Employee => ({
   joinDate: r.join_date ?? "",
   basic: r.basic,
   allowance: r.allowance,
-  bank: r.bank,
+  bank: (r.bank as "Bank NTT" | "Bank Mandiri" | "BCA") || "Bank NTT",
   status: r.emp_status as any,
   hadir: r.hadir,
   izin: r.izin,
@@ -516,6 +518,8 @@ const dbUser = (u: UserAccount) => ({
   last_login: u.lastLogin,
   note: u.note ?? null,
   permissions: u.permissions,
+  must_change_password: u.mustChangePassword ?? (u.tempPassword ? true : false),
+  temp_password: u.tempPassword ?? undefined,
 });
 
 const dbEmployee = (e: Employee) => ({
@@ -593,7 +597,7 @@ export interface Ctx extends State {
   toasts: Toast[];
   toast: (title: string, detail?: string, tone?: Toast["tone"]) => void;
   dismissToast: (id: number) => void;
-  login: (emailOrUsername: string) => boolean;
+  login: (emailOrUsername: string, password?: string) => boolean;
   logout: () => void;
   currentAccount: UserAccount | null;
   can: (route: Route, action: PermAction) => boolean;
@@ -601,6 +605,8 @@ export interface Ctx extends State {
   removeUser: (id: ID) => Promise<void>;
   setUserStatus: (id: ID, status: UserAccount["status"]) => Promise<void>;
   resetUserPassword: (id: ID) => void;
+  changeMyPassword: (oldPass: string, newPass: string) => Promise<boolean>;
+  setMyPassword: (newPass: string) => Promise<boolean>;
   requestUserForm: (employeeId: string | null) => void;
 
   accountBalance: (id: ID) => number;
@@ -1717,7 +1723,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast("Data dihapus", undefined, "info");
   };
 
-  const login: Ctx["login"] = (emailOrUsername) => {
+  const login: Ctx["login"] = (emailOrUsername, password) => {
     const key = emailOrUsername.trim().toLowerCase();
     const acc = state.users.find((u) => u.email.toLowerCase() === key || u.username.toLowerCase() === key);
     if (!acc) {
@@ -1729,9 +1735,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return false;
     }
     const emp = state.employees.find((e) => e.id === acc.employeeId);
+    if (acc.mustChangePassword) {
+      if (acc.tempPassword && password !== acc.tempPassword) {
+        toast("Password tidak sesuai", "Masukkan password sementara yang diberikan admin atau gunakan demo", "warn");
+        return false;
+      }
+    }
     setState((s) => ({
       ...s,
-      users: s.users.map((u) => (u.id === acc.id ? { ...u, lastLogin: iso(TODAY()) } : u)),
+      users: s.users.map((u) => (u.id === acc.id ? { ...u, lastLogin: iso(TODAY()), mustChangePassword: acc.mustChangePassword && password === acc.tempPassword ? true : u.mustChangePassword } : u)),
       user: {
         name: emp?.name ?? acc.username,
         role: roleLabel(acc.role),
@@ -1740,7 +1752,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         division: emp?.division,
       },
     }));
-    toast(`Selamat datang, ${emp?.name ?? acc.username}`, `${roleLabel(acc.role)} • ${acc.scope} • hak akses diterapkan ke seluruh modul`, "info");
+    if (acc.mustChangePassword) {
+      toast("Wajib ganti password", "Silakan ganti password Anda melalui 'Ganti Password'", "warn");
+    } else {
+      toast(`Selamat datang, ${emp?.name ?? acc.username}`, `${roleLabel(acc.role)} • ${acc.scope} • hak akses diterapkan ke seluruh modul`, "info");
+    }
     return true;
   };
 
@@ -1764,7 +1780,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from("users").upsert([dbUser(user)]);
     setState((s) => {
       const exists = s.users.some((u) => u.id === user.id);
-      return { ...s, users: exists ? s.users.map((u) => (u.id === user.id ? user : u)) : [user, ...s.users] };
+      const nextUser = { ...user };
+      if (exists && user.tempPassword && !s.users.find(u => u.id === user.id)?.tempPassword) {
+        nextUser.mustChangePassword = true;
+      }
+      return { ...s, users: exists ? s.users.map((u) => (u.id === user.id ? nextUser : u)) : [nextUser, ...s.users] };
     });
     toast("Akun pengguna tersimpan", `${user.username} • ${roleLabel(user.role)} • ${user.status}`, "success");
   };
@@ -1792,10 +1812,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast(`Status akun: ${status}`, status === "Aktif" ? "Akses login diaktifkan kembali" : "Pengguna tidak dapat login sampai diaktifkan", status === "Aktif" ? "success" : "warn");
   };
 
-  const resetUserPassword: Ctx["resetUserPassword"] = (id) => {
+  const resetUserPassword: Ctx["resetUserPassword"] = (id: ID) => {
     const target = state.users.find((u) => u.id === id);
     const temp = `LBS-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${Math.floor(Math.random() * 90 + 10)}`;
-    toast("Kata sandi direset", `${target?.email ?? "pengguna"} • sandi sementara ${temp} (kirim via email korporat)`, "info");
+    setState((s) => ({
+      ...s,
+      users: s.users.map((u) => (u.id === id ? { ...u, tempPassword: temp, mustChangePassword: true } : u)),
+    }));
+    toast("Kata sandi direset", `${target?.email ?? "pengguna"} • sandi sementara ${temp} (salin & kirim ke email aktif karyawan)`, "info");
+  };
+
+  const changeMyPassword: Ctx["changeMyPassword"] = async (oldPass, newPass) => {
+    if (!state.user) return false;
+    if (newPass.length < 6) {
+      toast("Password terlalu pendek", "Minimal 6 karakter", "warn");
+      return false;
+    }
+    const acc = state.users.find((u) => u.id === state.user!.accountId);
+    if (acc?.mustChangePassword && acc.tempPassword && acc.tempPassword !== oldPass) {
+      toast("Password sementara tidak sesuai", "Periksa kembali password sementara yang diberikan", "warn");
+      return false;
+    }
+    setState((s) => ({
+      ...s,
+      users: s.users.map((u) =>
+        u.id === state.user!.accountId ? { ...u, tempPassword: undefined, mustChangePassword: false } : u,
+      ),
+    }));
+    toast("Password berhasil diubah", undefined, "success");
+    return true;
+  };
+
+  const setMyPassword: Ctx["setMyPassword"] = async (newPass) => {
+    if (newPass.length < 6) { toast("Password terlalu pendek", "Minimal 6 karakter", "warn"); return false; }
+    setState((s) => ({
+      ...s,
+      users: s.users.map((u) => (u.id === state.user!.accountId ? { ...u, tempPassword: undefined, mustChangePassword: false } : u)),
+    }));
+    toast("Password berhasil diubah", undefined, "success");
+    return true;
   };
 
   const requestUserForm: Ctx["requestUserForm"] = (employeeId) => {
@@ -1811,6 +1866,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     removeUser,
     setUserStatus,
     resetUserPassword,
+    changeMyPassword,
+    setMyPassword,
     requestUserForm,
     route,
     go,

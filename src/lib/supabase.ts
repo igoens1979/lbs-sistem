@@ -205,6 +205,9 @@ export type DbUser = {
   last_login: string | null;
   note: string | null;
   permissions: any;
+  password_hash?: string | null;
+  must_change_password?: boolean | null;
+  temp_password?: string | null;
   created_at: string;
 };
 

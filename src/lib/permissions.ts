@@ -41,11 +41,13 @@ export interface UserAccount {
   email: string;
   role: UserRoleId;
   status: "Aktif" | "Nonaktif" | "Ditangguhkan";
-  scope: "Semua Site" | "Site Golo Mori" | "Labuan Bajo" | "Kantor Pusat";
+  scope: "Semua Site" | "Site Golo Mori" | "Labuan Bajo" | "Kantor Pusat" | "Head Office";
   createdAt: string;
   lastLogin: string;
   note?: string;
   permissions: ModulePermissions;
+  mustChangePassword?: boolean;
+  tempPassword?: string;
 }
 
 /* ---------------- Builder & template peran ---------------- */
@@ -149,7 +151,9 @@ export function permissionSummary(p: ModulePermissions) {
 }
 
 export function employeeOf(employeeId: string) {
-  return EMPLOYEES.find((e) => e.id === employeeId);
+  if (!employeeId) return undefined;
+  const list = (typeof EMPLOYEES !== "undefined" && EMPLOYEES.length) ? EMPLOYEES : [];
+  return list.find((e) => e.id === employeeId);
 }
 
 /* ---------------- Data awal akun pengguna ---------------- */

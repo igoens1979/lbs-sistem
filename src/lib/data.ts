@@ -185,7 +185,7 @@ export interface LegacyDebt {
   kreditur: string;
 }
 export interface Employee {
-  id: ID;
+  id: string;
   code: string;
   name: string;
   role: "Driver" | "Staff" | "Supervisor" | "Manajemen" | "Security";
@@ -193,11 +193,12 @@ export interface Employee {
   joinDate: string;
   basic: number;
   allowance: number;
-  bank: string;
+  bank: "Bank NTT" | "Bank Mandiri" | "BCA";
   status: "Aktif" | "Cuti" | "Resign";
   hadir: number;
   izin: number;
   alpha: number;
+  email?: string;
 }
 export interface PayrollRun {
   id: ID;
@@ -539,6 +540,7 @@ export const EMPLOYEES: Employee[] = (() => {
     ["Rudolf Nahak", "Security", "Keamanan Stockpile", 3_950_000],
   ] as const;
   staff.forEach(([name, role, division, basic], i) => {
+    const usernameBase = name.split(" ")[0].toLowerCase().replace(/\s+/g, "");
     list.push({
       id: `E-${String(DRIVERS.length + i + 1).padStart(3, "0")}`,
       code: `${division.split(" ")[0].slice(0, 3).toUpperCase()}-${String(i + 1).padStart(3, "0")}`,
@@ -553,6 +555,7 @@ export const EMPLOYEES: Employee[] = (() => {
       hadir: 24 - (i % 2),
       izin: i % 2,
       alpha: 0,
+      email: usernameBase ? `${usernameBase}@lbs-group.co.id` : "",
     });
   });
   return list;

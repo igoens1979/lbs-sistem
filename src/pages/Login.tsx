@@ -67,7 +67,7 @@ export default function Login() {
             className="mt-space-lg flex flex-col gap-space-md"
             onSubmit={(e) => {
               e.preventDefault();
-              app.login(email);
+              app.login(email, password);
             }}
           >
             <Field label="Email / Username Korporat" hint="Contoh: gunawan.s@lbs-group.co.id atau paulus.aran">
@@ -110,7 +110,7 @@ export default function Login() {
                   <button
                     key={u.id}
                     type="button"
-                    onClick={() => app.login(u.email)}
+                    onClick={() => app.login(u.email, u.tempPassword)}
                     className={cn(
                       "flex items-center gap-space-sm rounded-xl p-space-sm text-left transition-colors",
                       aktif ? "bg-surface-container-low hover:bg-surface-container" : "bg-error-container/40 hover:bg-error-container/70",

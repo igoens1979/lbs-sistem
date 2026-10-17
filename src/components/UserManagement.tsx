@@ -55,7 +55,7 @@ export function UserForm({ draft, onSave, onClose, canEdit }: { draft: UserAccou
       <div className="flex flex-col gap-space-lg">
         <div className="grid grid-cols-1 gap-space-md sm:grid-cols-2">
           <Field label="Karyawan Terhubung" className="sm:col-span-2">
-            <Select value={form.employeeId} onChange={(e) => { const eid = e.target.value; const emp2 = employeeOf(eid); const baseUser = emp2?.name.split(" ")[0].toLowerCase() ?? ""; setForm(f => ({ ...f, employeeId: eid, username: baseUser || f.username, email: baseUser ? `${baseUser}@lbs-group.co.id` : f.email })); }} disabled={!canEdit}>
+            <Select value={form.employeeId} onChange={(e) => { const eid = e.target.value; const emp2 = employeeOf(eid); const baseUser = emp2?.name.split(" ")[0].toLowerCase().replace(/\s+/g,"") ?? ""; const emailBase = emp2?.email ?? (baseUser ? `${baseUser}@lbs-group.co.id` : form.email); setForm(f => ({ ...f, employeeId: eid, username: baseUser || f.username, email: emailBase.toLowerCase() })); }} disabled={!canEdit}>
               <option value="">- Pilih karyawan -</option>
               {app.employees.filter(e => e.status !== "Resign").sort((a,b) => a.name.localeCompare(b.name)).map(e => <option key={e.id} value={e.id}>{e.name} - {e.division} ({e.role})</option>)}
             </Select>
@@ -78,11 +78,20 @@ export function UserForm({ draft, onSave, onClose, canEdit }: { draft: UserAccou
             <Select value={form.scope} onChange={(e) => setForm({ ...form, scope: e.target.value as UserAccount["scope"] })} disabled={!canEdit}>
               <option value="Site Golo Mori">Site Golo Mori</option>
               <option value="Head Office">Head Office</option>
-              <option value="Seluruh Operasional">Seluruh Operasional</option>
+              <option value="Kantor Pusat">Kantor Pusat</option>
               <option value="Labuan Bajo">Labuan Bajo</option>
               <option value="Semua Site">Semua Site</option>
             </Select>
           </Field>
+          {(draft.tempPassword || form.tempPassword) && (
+            <Field label="Kata Sandi Sementara" className="sm:col-span-2" hint="Bagikan ke karyawan sekali saja — wajib diganti saat login.">
+              <div className="flex items-center gap-space-sm">
+                <Input readOnly value={form.tempPassword || draft.tempPassword || ""} />
+                <Button variant="secondary" size="sm" onClick={() => navigator.clipboard?.writeText(form.tempPassword || draft.tempPassword || "")}>Salin</Button>
+                <Button variant="secondary" size="sm" onClick={() => { const p = `LBS-${Math.random().toString(36).slice(2, 8).toUpperCase()}-${Math.floor(Math.random()*90+10)}`; setForm(f => ({ ...f, tempPassword: p, mustChangePassword: true })); }}>Generate Ulang</Button>
+              </div>
+            </Field>
+          )}
         </div>
         <div className="overflow-x-auto rounded-lg bg-surface-container-low">
           <table className="w-full border-collapse text-left">
@@ -130,19 +139,23 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
   const [draft, setDraft] = useState<UserAccount | null>(null);
   const [matrixOpen, setMatrixOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<UserAccount | null>(null);
+  const [tempPwd, setTempPwd] = useState<{ id: string; pwd: string; email: string } | null>(null);
 
   const canCreate = app.can("master-data", "create");
   const canEdit = app.can("master-data", "edit");
   const canDelete = app.can("master-data", "delete");
 
+  const genPwd = () => `LBS-${Math.random().toString(36).slice(2, 8).toUpperCase()}-${Math.floor(Math.random() * 90 + 10)}`;
+
   const blankAccount = (employeeId = ""): UserAccount => {
     const emp = employeeOf(employeeId);
-    const user = emp?.name.split(" ")[0].toLowerCase() ?? "";
+    const user = emp?.name.split(" ")[0].toLowerCase().replace(/\s+/g,"") ?? "";
+    const email = emp?.email ?? (user ? `${user}@lbs-group.co.id` : "");
     return {
       id: `U-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
       employeeId,
       username: user,
-      email: user ? `${user}@lbs-group.co.id` : "",
+      email: email.toLowerCase(),
       role: "viewer",
       status: "Aktif",
       scope: "Site Golo Mori",
@@ -150,6 +163,8 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
       lastLogin: "-",
       note: "",
       permissions: rolePermissions("viewer"),
+      tempPassword: genPwd(),
+      mustChangePassword: true,
     };
   };
 
@@ -235,6 +250,7 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
                       <span className="flex flex-col">
                         <span className="font-label-md text-label-md font-semibold text-primary">{emp?.name ?? "Tanpa data karyawan"}{account && <Pill tone="amberSoft" className="ml-2">Sesi Anda</Pill>}</span>
                         <span className="text-[11px] text-on-surface-variant">{emp?.code ?? "-"} - {emp?.division ?? "-"} - {emp?.role ?? "-"}</span>
+                        {u.tempPassword && <span className="text-[10px] text-secondary">Ada password sementara (wajib diganti)</span>}
                       </span>
                     </div>
                   </Td>
@@ -259,7 +275,21 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
           </tbody>
         </table>
       </div>
-      {draft && <UserForm draft={draft} onClose={() => setDraft(null)} onSave={(u) => { app.saveUser(u); setDraft(null); }} canEdit={canEdit || canCreate} />}
+      {draft && <UserForm draft={draft} onClose={() => setDraft(null)} onSave={(u) => { app.saveUser(u); const isNew = !app.users.some(x => x.id === u.id); const pwd = u.tempPassword || draft.tempPassword; if (isNew && pwd) { setTempPwd({ id: u.id, pwd, email: u.email }); } setDraft(null); }} canEdit={canEdit || canCreate} />}
+      {tempPwd && (
+        <Modal open onClose={() => setTempPwd(null)} title="Kata Sandi Sementara Dibuat" subtitle="Salin dan kirim ke email karyawan. Wajib diganti saat login pertama." footer={<Button onClick={() => setTempPwd(null)}>Tutup</Button>}>
+          <div className="flex flex-col gap-space-md">
+            <Field label="Email Tujuan"><Input readOnly value={tempPwd.email} /></Field>
+            <Field label="Kata Sandi Sementara">
+              <div className="flex items-center gap-space-sm">
+                <Input readOnly value={tempPwd.pwd} />
+                <Button variant="secondary" onClick={() => navigator.clipboard?.writeText(tempPwd.pwd)}>Salin</Button>
+              </div>
+            </Field>
+            <p className="text-[11px] text-on-surface-variant">Password ini hanya ditampilkan sekali saat dibuat. Disarankan untuk tidak menyimpannya di tempat umum.</p>
+          </div>
+        </Modal>
+      )}
       <Modal open={matrixOpen} onClose={() => setMatrixOpen(false)} width="max-w-[1000px]" title="Matriks Hak Akses Pengguna" footer={<Button variant="outline" onClick={() => setMatrixOpen(false)}>Tutup</Button>}>
         <div className="overflow-x-auto rounded-lg bg-surface-container-low">
           <table className="w-full border-collapse text-left">

@@ -147,8 +147,8 @@ export default function Hrd() {
                             {e.name.split(" ").slice(0, 2).map((w) => w[0]).join("")}
                           </span>
                           <span className="flex flex-col">
-                            <span className="font-label-md text-label-md font-semibold text-primary">{e.name}</span>
-                            <span className="text-[11px] text-on-surface-variant">{e.code} • {e.bank}</span>
+                           <span className="font-label-md text-label-md font-semibold text-primary">{e.name}</span>
+                           <span className="text-[11px] text-on-surface-variant">{e.code}</span>
                           </span>
                         </div>
                       </Td>

@@ -70,6 +70,7 @@ const SCHEMAS: Record<CollectionKey, FieldDef[]> = {
     { key: "code", label: "NIK Internal" },
     { key: "role", label: "Jabatan", type: "select", options: ["Driver", "Staff", "Supervisor", "Manajemen", "Security"] },
     { key: "division", label: "Divisi" },
+    { key: "joinDate", label: "Tanggal Bergabung", type: "date" },
     { key: "basic", label: "Gaji Pokok (Rp)", type: "number" },
     { key: "allowance", label: "Tunjangan (Rp)", type: "number" },
     { key: "bank", label: "Bank Payroll", type: "select", options: ["Bank NTT", "Bank Mandiri", "BCA"] },
@@ -106,6 +107,10 @@ export default function MasterData() {
   const blank = (): Record<string, unknown> => {
     const base: Record<string, unknown> = { id: `${collection.slice(0, 3).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}` };
     schema.forEach((f) => {
+      if (f.key === "joinDate") {
+        base[f.key] = iso(TODAY());
+        return;
+      }
       base[f.key] = f.type === "number" ? 0 : f.type === "date" ? iso(TODAY()) : f.options ? f.options[0] : "";
     });
     return base;
@@ -451,7 +456,7 @@ function renderCells(tab: CollectionKey, row: Record<string, unknown>, app: Retu
         <>
           <Td>
             <span className="font-label-md text-label-md font-semibold text-primary">{e.name}</span>
-            <span className="block text-[11px] text-on-surface-variant">{e.code} • gabung {d(parseISO(e.joinDate))}</span>
+            <span className="block text-[11px] text-on-surface-variant">{e.code} • gabung {e.joinDate ? d(parseISO(e.joinDate)) : "-"}</span>
           </Td>
           <Td>{e.role}</Td>
           <Td>{e.division}</Td>

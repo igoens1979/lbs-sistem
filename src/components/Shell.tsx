@@ -128,6 +128,17 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
           <button
             type="button"
+            onClick={() => app.go("master-data")}
+            className="flex items-center justify-between rounded-lg bg-surface px-space-md py-space-sm font-label-lg text-label-lg text-on-surface transition-colors hover:bg-surface-container"
+          >
+            <span className="flex items-center gap-1.5">
+              <Icon name="manage_accounts" size={18} />
+              Ganti Password
+            </span>
+            <Icon name="chevron_right" size={16} />
+          </button>
+          <button
+            type="button"
             onClick={app.logout}
             className="flex items-center justify-between rounded-lg bg-secondary-container px-space-md py-space-sm font-label-lg text-label-lg text-on-secondary-fixed transition-colors hover:bg-secondary-fixed-dim"
           >
@@ -176,8 +187,11 @@ export function Shell({ children }: { children: ReactNode }) {
                 className="w-[112px] bg-transparent font-label-md text-label-md text-on-surface outline-none"
                 aria-label="Periode sampai"
               />
-              <IconButton icon="refresh" size={16} title="Reset ke periode berjalan" onClick={() => app.setPeriod({ from: "2026-10-01", to: iso(TODAY()) })} />
             </div>
+            <button type="button" onClick={() => app.go("master-data")} className="inline-flex items-center gap-1.5 rounded-lg bg-surface-container px-3 py-1.5 font-label-md text-label-md hover:bg-surface-container-high">
+              <Icon name="key" size={16} />
+              Ganti Password
+            </button>
 
             <div className="hidden items-center gap-space-xs rounded-full border border-surface-variant bg-surface-container px-3 py-1 md:flex">
               <span className="h-2 w-2 animate-pulse rounded-full bg-secondary" />
