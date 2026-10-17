@@ -101,9 +101,9 @@ const VEHICLES = [
   { id: "V-014", plate: "DH 9002 WL", model: "XCMG ZL50GN", type: "Wheel Loader", capacity: 0, status: "Aktif", odometer: 9315, lastServiceOdometer: 8900, serviceIntervalKm: 500, lastServiceDate: "2026-09-02" }
 ];
 const ACCOUNTS = [
-  { id: "A-001", code: "1-1101", name: "Bank BCA (822-0199)", bank: "BCA", accountNo: "822-0199-3000", opening: 21e7, type: "Bank", role: "Operasional Induk Holding", isOperational: true },
-  { id: "A-002", code: "1-1102", name: "Bank MANDIRI (142-00)", bank: "Mandiri", accountNo: "181-00-7788787-6", opening: 12e7, type: "Bank", role: "BBM Lapangan & Armada", isOperational: true },
-  { id: "A-003", code: "1-1201", name: "Kas Operasional Lapangan", bank: "Tunai", accountNo: "PC-GOLOMORI-01", opening: 25e6, type: "Kas", role: "Petty Cash Kasir Terminal", isOperational: true }
+  { id: "A-002", code: "1-1102", name: "Bank MANDIRI", bank: "Mandiri", accountNo: "181-00-7788787-6", opening: 12e7, type: "Bank", isOperational: true },
+  { id: "A-001", code: "1-1101", name: "Bank BCA", bank: "BCA", accountNo: "822-0199-3000", opening: 21e7, type: "Bank", isOperational: true },
+  { id: "A-003", code: "1-1201", name: "Kas Operasional Lapangan", bank: "Tunai", accountNo: "PC-GOLOMORI-01", opening: 25e6, type: "Kas", role: "Petty Cash", isOperational: true }
 ];
 const rand = mulberry32(27102026);
 const pick = (arr) => arr[Math.floor(rand() * arr.length)];

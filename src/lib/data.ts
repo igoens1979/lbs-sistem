@@ -286,9 +286,9 @@ export const VEHICLES: Vehicle[] = [
 ];
 
 export const ACCOUNTS: Account[] = [
-  { id: "A-001", code: "1-1101", name: "Bank BCA (822-0199)", bank: "BCA", accountNo: "822-0199-3000", opening: 210_000_000, type: "Bank", role: "Operasional Induk Holding", isOperational: true },
-  { id: "A-002", code: "1-1102", name: "Bank MANDIRI (142-00)", bank: "Mandiri", accountNo: "181-00-7788787-6", opening: 120_000_000, type: "Bank", role: "BBM Lapangan & Armada", isOperational: true },
-  { id: "A-003", code: "1-1201", name: "Kas Operasional Lapangan", bank: "Tunai", accountNo: "PC-GOLOMORI-01", opening: 25_000_000, type: "Kas", role: "Petty Cash Kasir Terminal", isOperational: true },
+  { id: "A-002", code: "1-1102", name: "Bank MANDIRI", bank: "Mandiri", accountNo: "181-00-7788787-6", opening: 120_000_000, type: "Bank", isOperational: true },
+  { id: "A-001", code: "1-1101", name: "Bank BCA", bank: "BCA", accountNo: "822-0199-3000", opening: 210_000_000, type: "Bank", isOperational: true },
+  { id: "A-003", code: "1-1201", name: "Kas Operasional Lapangan", bank: "Tunai", accountNo: "PC-GOLOMORI-01", opening: 25_000_000, type: "Kas", role: "Petty Cash", isOperational: true },
 ];
 
 /* ---------------------- Seeded transactional data ---------------------- */
