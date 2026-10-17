@@ -106,7 +106,7 @@ export default function MasterData() {
   const blank = (): Record<string, unknown> => {
     const base: Record<string, unknown> = { id: `${collection.slice(0, 3).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}` };
     schema.forEach((f) => {
-      base[f.key] = f.type === "number" ? 0 : f.type === "date" ? iso(TODAY) : f.options ? f.options[0] : "";
+      base[f.key] = f.type === "number" ? 0 : f.type === "date" ? iso(TODAY()) : f.options ? f.options[0] : "";
     });
     return base;
   };
@@ -218,7 +218,7 @@ export default function MasterData() {
         {!isUsersTab && (
           <div className="flex flex-wrap items-center justify-between gap-space-sm rounded-lg bg-surface-container-low px-space-sm py-2">
             <span className="font-body-sm text-body-sm text-on-surface-variant">
-              Perubahan master data tercatat pada audit trail LBS System 1.0 • update terakhir {d(TODAY)} • Anda masuk sebagai{" "}
+              Perubahan master data tercatat pada audit trail LBS System 1.0 • update terakhir {d(TODAY())} • Anda masuk sebagai{" "}
               {app.currentAccount ? roleLabel(app.currentAccount.role) : "-"}
             </span>
             <span className="flex gap-2">
@@ -504,3 +504,4 @@ function renderCells(tab: CollectionKey, row: Record<string, unknown>, app: Retu
     }
   }
 }
+

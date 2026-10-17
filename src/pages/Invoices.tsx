@@ -29,7 +29,7 @@ export default function Invoices() {
         if (scope === "periode" && (i.date < app.period.from || i.date > app.period.to)) return false;
         if (customerId !== "all" && i.customerId !== customerId) return false;
         const due = app.outstandingOf(i);
-        const late = daysBetween(new Date(i.dueDate), TODAY) > 0;
+        const late = daysBetween(new Date(i.dueDate), TODAY()) > 0;
         if (filter === "open" && due <= 0) return false;
         if (filter === "overdue" && !(due > 0 && late)) return false;
         if (filter === "paid" && due > 0) return false;
@@ -46,7 +46,7 @@ export default function Invoices() {
   const stats = useMemo(() => {
     const inPeriod = app.invoices.filter((i) => i.date >= app.period.from && i.date <= app.period.to);
     const received = app.payments.filter((p) => p.date >= app.period.from && p.date <= app.period.to).reduce((s, p) => s + p.amount, 0);
-    const overdue = app.invoices.filter((i) => app.outstandingOf(i) > 0 && daysBetween(new Date(i.dueDate), TODAY) > 0);
+    const overdue = app.invoices.filter((i) => app.outstandingOf(i) > 0 && daysBetween(new Date(i.dueDate), TODAY()) > 0);
     return {
       issued: inPeriod.reduce((s, i) => s + i.total, 0),
       count: inPeriod.length,
@@ -177,7 +177,7 @@ export default function Invoices() {
                 {rows.slice(0, 20).map((i) => {
                   const due = app.outstandingOf(i);
                   const paid = app.paidOf(i.id);
-                  const late = daysBetween(new Date(i.dueDate), TODAY);
+                  const late = daysBetween(new Date(i.dueDate), TODAY());
                   const isPartiallyPaid = paid > 0 && due > 0;
                   return (
                     <tr key={i.id} className="transition-colors hover:bg-surface-container-lowest/60">
@@ -293,7 +293,7 @@ export default function Invoices() {
             <SectionHeading icon="notifications_active" title="Prioritas Penagihan" subtitle="Invoice lewat jatuh tempo diurutkan dari yang terbesar" />
             <div className="flex flex-col gap-space-sm">
               {app.invoices
-                .filter((i) => app.outstandingOf(i) > 0 && daysBetween(new Date(i.dueDate), TODAY) > 0)
+                .filter((i) => app.outstandingOf(i) > 0 && daysBetween(new Date(i.dueDate), TODAY()) > 0)
                 .sort((a, b) => app.outstandingOf(b) - app.outstandingOf(a))
                 .slice(0, 5)
                 .map((i) => (
@@ -303,11 +303,11 @@ export default function Invoices() {
                       <span className="font-mono font-bold text-error">{rupiahShort(app.outstandingOf(i))}</span>
                     </span>
                     <span className="font-body-sm text-body-sm text-on-error-container">
-                      {app.customers.find((c) => c.id === i.customerId)?.name} • lewat {daysBetween(new Date(i.dueDate), TODAY)} hari
+                      {app.customers.find((c) => c.id === i.customerId)?.name} • lewat {daysBetween(new Date(i.dueDate), TODAY())} hari
                     </span>
                   </button>
                 ))}
-              {app.invoices.filter((i) => app.outstandingOf(i) > 0 && daysBetween(new Date(i.dueDate), TODAY) > 0).length === 0 && (
+              {app.invoices.filter((i) => app.outstandingOf(i) > 0 && daysBetween(new Date(i.dueDate), TODAY()) > 0).length === 0 && (
                 <p className="rounded-lg bg-success-container p-space-sm font-body-sm text-body-sm text-success">Tidak ada invoice lewat jatuh tempo. Kinerja penagihan sangat baik.</p>
               )}
             </div>
@@ -332,7 +332,7 @@ export default function Invoices() {
             <div className="rounded-lg bg-surface-container-low p-space-sm">
               <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Rekomendasi Sistem</span>
               <p className="font-body-sm text-body-sm text-on-surface">
-                Kirim surat penagihan otomatis ke {new Set(app.invoices.filter((i) => app.outstandingOf(i) > 0 && daysBetween(new Date(i.dueDate), TODAY) > 0).map((i) => i.customerId)).size} pelanggan
+                Kirim surat penagihan otomatis ke {new Set(app.invoices.filter((i) => app.outstandingOf(i) > 0 && daysBetween(new Date(i.dueDate), TODAY()) > 0).map((i) => i.customerId)).size} pelanggan
                 dengan total piutang {rupiah(stats.overdueValue)}.
               </p>
               <div className="mt-space-sm">
@@ -661,8 +661,8 @@ function InvoiceDetail({ invoice }: { invoice: Invoice }) {
       <div className="flex items-center gap-2">
         <Pill tone="outline">Termin {app.customers.find((c) => c.id === invoice.customerId)?.term} hari</Pill>
         <Pill tone="outline">Terbit {d(parseISO(invoice.date))}</Pill>
-        <Pill tone={daysBetween(new Date(invoice.dueDate), TODAY) > 0 && due > 0 ? "error" : "neutral"}>
-          {daysBetween(new Date(invoice.dueDate), TODAY) > 0 ? `${daysBetween(new Date(invoice.dueDate), TODAY)} hari lewat tempo` : `Jatuh tempo ${d(parseISO(invoice.dueDate))}`}
+        <Pill tone={daysBetween(new Date(invoice.dueDate), TODAY()) > 0 && due > 0 ? "error" : "neutral"}>
+          {daysBetween(new Date(invoice.dueDate), TODAY()) > 0 ? `${daysBetween(new Date(invoice.dueDate), TODAY())} hari lewat tempo` : `Jatuh tempo ${d(parseISO(invoice.dueDate))}`}
         </Pill>
       </div>
     </div>
@@ -683,7 +683,7 @@ function PaymentModal({
   const [amount, setAmount] = useState(due);
   const [accountId, setAccountId] = useState("A-001");
   const [method, setMethod] = useState<"Transfer" | "Tunai" | "Giro">("Transfer");
-  const [date, setDate] = useState(iso(TODAY));
+  const [date, setDate] = useState(iso(TODAY()));
   const [ref, setRef] = useState(`TRF/${invoice.no}/PT`);
 
   return (
@@ -1123,7 +1123,7 @@ function CarryForwardModal({ invoice, onClose }: { invoice: Invoice; onClose: ()
   const paid = app.paidOf(invoice.id);
   const outstanding = app.outstandingOf(invoice);
   const [ids, setIds] = useState<string[]>([]);
-  const [date, setDate] = useState(iso(TODAY));
+  const [date, setDate] = useState(iso(TODAY()));
   const [term, setTerm] = useState(app.customers.find((c) => c.id === invoice.customerId)?.term ?? 30);
   const [note, setNote] = useState("");
   const [ppnPct, setPpnPct] = useState(Number(((invoice.ppnRate ?? app.tax.ppnRate) * 100).toFixed(2)));
@@ -1292,3 +1292,4 @@ function CarryForwardModal({ invoice, onClose }: { invoice: Invoice; onClose: ()
     </Modal>
   );
 }
+

@@ -19,7 +19,7 @@ const [openBalOpen, setOpenBalOpen] = useState(false);
 const [firstTimeOpen, setFirstTimeOpen] = useState(false);
 const [exportOpen, setExportOpen] = useState(false);
 const [exportAccountId, setExportAccountId] = useState<"all" | string>("all");
-const [saldoYm, setSaldoYm] = useState(monthKey(iso(TODAY)));
+const [saldoYm, setSaldoYm] = useState(monthKey(iso(TODAY())));
 const canCreate = app.can("kas-bank", "create");
 const canEdit = app.can("kas-bank", "edit");
 
@@ -371,7 +371,7 @@ const canEdit = app.can("kas-bank", "edit");
                   </div>
                   <div className="col-span-2 flex items-center justify-between rounded-xl bg-surface-container-low p-space-sm">
                     <span className="font-body-sm text-body-sm text-on-surface-variant">Tgl sistem & jumlah hari transaksi</span>
-                    <span className="font-label-md text-label-md text-primary">{d(TODAY)} • {num(new Set(rows.map((r) => r.date)).size)} hari</span>
+                    <span className="font-label-md text-label-md text-primary">{d(TODAY())} • {num(new Set(rows.map((r) => r.date)).size)} hari</span>
                   </div>
                 </div>
               );
@@ -391,7 +391,7 @@ const canEdit = app.can("kas-bank", "edit");
 
 function TxModal({ onClose }: { onClose: () => void }) {
   const app = useApp();
-  const [form, setForm] = useState({ accountId: "A-002", direction: "out" as "in" | "out", amount: 5_000_000, date: iso(TODAY), desc: "", category: "Operasional Site", allocation: "LBS" as "LBS" | "KMS" | undefined });
+  const [form, setForm] = useState({ accountId: "A-002", direction: "out" as "in" | "out", amount: 5_000_000, date: iso(TODAY()), desc: "", category: "Operasional Site", allocation: "LBS" as "LBS" | "KMS" | undefined });
 
   return (
     <Modal
@@ -961,3 +961,4 @@ function OpeningBalanceModal({ ym, firstTime = false, onClose }: { ym: string; f
     </Modal>
   );
 }
+

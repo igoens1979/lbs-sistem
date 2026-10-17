@@ -20,7 +20,7 @@ export default function HutangPiutang() {
         .map((c) => {
           const invoices = app.invoices.filter((i) => i.customerId === c.id);
           const open = invoices
-            .map((i) => ({ inv: i, due: app.outstandingOf(i), late: daysBetween(new Date(i.dueDate), TODAY) }))
+            .map((i) => ({ inv: i, due: app.outstandingOf(i), late: daysBetween(new Date(i.dueDate), TODAY()) }))
             .filter((x) => x.due > 0)
             .sort((a, b) => b.late - a.late);
           const outstanding = open.reduce((s, x) => s + x.due, 0);
@@ -405,7 +405,7 @@ export default function HutangPiutang() {
                 {(() => {
                   const open = app.invoices.filter((i) => app.outstandingOf(i) > 0);
                   if (!open.length) return "0 hari";
-                  const avg = open.reduce((s, i) => s + Math.max(0, daysBetween(parseISO(i.date), TODAY)), 0) / open.length;
+                  const avg = open.reduce((s, i) => s + Math.max(0, daysBetween(parseISO(i.date), TODAY())), 0) / open.length;
                   return `${avg.toFixed(0)} hari dari tanggal invoice`;
                 })()}
               </span>
@@ -417,7 +417,7 @@ export default function HutangPiutang() {
             <div className="flex flex-col gap-space-sm">
               {app.invoices
                 .filter((i) => app.outstandingOf(i) > 0)
-                .map((i) => ({ i, late: daysBetween(new Date(i.dueDate), TODAY), due: app.outstandingOf(i) }))
+                .map((i) => ({ i, late: daysBetween(new Date(i.dueDate), TODAY()), due: app.outstandingOf(i) }))
                 .sort((a, b) => b.late - a.late || b.due - a.due)
                 .slice(0, 6)
                 .map(({ i, late, due }) => (
@@ -497,7 +497,7 @@ function ReceivePaymentModal({ customerId, invoices, onClose }: { customerId: st
   const [amount, setAmount] = useState(due);
   const [accountId, setAccountId] = useState("A-001");
   const [method, setMethod] = useState<"Transfer" | "Tunai" | "Giro">("Transfer");
-  const [date, setDate] = useState(iso(TODAY));
+  const [date, setDate] = useState(iso(TODAY()));
 
   return (
     <Modal
@@ -550,7 +550,7 @@ function ReceivePaymentModal({ customerId, invoices, onClose }: { customerId: st
             </thead>
             <tbody className="divide-y divide-surface-container font-body-sm text-body-sm">
               {sorted.map((i) => {
-                const late = daysBetween(new Date(i.dueDate), TODAY);
+                const late = daysBetween(new Date(i.dueDate), TODAY());
                 return (
                   <tr key={i.id} className={cn("cursor-pointer", invoiceId === i.id && "bg-secondary-fixed/40")} onClick={() => { setInvoiceId(i.id); setAmount(app.outstandingOf(i)); }}>
                     <Td align="center">
@@ -607,3 +607,4 @@ function ReceivePaymentModal({ customerId, invoices, onClose }: { customerId: st
     </Modal>
   );
 }
+

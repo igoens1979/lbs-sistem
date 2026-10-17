@@ -42,7 +42,7 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
       role: "viewer",
       status: "Aktif",
       scope: "Site Golo Mori",
-      createdAt: iso(TODAY),
+      createdAt: iso(TODAY()),
       lastLogin: "-",
       note: "",
       permissions: rolePermissions("viewer"),
@@ -663,3 +663,4 @@ function UserForm({ draft, onSave, onClose, canEdit }: { draft: UserAccount; onS
     </Modal>
   );
 }
+

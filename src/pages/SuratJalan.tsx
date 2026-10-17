@@ -443,7 +443,7 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
   const app = useApp();
   const [form, setForm] = useState({
     no: "",
-    date: iso(TODAY),
+    date: iso(TODAY()),
     customerId: app.customers[0]?.id ?? "",
     commodityId: app.commodities[0]?.id ?? "",
     volume: 5,
@@ -590,3 +590,4 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
     </Modal>
   );
 }
+

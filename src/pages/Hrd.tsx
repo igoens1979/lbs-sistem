@@ -268,8 +268,8 @@ export default function Hrd() {
             <div className="flex items-start justify-between">
               <div>
                 <span className="font-label-sm text-label-sm uppercase tracking-wider text-primary-fixed-dim">Payroll Berikutnya</span>
-                <p className="mt-1 font-headline-md text-headline-md">{monthLabel(TODAY)}</p>
-                <p className="font-body-sm text-body-sm text-primary-fixed-dim">Jadwal bayar 28 {monthLabel(TODAY)}</p>
+                <p className="mt-1 font-headline-md text-headline-md">{monthLabel(TODAY())}</p>
+                <p className="font-body-sm text-body-sm text-primary-fixed-dim">Jadwal bayar 28 {monthLabel(TODAY())}</p>
               </div>
               <Icon name="calendar_month" size={26} className="text-secondary-container" />
             </div>
@@ -300,7 +300,7 @@ export default function Hrd() {
         open={!!payslip}
         onClose={() => setPayslip(null)}
         title={payslip ? `Slip Gaji — ${payslip.name}` : ""}
-        subtitle={payslip ? `${payslip.role} • ${payslip.division} • periode ${monthLabel(TODAY)}` : ""}
+        subtitle={payslip ? `${payslip.role} • ${payslip.division} • periode ${monthLabel(TODAY())}` : ""}
         footer={
           payslip && (
             <>
@@ -310,7 +310,7 @@ export default function Hrd() {
               <Button
                 icon="print"
                 onClick={() =>
-                  printPayslip(monthLabel(TODAY), payslip, {
+                  printPayslip(monthLabel(TODAY()), payslip, {
                     potongan: potonganOf(payslip),
                     net: payslip.basic + payslip.allowance - potonganOf(payslip),
                   })
@@ -366,7 +366,7 @@ function PayrollModal({
   totals: { gross: number; potongan: number; net: number; headcount: number };
 }) {
   const app = useApp();
-  const [period, setPeriod] = useState(monthLabel(TODAY));
+  const [period, setPeriod] = useState(monthLabel(TODAY()));
   const [accountId, setAccountId] = useState("A-001");
 
   return (
@@ -415,9 +415,10 @@ function PayrollModal({
         </div>
       </div>
       <div className="mt-space-md flex items-center justify-between rounded-xl bg-secondary-fixed px-space-sm py-2 text-on-secondary-fixed">
-        <span className="font-body-sm text-body-sm">{totals.headcount} karyawan • dijadwalkan {iso(TODAY)}</span>
+        <span className="font-body-sm text-body-sm">{totals.headcount} karyawan • dijadwalkan {iso(TODAY())}</span>
         <Pill tone="amberSoft">Menunggu persetujuan</Pill>
       </div>
     </Modal>
   );
 }
+

@@ -13,7 +13,7 @@ export default function RekapKeuangan() {
   const { from, to } = app.period;
 
   /* ---------- Rekap per bulan (6 bulan terakhir s.d. periode berjalan) ---------- */
-  const months = Array.from({ length: BULAN }, (_, i) => new Date(TODAY.getFullYear(), TODAY.getMonth() - (BULAN - 1 - i), 1));
+  const months = Array.from({ length: BULAN }, (_, i) => new Date(TODAY().getFullYear(), TODAY().getMonth() - (BULAN - 1 - i), 1));
   const monthly = months.map((m) => {
     const ym = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, "0")}`;
     const invoices = app.invoices.filter((i) => i.date.startsWith(ym));
@@ -141,7 +141,7 @@ export default function RekapKeuangan() {
               </thead>
               <tbody className="divide-y divide-surface-container font-body-sm text-body-sm">
                 {monthly.map((m) => (
-                  <tr key={m.ym} className={cn("transition-colors hover:bg-surface-container-lowest/60", m.ym === `${TODAY.getFullYear()}-${String(TODAY.getMonth() + 1).padStart(2, "0")}` && "bg-secondary-fixed/20")}>
+                  <tr key={m.ym} className={cn("transition-colors hover:bg-surface-container-lowest/60", m.ym === `${TODAY().getFullYear()}-${String(TODAY().getMonth() + 1).padStart(2, "0")}` && "bg-secondary-fixed/20")}>
                     <Td>
                       <span className="font-label-md text-label-md font-semibold text-primary">{m.full}</span>
                       <span className="block text-[11px] text-on-surface-variant">{m.invoiceCount} faktur terbit</span>
@@ -370,3 +370,4 @@ function RecapTile({ top, label, value, foot, icon }: { top: string; label: stri
     </Card>
   );
 }
+

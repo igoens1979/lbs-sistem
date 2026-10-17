@@ -518,7 +518,7 @@ function AlertRow({ icon, tone, title, detail }: { icon: string; tone: "info" | 
 
 function PurchaseModal({ onClose }: { onClose: () => void }) {
   const app = useApp();
-  const [form, setForm] = useState({ liter: 8_000, pricePerLiter: FUEL_STATE.pricePerLiter, accountId: "A-002", supplierId: "S-002", date: iso(TODAY), note: "Pembelian solar industrial batch" });
+  const [form, setForm] = useState({ liter: 8_000, pricePerLiter: FUEL_STATE.pricePerLiter, accountId: "A-002", supplierId: "S-002", date: iso(TODAY()), note: "Pembelian solar industrial batch" });
   const total = form.liter * form.pricePerLiter;
   const balance = app.accountBalance(form.accountId);
 
@@ -755,7 +755,7 @@ function OdometerModal({ vehicleId, onClose }: { vehicleId: string; onClose: () 
 function ServiceModal({ vehicleId, onClose }: { vehicleId: string; onClose: () => void }) {
   const app = useApp();
   const v = app.vehicles.find((x) => x.id === vehicleId)!;
-  const [date, setDate] = useState(iso(TODAY));
+  const [date, setDate] = useState(iso(TODAY()));
   const [odo, setOdo] = useState(v.odometer);
   const [interval, setInterval] = useState(v.serviceIntervalKm || app.maintenance.defaultIntervalKm);
   const [cost, setCost] = useState(0);
@@ -850,3 +850,4 @@ function ServiceModal({ vehicleId, onClose }: { vehicleId: string; onClose: () =
     </Modal>
   );
 }
+

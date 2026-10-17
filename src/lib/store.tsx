@@ -774,7 +774,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const paid = paidOf(inv.id);
       if (paid >= inv.total - 1) return "Lunas";
       const due = new Date(inv.dueDate);
-      const late = daysBetween(due, TODAY);
+      const late = daysBetween(due, TODAY());
       if (paid > 0) return late > 0 ? "Terlambat" : "Sebagian";
       if (late > 0) return late > 30 ? "Terlambat" : "Jatuh Tempo";
       return "Belum Jatuh Tempo";
@@ -846,9 +846,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return { ...a, opening: o.amount, openingSource: o.source, openingFrom: o.fromMonth, masuk, keluar, txCount: tx.length, balance: o.amount + masuk - keluar };
     });
     const accountBalance = (id: ID) => {
-      const todayYm = monthKey(iso(TODAY));
+      const todayYm = monthKey(iso(TODAY()));
       const o = openingOf(id, todayYm);
-      const tx = state.bankTx.filter((t) => t.accountId === id && t.date >= `${todayYm}-01` && t.date <= iso(TODAY));
+      const tx = state.bankTx.filter((t) => t.accountId === id && t.date >= `${todayYm}-01` && t.date <= iso(TODAY()));
       return o.amount + tx.filter((t) => t.direction === "in").reduce((s, t) => s + t.amount, 0) - tx.filter((t) => t.direction === "out").reduce((s, t) => s + t.amount, 0);
     };
 
@@ -870,7 +870,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       { key: "b3", label: "Kritis > 60 Hari", tone: "bg-error", test: (n: number) => n > 60 },
     ];
     const aging = buckets.map((b) => {
-      const rows = outstandingList.filter(({ inv }) => b.test(daysBetween(new Date(inv.dueDate), TODAY)));
+      const rows = outstandingList.filter(({ inv }) => b.test(daysBetween(new Date(inv.dueDate), TODAY())));
       return { label: b.label, key: b.key, tone: b.tone, amount: rows.reduce((s, r) => s + r.due, 0), count: rows.length };
     });
     const outstandingTotal = outstandingList.reduce((s, r) => s + r.due, 0);
@@ -878,7 +878,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const legacySum = state.legacyDebts.reduce((s, x) => s + x.pokok, 0);
     const legacyOutSum = state.legacyDebts.reduce((s, x) => s + legacyOutstanding(x), 0);
 
-    const todaySJ = state.sj.filter((r) => r.date === iso(TODAY) && r.status !== "Batal");
+    const todaySJ = state.sj.filter((r) => r.date === iso(TODAY()) && r.status !== "Batal");
     const commodityRows = state.commodities
       .map((c) => {
         const rows = todaySJ.filter((r) => r.commodityId === c.id);
@@ -904,7 +904,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .map(([date, v]) => ({ date, in: v.in, out: v.out, net: v.in - v.out }));
 
     const notifications: Ctx["notifications"] = [];
-    const overdue = outstandingList.filter(({ inv }) => daysBetween(new Date(inv.dueDate), TODAY) > 0);
+    const overdue = outstandingList.filter(({ inv }) => daysBetween(new Date(inv.dueDate), TODAY()) > 0);
     if (overdue.length)
       notifications.push({
         id: "n-od",
@@ -1005,7 +1005,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const row: SJ = {
       id: uid("SJ"),
       no: nextNo,
-      date: payload.date ?? iso(TODAY),
+      date: payload.date ?? iso(TODAY()),
       customerId: payload.customerId ?? state.customers[0]?.id ?? "",
       commodityId: payload.commodityId ?? state.commodities[0]?.id ?? "",
       volume: payload.volume ?? 28,
@@ -1067,7 +1067,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const valueByCustomer = distinct.map((id) => ({ id, value: rows.filter((r) => r.customerId === id).reduce((s, r) => s + sjValue(r), 0) }));
     const billToId = opts?.billTo ?? valueByCustomer.sort((a, b) => b.value - a.value)[0].id;
     const billTo = state.customers.find((c) => c.id === billToId) ?? state.customers[0];
-    const date = iso(TODAY);
+    const date = iso(TODAY());
     const term = opts?.term ?? billTo.term;
     const rate = Math.max(0, Math.min(1, opts?.ppnRate ?? state.tax.ppnRate));
     const { dpp, ppn, total } = calcTotals(rows, rate);
@@ -1077,7 +1077,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       no: nextInvoiceNo(date),
       customerId: billTo.id,
       date,
-      dueDate: iso(addDays(TODAY, term)),
+      dueDate: iso(addDays(TODAY(), term)),
       dpp,
       ppn,
       total,
@@ -1149,7 +1149,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const covered = [...new Set(finalRows.map((r) => r.customerId))];
     const revision: InvoiceRevision = {
       id: uid("RV"),
-      date: iso(TODAY),
+      date: iso(TODAY()),
       by: actor(),
       type: "Revisi",
       detail: `${removeIds.length ? `-${removeIds.length} surat jalan` : ""}${removeIds.length && addRows.length ? " • " : ""}${addRows.length ? `+${addRows.length} surat jalan` : ""} • ${taxRateLabel(rate)} • total ${rupiah(inv.total)} → ${rupiah(total)}`,
@@ -1220,7 +1220,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const rate = Math.max(0, Math.min(1, opts?.ppnRate ?? inv.ppnRate ?? state.tax.ppnRate));
     const origin = calcTotals(keptRows, rate);
     const billTo = state.customers.find((c) => c.id === inv.customerId) ?? state.customers[0];
-    const date = opts?.date ?? iso(TODAY);
+    const date = opts?.date ?? iso(TODAY());
     const term = opts?.term ?? billTo.term;
     const carriedPpn = Math.round(carriedDpp * rate);
     const carriedTotal = carriedDpp + carriedPpn;
@@ -1316,7 +1316,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const recordPayment: Ctx["recordPayment"] = async ({ invoiceId, amount, accountId, method, date, ref }) => {
     const inv = state.invoices.find((i) => i.id === invoiceId);
     if (!inv) return;
-    const payDate = date ?? iso(TODAY);
+    const payDate = date ?? iso(TODAY());
     const payload: Payment = {
       id: uid("PAY"),
       invoiceId,
@@ -1373,7 +1373,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const transfer: Ctx["transfer"] = async (from, to, amount, note, date) => {
-    const d = date ?? iso(TODAY);
+    const d = date ?? iso(TODAY());
     const txIn: BankTx = { id: uid("TX"), accountId: to, date: d, desc: `Transfer masuk dari ${from} — ${note}`, category: "Internal Transfer", direction: "in", amount };
     const txOut: BankTx = { id: uid("TX"), accountId: from, date: d, desc: `Transfer keluar ke ${to} — ${note}`, category: "Internal Transfer", direction: "out", amount };
     await supabase.from("bank_tx").insert([dbBankTx(txIn), dbBankTx(txOut)]);
@@ -1389,7 +1389,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!sup) return;
     const pay = Math.min(amount, sup.hutang);
     await supabase.from("suppliers").update({ hutang: Math.max(0, sup.hutang - pay) }).eq("id", id);
-    const tx: BankTx = { id: uid("TX"), accountId, date: iso(TODAY), desc: `Pembayaran hutang ${sup.name}`, category: "Hutang Supplier", direction: "out", amount: pay, ref: sup.code };
+    const tx: BankTx = { id: uid("TX"), accountId, date: iso(TODAY()), desc: `Pembayaran hutang ${sup.name}`, category: "Hutang Supplier", direction: "out", amount: pay, ref: sup.code };
     await supabase.from("bank_tx").insert([dbBankTx(tx)]);
     setState((s) => ({
       ...s,
@@ -1408,7 +1408,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return;
     }
     await supabase.from("legacy_debts").update({ paid_count: Math.min(dbt.tenor, dbt.paidCount + count) }).eq("id", id);
-    const tx: BankTx = { id: uid("TX"), accountId, date: iso(TODAY), desc: `Angsuran ${dbt.tahap}`, category: "Kewajiban Historis", direction: "out", amount };
+    const tx: BankTx = { id: uid("TX"), accountId, date: iso(TODAY()), desc: `Angsuran ${dbt.tahap}`, category: "Kewajiban Historis", direction: "out", amount };
     await supabase.from("bank_tx").insert([dbBankTx(tx)]);
     setState((s) => ({
       ...s,
@@ -1521,7 +1521,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toast("Tidak ada saldo awal diisi", "Isi minimal satu akun", "warn");
       return;
     }
-    const now = iso(TODAY);
+    const now = iso(TODAY());
     const who = state.user?.name ?? "Sistem LBS";
     const type: OpeningSource = opts?.firstTime ? "sistem" : "manual";
     const toInsert = valid.map((e) => dbOpeningBalance(e.accountId, ym, e.amount, type, e.note?.trim() || opts?.globalNote?.trim() || (opts?.firstTime ? "Inisialisasi saldo awal saat aplikasi pertama digunakan" : `Saldo awal ${ymLabel(ym)} diinput manual (bukan pemasukan)`), who, now));
@@ -1553,7 +1553,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toast("Roll forward tidak diperlukan", `Seluruh akun sudah memiliki saldo awal tersimpan untuk ${ymLabel(ym)}`, "info");
       return;
     }
-    const now = iso(TODAY);
+    const now = iso(TODAY());
     const who = state.user?.name ?? "Sistem LBS";
     const toInsert = pending.map((a) => {
       const amount = derived.closingOf(a.id, prev);
@@ -1596,7 +1596,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...s,
         openingBalances: next,
         openingLog: [
-          { id: uid("OP"), ym, accountId, amount: existing.amount, by: who, at: iso(TODAY), note: `Koreksi: saldo awal ${ymLabel(ym)} dihapus — bulan ini kembali memakai perhitungan roll forward otomatis`, type: "koreksi" as const },
+          { id: uid("OP"), ym, accountId, amount: existing.amount, by: who, at: iso(TODAY()), note: `Koreksi: saldo awal ${ymLabel(ym)} dihapus — bulan ini kembali memakai perhitungan roll forward otomatis`, type: "koreksi" as const },
           ...s.openingLog,
         ],
       };
@@ -1604,7 +1604,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast("Saldo awal dihapus", `${ymLabel(ym)} kembali dihitung otomatis dari bulan sebelumnya`, "info");
   };
 
-  const nowIso = () => iso(TODAY);
+  const nowIso = () => iso(TODAY());
 
   const setTaxRate: Ctx["setTaxRate"] = (ppnRate) => {
     const rate = Math.max(0, Math.min(1, ppnRate));
@@ -1623,7 +1623,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const run: PayrollRun = {
       id: uid("PR"),
       period: periodLabel,
-      date: iso(TODAY),
+      date: iso(TODAY()),
       gross,
       potongan,
       net,
@@ -1634,7 +1634,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const tx: BankTx = {
       id: uid("TX"),
       accountId,
-      date: iso(TODAY),
+      date: iso(TODAY()),
       desc: `Pembayaran payroll ${periodLabel} (${run.headcount} karyawan)`,
       category: "Payroll",
       direction: "out",
@@ -1727,7 +1727,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const emp = state.employees.find((e) => e.id === acc.employeeId);
     setState((s) => ({
       ...s,
-      users: s.users.map((u) => (u.id === acc.id ? { ...u, lastLogin: iso(TODAY) } : u)),
+      users: s.users.map((u) => (u.id === acc.id ? { ...u, lastLogin: iso(TODAY()) } : u)),
       user: {
         name: emp?.name ?? acc.username,
         role: roleLabel(acc.role),
@@ -1856,3 +1856,4 @@ export function useApp() {
   if (!ctx) throw new Error("useApp harus dipakai di dalam AppProvider");
   return ctx;
 }
+

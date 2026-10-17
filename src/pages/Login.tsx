@@ -50,7 +50,7 @@ export default function Login() {
 
         <div className="flex flex-wrap items-center justify-between gap-space-sm font-body-sm text-body-sm text-on-tertiary-container">
           <span>© 2026 PT Logam Bumi Santosa</span>
-          <span>Tgl sistem {d(TODAY)} • Site Golo Mori, NTT</span>
+          <span>Tgl sistem {d(TODAY())} • Site Golo Mori, NTT</span>
         </div>
       </div>
 
@@ -140,3 +140,4 @@ export default function Login() {
     </div>
   );
 }
+

@@ -164,7 +164,7 @@ export const DEFAULT_USERS: UserAccount[] = [
     status: "Aktif",
     scope: "Semua Site",
     createdAt: "2024-01-08",
-    lastLogin: iso(TODAY),
+    lastLogin: iso(TODAY()),
     note: "Pemilik sistem & approval akhir seluruh modul.",
     permissions: rolePermissions("super-admin"),
   },
@@ -240,3 +240,4 @@ export const DEFAULT_USERS: UserAccount[] = [
     }),
   },
 ];
+

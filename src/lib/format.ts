@@ -1,7 +1,10 @@
 /* ---------- Formatting & date helpers ---------- */
 
-export const TODAY = new Date(); // Tanggal sistem LBS: mengikuti tanggal aktual komputer/server
-TODAY.setHours(0, 0, 0, 0);
+export function TODAY() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
 
 export function cn(...parts: Array<string | false | null | undefined>) {
   return parts.filter(Boolean).join(" ");

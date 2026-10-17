@@ -400,7 +400,7 @@ function genSuratJalan(): { rows: SJ[]; invoices: Invoice[]; payments: Payment[]
   // --- Profil aging: 6 invoice belum jatuh tempo, 3 (1-30 hari),
   // 2 (31-60 hari), 1 (> 60 hari), plus 3 pembayaran sebagian ---
   const byDueDesc = [...invoices].sort((a, b) => (a.dueDate < b.dueDate ? 1 : -1));
-  const late = (inv: Invoice) => daysBetween(new Date(inv.dueDate), TODAY);
+  const late = (inv: Invoice) => daysBetween(new Date(inv.dueDate), TODAY());
   const take = (pred: (inv: Invoice) => boolean, n: number) => byDueDesc.filter(pred).slice(0, n);
 
   const openSet = new Set<string>();
@@ -440,7 +440,7 @@ function genSuratJalan(): { rows: SJ[]; invoices: Invoice[]; payments: Payment[]
     }
     inv.status = "Lunas";
     const payRaw = addDays(new Date(inv.date), Math.min(inv.sjIds.length + 5, 20));
-    const payDate = iso(payRaw > TODAY ? TODAY : payRaw);
+    const payDate = iso(payRaw > TODAY() ? TODAY() : payRaw);
     payments.push({
       id: `PAY-${String(payments.length + 1).padStart(4, "0")}`,
       invoiceId: inv.id,
@@ -611,3 +611,4 @@ export const MAINT_DEFAULT = { defaultIntervalKm: 10_000, warnKm: 1_500 };
 export const nextServiceKm = (v: Vehicle) => v.lastServiceOdometer + v.serviceIntervalKm;
 /** Sisa jarak menuju servis berikutnya (negatif = sudah terlewat). */
 export const remainingServiceKm = (v: Vehicle) => nextServiceKm(v) - v.odometer;
+
