@@ -1,6 +1,6 @@
 /* ---------- Formatting & date helpers ---------- */
 
-export const TODAY = new Date(2026, 9, 15); // Tanggal sistem LBS: 15/10/2026
+export const TODAY = new Date(); // Tanggal sistem LBS: mengikuti tanggal aktual komputer/server
 TODAY.setHours(0, 0, 0, 0);
 
 export function cn(...parts: Array<string | false | null | undefined>) {
