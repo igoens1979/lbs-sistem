@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { PageBody, PageHeader, PeriodActions } from "@/components/Shell";
 import { BarPairs, Button, Card, Field, Icon, Input, Modal, Pill, ProgressBar, SectionHeading, Select, Td, Th } from "@/components/ui";
 import { legacyOutstanding, type OpeningLogEntry, type OpeningSource } from "@/lib/data";
-import { cn, csvDownload, d, iso, monthKey, nextYm, num, parseISO, pct, prevYm, rupiah, rupiahShort, TODAY, ymLabel } from "@/lib/format";
+import { cn, csvDownload, d, iso, monthKey, nextYm, num, parseISO, pct, prevYm, rupiah, rupiahPlain, rupiahShort, TODAY, ymLabel } from "@/lib/format";
 import { printCashReport, printOpeningBalance } from "@/lib/print";
 import { useApp } from "@/lib/store";
 import type { Ctx } from "@/lib/store";
@@ -204,9 +204,9 @@ const canEdit = app.can("kas-bank", "edit");
                     <Td align="center" className="font-mono text-label-sm">
                       {tx.allocation ?? "-"}
                     </Td>
-                    <Td align="right" className={cn("font-mono font-semibold", tx.direction === "in" ? "text-primary" : "text-error")}>
-                      {tx.direction === "in" ? "+" : "-"} {rupiah(tx.amount)}
-                    </Td>
+<Td align="right" className={cn("font-mono font-semibold", tx.direction === "in" ? "text-primary" : "text-error")}>
+                       {tx.direction === "in" ? "+" : "-"} {rupiahPlain(tx.amount)}
+                     </Td>
                     <Td align="center">
                       <button
                         type="button"
@@ -232,10 +232,10 @@ const canEdit = app.can("kas-bank", "edit");
               {ledger.length > 0 && (
                 <tfoot>
                   <tr className="bg-surface-container font-label-md text-label-md font-bold text-primary">
-                    <Td colSpan={5}>Total {Math.min(ledger.length, 18)} baris terfilter</Td>
-                    <Td align="right" className="font-mono">
-                      {rupiah(ledger.slice(0, 18).reduce((s, tx) => s + (tx.direction === "in" ? tx.amount : -tx.amount), 0))}
-                    </Td>
+<Td colSpan={5}>Total {Math.min(ledger.length, 18)} baris terfilter</Td>
+                     <Td align="right" className="font-mono">
+                       {rupiahPlain(ledger.slice(0, 18).reduce((s, tx) => s + (tx.direction === "in" ? tx.amount : -tx.amount), 0))}
+                     </Td>
                     <Td align="center" className="font-label-sm text-label-sm">Net posisi</Td>
                   </tr>
                 </tfoot>
@@ -730,20 +730,20 @@ function SaldoAwalSection({ ym, onYm, onInput, onFirstTime }: { ym: string; onYm
                       <span className="font-label-md text-label-md font-semibold text-primary">{r.account.name}</span>
                       <span className="block text-[11px] text-on-surface-variant">{r.account.code} • {r.account.role}</span>
                     </Td>
-                    <Td align="right" className="font-mono font-semibold text-primary">{rupiah(r.opening)}</Td>
-                    <Td align="center">
-                      <Pill tone={meta.tone}>{meta.label}</Pill>
-                      <span className="mt-1 block font-label-sm text-[10px] text-on-surface-variant">
-                        {r.explicit
-                          ? r.source === "rollforward"
-                            ? `dikunci dari ${ymLabel(r.fromMonth ?? prev)}`
-                            : `disimpan manual`
-                          : `= saldo akhir ${ymLabel(r.fromMonth ?? prev)}`}
-                      </span>
-                    </Td>
-                    <Td align="right" className="font-mono text-primary">+ {rupiah(r.masuk)}</Td>
-                    <Td align="right" className="font-mono text-error">- {rupiah(r.keluar)}</Td>
-                    <Td align="right" className="font-mono font-bold text-primary">{rupiah(r.closing)}</Td>
+<Td align="right" className="font-mono font-semibold text-primary">{rupiahPlain(r.opening)}</Td>
+                     <Td align="center">
+                       <Pill tone={meta.tone}>{meta.label}</Pill>
+                       <span className="mt-1 block font-label-sm text-[10px] text-on-surface-variant">
+                         {r.explicit
+                           ? r.source === "rollforward"
+                             ? `dikunci dari ${ymLabel(r.fromMonth ?? prev)}`
+                             : `disimpan manual`
+                           : `= saldo akhir ${ymLabel(r.fromMonth ?? prev)}`}
+                       </span>
+                     </Td>
+                     <Td align="right" className="font-mono text-primary">+ {rupiahPlain(r.masuk)}</Td>
+                     <Td align="right" className="font-mono text-error">- {rupiahPlain(r.keluar)}</Td>
+                     <Td align="right" className="font-mono font-bold text-primary">{rupiahPlain(r.closing)}</Td>
                     <Td align="center">
                       <div className="flex items-center justify-center gap-1">
                         <button
@@ -773,14 +773,13 @@ function SaldoAwalSection({ ym, onYm, onInput, onFirstTime }: { ym: string; onYm
             <tfoot>
               <tr className="bg-surface-container font-label-md text-label-md font-bold text-primary">
                 <Td>Total {rows.length} rekening</Td>
-                <Td align="right" className="font-mono">{rupiah(totalOpening)}</Td>
-                <Td align="center" className="font-label-sm text-label-sm">
-                  {manualCount} nilai tersimpan
-                </Td>
-                <Td align="right" className="font-mono">{rupiah(rows.reduce((s, r) => s + r.masuk, 0))}</Td>
-                <Td align="right" className="font-mono text-error">{rupiah(rows.reduce((s, r) => s + r.keluar, 0))}</Td>
-                <Td align="right" className="font-mono text-primary">{rupiah(totalClosing)}</Td>
-                <Td align="center" className="font-label-sm text-label-sm">Rekonsil</Td>
+<Td align="right" className="font-mono">{rupiahPlain(totalOpening)}</Td>
+                 <Td align="center" className="font-label-sm text-label-sm">
+                   {manualCount} nilai tersimpan
+                 </Td>
+                 <Td align="right" className="font-mono">{rupiahPlain(rows.reduce((s, r) => s + r.masuk, 0))}</Td>
+                 <Td align="right" className="font-mono text-error">{rupiahPlain(rows.reduce((s, r) => s + r.keluar, 0))}</Td>
+                 <Td align="right" className="font-mono text-primary">{rupiahPlain(totalClosing)}</Td>
               </tr>
             </tfoot>
           </table>
@@ -831,7 +830,7 @@ function SaldoAwalSection({ ym, onYm, onInput, onFirstTime }: { ym: string; onYm
                         <span className="font-label-sm text-[10px] uppercase text-outline">{l.by} • {d(parseISO(l.at))}</span>
                       </span>
                     </div>
-                    <span className={cn("font-mono font-semibold", l.type === "koreksi" ? "text-error" : "text-primary")}>{rupiah(l.amount)}</span>
+                    <span className={cn("font-mono font-semibold", l.type === "koreksi" ? "text-error" : "text-primary")}>{rupiahPlain(l.amount)}</span>
                   </div>
                 );
               })}
@@ -915,7 +914,7 @@ function OpeningBalanceModal({ ym, firstTime = false, onClose }: { ym: string; f
                   <span className="font-label-md text-label-md font-semibold text-primary">{r.account.name}</span>
                   <span className="block text-[11px] text-on-surface-variant">{r.account.code} • {r.account.role}</span>
                 </Td>
-                <Td align="right" className="font-mono text-on-surface-variant">{rupiah(app.closingOf(r.account.id, prev))}</Td>
+                <Td align="right" className="font-mono text-on-surface-variant">{rupiahPlain(app.closingOf(r.account.id, prev))}</Td>
                 <Td align="right">
                   <input
                     type="number"
@@ -938,9 +937,9 @@ function OpeningBalanceModal({ ym, firstTime = false, onClose }: { ym: string; f
           <tfoot>
             <tr className="bg-surface-container font-label-md text-label-md font-bold text-primary">
               <Td>Total saldo awal yang diinput</Td>
-              <Td align="right" className="font-mono">{rupiah(prevTotal)}</Td>
-              <Td align="right" className="font-mono">{rupiah(total)}</Td>
-              <Td className="font-label-sm text-label-sm">Selisih {rupiah(total - prevTotal)}</Td>
+<Td align="right" className="font-mono">{rupiahPlain(prevTotal)}</Td>
+               <Td align="right" className="font-mono">{rupiahPlain(total)}</Td>
+               <Td className="font-label-sm text-label-sm">Selisih {rupiahPlain(total - prevTotal)}</Td>
             </tr>
           </tfoot>
         </table>

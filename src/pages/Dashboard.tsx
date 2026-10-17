@@ -2,7 +2,7 @@ import { Link } from "@/components/Link";
 import { PageBody, PageHeader, PeriodActions } from "@/components/Shell";
 import { BarPairs, Button, Card, Donut, EmptyState, HEX, Icon, Pill, ProgressBar, SectionHeading, StatusPill, Td, Th } from "@/components/ui";
 import { commodityName, vehiclePlate } from "@/lib/data";
-import { csvDownload, d, num, parseISO, pct, rupiah, rupiahShort, TODAY } from "@/lib/format";
+import { csvDownload, d, num, parseISO, pct, rupiah, rupiahPlain, rupiahShort, TODAY } from "@/lib/format";
 import { useApp } from "@/lib/store";
 import { cn } from "@/lib/format";
 
@@ -267,10 +267,10 @@ export default function Dashboard() {
                           <span className="text-[11px] text-on-surface-variant">{a.role}</span>
                         </div>
                       </Td>
-                      <Td align="right" className="font-mono">{rupiah(a.opening)}</Td>
-                      <Td align="right" className="font-mono font-semibold text-primary">{rupiah(a.masuk)}</Td>
-                      <Td align="right" className="font-mono text-error">{rupiah(a.keluar)}</Td>
-                      <Td align="right" className="font-mono font-bold text-primary">{rupiah(a.balance)}</Td>
+<Td align="right" className="font-mono">{rupiahPlain(a.opening)}</Td>
+                       <Td align="right" className="font-mono font-semibold text-primary">{rupiahPlain(a.masuk)}</Td>
+                       <Td align="right" className="font-mono text-error">{rupiahPlain(a.keluar)}</Td>
+                       <Td align="right" className="font-mono font-bold text-primary">{rupiahPlain(a.balance)}</Td>
                       <Td align="center">
                         <Pill tone={a.type === "Kas" ? "amberSoft" : "neutral"}>{a.type === "Kas" ? "Audit Fisik" : "Rekonsil"}</Pill>
                       </Td>
@@ -280,10 +280,10 @@ export default function Dashboard() {
                 <tfoot>
                   <tr className="bg-surface-container font-label-md text-label-md font-bold text-primary">
                     <Td>Total Akumulasi Likuiditas</Td>
-                    <Td align="right" className="font-mono">{rupiah(totalOpening)}</Td>
-                    <Td align="right" className="font-mono">{rupiah(totalMasuk)}</Td>
-                    <Td align="right" className="font-mono text-error">{rupiah(totalKeluar)}</Td>
-                    <Td align="right" className="font-mono text-primary">{rupiah(liquidity)}</Td>
+<Td align="right" className="font-mono">{rupiahPlain(totalOpening)}</Td>
+                     <Td align="right" className="font-mono">{rupiahPlain(totalMasuk)}</Td>
+                     <Td align="right" className="font-mono text-error">{rupiahPlain(totalKeluar)}</Td>
+                     <Td align="right" className="font-mono text-primary">{rupiahPlain(liquidity)}</Td>
                     <Td align="center" className="font-label-sm text-label-sm">Balance</Td>
                   </tr>
                 </tfoot>
@@ -298,7 +298,7 @@ export default function Dashboard() {
                   <span className="h-3 w-3 rounded-sm bg-secondary-container" /> Kas keluar
                 </span>
               </div>
-              <span className="font-label-sm text-label-sm text-on-surface-variant">Net arus kas periode: <b className="text-primary">{rupiah(totalMasuk - totalKeluar)}</b></span>
+              <span className="font-label-sm text-label-sm text-on-surface-variant">Net arus kas periode: <b className="text-primary">{rupiahPlain(totalMasuk - totalKeluar)}</b></span>
             </div>
             <BarPairs data={chartData} />
           </Card>

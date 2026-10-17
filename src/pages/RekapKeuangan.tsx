@@ -1,8 +1,7 @@
-import { Link } from "@/components/Link";
 import { PageBody, PageHeader, PeriodActions } from "@/components/Shell";
 import { BarPairs, Button, Card, Icon, Pill, ProgressBar, SectionHeading, Td, Th } from "@/components/ui";
 import { commodityName } from "@/lib/data";
-import { cn, csvDownload, d, monthLabel, num, parseISO, pct, rupiah, rupiahShort, TODAY } from "@/lib/format";
+import { cn, csvDownload, d, monthLabel, num, parseISO, pct, rupiah, rupiahPlain, rupiahShort, TODAY } from "@/lib/format";
 import { printRekapKeuangan } from "@/lib/print";
 import { useApp } from "@/lib/store";
 
@@ -115,8 +114,8 @@ export default function RekapKeuangan() {
         <RecapTile top="bg-secondary-fixed-dim" label="Arus Kas Bersih" value={rupiah(masuk - keluar)} foot={`Masuk ${rupiahShort(masuk)} • keluar ${rupiahShort(keluar)}`} icon="swap_vert" />
       </section>
 
-      <div className="grid grid-cols-1 items-start gap-space-lg lg:grid-cols-12">
-        <Card className="flex flex-col gap-space-md p-space-md sm:p-space-lg lg:col-span-8">
+<div className="grid grid-cols-1 items-start gap-space-lg lg:grid-cols-12">
+        <Card className="flex flex-col gap-space-md p-space-md sm:p-space-lg lg:col-span-7">
           <SectionHeading
             icon="table_chart"
             title="Rekap Bulanan Konsolidasi"
@@ -147,14 +146,14 @@ export default function RekapKeuangan() {
                       <span className="block text-[11px] text-on-surface-variant">{m.invoiceCount} faktur terbit</span>
                     </Td>
                     <Td align="right" className="font-mono">{num(m.invoiceCount)}</Td>
-                    <Td align="right" className="font-mono font-semibold text-primary">{rupiah(m.dpp)}</Td>
-                    <Td align="right" className="font-mono text-on-surface-variant">{rupiah(m.ppn)}</Td>
-                    <Td align="right" className="font-mono text-primary">{rupiah(m.masuk)}</Td>
-                    <Td align="right" className="font-mono text-error">{rupiah(m.keluar)}</Td>
-                    <Td align="right" className="font-mono">{rupiah(m.payroll)}</Td>
-                    <Td align="right" className="font-mono">{rupiah(m.bbm)}</Td>
-                    <Td align="right" className={cn("font-mono font-semibold", m.net >= 0 ? "text-primary" : "text-error")}>{rupiah(m.net)}</Td>
-                    <Td align="right" className={cn("font-mono font-semibold", m.margin >= 0 ? "text-success" : "text-error")}>{rupiah(m.margin)}</Td>
+<Td align="right" className="font-mono font-semibold text-primary">{rupiahPlain(m.dpp)}</Td>
+                     <Td align="right" className="font-mono text-on-surface-variant">{rupiahPlain(m.ppn)}</Td>
+                     <Td align="right" className="font-mono text-primary">{rupiahPlain(m.masuk)}</Td>
+                     <Td align="right" className="font-mono text-error">{rupiahPlain(m.keluar)}</Td>
+                     <Td align="right" className="font-mono">{rupiahPlain(m.payroll)}</Td>
+                     <Td align="right" className="font-mono">{rupiahPlain(m.bbm)}</Td>
+                     <Td align="right" className={cn("font-mono font-semibold", m.net >= 0 ? "text-primary" : "text-error")}>{rupiahPlain(m.net)}</Td>
+                     <Td align="right" className={cn("font-mono font-semibold", m.margin >= 0 ? "text-success" : "text-error")}>{rupiahPlain(m.margin)}</Td>
                   </tr>
                 ))}
               </tbody>
@@ -162,14 +161,14 @@ export default function RekapKeuangan() {
                 <tr className="bg-surface-container font-label-md text-label-md font-bold text-primary">
                   <Td>Total {BULAN} bulan</Td>
                   <Td align="right" className="font-mono">{num(monthly.reduce((s, m) => s + m.invoiceCount, 0))}</Td>
-                  <Td align="right" className="font-mono">{rupiah(monthly.reduce((s, m) => s + m.dpp, 0))}</Td>
-                  <Td align="right" className="font-mono">{rupiah(monthly.reduce((s, m) => s + m.ppn, 0))}</Td>
-                  <Td align="right" className="font-mono">{rupiah(totalMasuk6)}</Td>
-                  <Td align="right" className="font-mono text-error">{rupiah(totalKeluar6)}</Td>
-                  <Td align="right" className="font-mono">{rupiah(monthly.reduce((s, m) => s + m.payroll, 0))}</Td>
-                  <Td align="right" className="font-mono">{rupiah(monthly.reduce((s, m) => s + m.bbm, 0))}</Td>
-                  <Td align="right" className="font-mono text-primary">{rupiah(totalMasuk6 - totalKeluar6)}</Td>
-                  <Td align="right" className="font-mono text-primary">{rupiah(monthly.reduce((s, m) => s + m.margin, 0))}</Td>
+<Td align="right" className="font-mono">{rupiahPlain(monthly.reduce((s, m) => s + m.dpp, 0))}</Td>
+                   <Td align="right" className="font-mono">{rupiahPlain(monthly.reduce((s, m) => s + m.ppn, 0))}</Td>
+                   <Td align="right" className="font-mono">{rupiahPlain(totalMasuk6)}</Td>
+                   <Td align="right" className="font-mono text-error">{rupiahPlain(totalKeluar6)}</Td>
+                   <Td align="right" className="font-mono">{rupiahPlain(monthly.reduce((s, m) => s + m.payroll, 0))}</Td>
+                   <Td align="right" className="font-mono">{rupiahPlain(monthly.reduce((s, m) => s + m.bbm, 0))}</Td>
+                   <Td align="right" className="font-mono text-primary">{rupiahPlain(totalMasuk6 - totalKeluar6)}</Td>
+                   <Td align="right" className="font-mono text-primary">{rupiahPlain(monthly.reduce((s, m) => s + m.margin, 0))}</Td>
                 </tr>
               </tfoot>
             </table>
@@ -225,36 +224,10 @@ export default function RekapKeuangan() {
               ))}
               {penerimaan.length === 0 && <p className="font-body-sm text-body-sm text-on-surface-variant">Tidak ada penerimaan pada periode ini.</p>}
             </div>
-            <div className="flex items-center justify-between rounded-lg bg-surface-container-low px-space-sm py-2">
+<div className="flex items-center justify-between rounded-lg bg-surface-container-low px-space-sm py-2">
               <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Total penerimaan</span>
               <span className="font-label-lg text-label-lg text-primary tabular">{rupiah(masuk)}</span>
             </div>
-          </Card>
-
-          <Card className="flex flex-col gap-space-md bg-secondary-fixed p-space-md text-on-secondary-fixed sm:p-space-lg">
-            <div className="flex items-start justify-between">
-              <div>
-                <span className="font-label-sm text-label-sm font-bold uppercase tracking-wider text-secondary">Kewajiban Pajak</span>
-                <p className="mt-1 font-headline-md text-headline-md font-bold text-secondary tabular">{rupiah(ppnKeluaran)}</p>
-                <p className="font-body-sm text-body-sm text-on-secondary-fixed-variant">
-                  PPN keluaran periode ini • kredit pajak masukan belum tercatat pada sistem
-                </p>
-              </div>
-              <Icon name="gavel" size={26} className="text-secondary" />
-            </div>
-            <div className="grid grid-cols-2 gap-space-sm">
-              <div className="rounded-lg bg-surface-container-lowest/85 p-space-sm">
-                <span className="font-body-sm text-body-sm text-on-surface-variant">DPP</span>
-                <p className="font-label-lg text-label-lg text-primary tabular">{rupiahShort(pendapatan)}</p>
-              </div>
-              <div className="rounded-lg bg-surface-container-lowest/85 p-space-sm">
-                <span className="font-body-sm text-body-sm text-on-surface-variant">Estimasi PPh final 0,5%*</span>
-                <p className="font-label-lg text-label-lg text-primary tabular">{rupiahShort(Math.round(pendapatan * 0.005))}</p>
-              </div>
-            </div>
-            <Link onClick={() => app.go("hutang-piutang")} className="inline-flex items-center gap-1 font-label-sm text-label-sm font-bold text-secondary hover:underline">
-              Lihat kartu hutang piutang <Icon name="chevron_right" size={14} />
-            </Link>
           </Card>
         </div>
       </div>

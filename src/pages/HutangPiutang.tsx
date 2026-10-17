@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { PageBody, PageHeader, PeriodActions } from "@/components/Shell";
 import { Button, Card, EmptyState, Field, Icon, Input, Modal, Pill, ProgressBar, SectionHeading, Select, StatusPill, Td, Th } from "@/components/ui";
 import { legacyOutstanding, type Invoice } from "@/lib/data";
-import { cn, csvDownload, d, daysBetween, iso, num, parseISO, pct, rupiah, rupiahShort, TODAY } from "@/lib/format";
+import { cn, csvDownload, d, daysBetween, iso, num, parseISO, pct, rupiah, rupiahPlain, rupiahShort, TODAY } from "@/lib/format";
 import { printStatement } from "@/lib/print";
 import { useApp } from "@/lib/store";
 
@@ -85,20 +85,18 @@ export default function HutangPiutang() {
       />
 
       {/* Posisi ringkas */}
-      <section className="grid grid-cols-1 gap-space-md sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        <PosTile top="bg-primary" label="Total Piutang Beredar" value={rupiah(totalPiutang)} foot={`${receivables.reduce((s, r) => s + r.count, 0)} invoice aktif • ${receivables.filter((r) => r.outstanding > 0).length} mitra`} icon="request_quote" />
-        <PosTile top="bg-error" label="Piutang Lewat Tempo" value={rupiah(totalOverdue)} foot={`${pct(totalOverdue, totalPiutang || 1).toFixed(1)}% dari total piutang`} icon="event_busy" tone="error" />
-        <PosTile top="bg-secondary-container" label="Hutang Supplier" value={rupiah(supplierTotal)} foot={`${app.suppliers.filter((s) => s.hutang > 0).length} supplier dengan saldo`} icon="storefront" />
-        <PosTile top="bg-secondary-fixed-dim" label="Hutang Lama LBS" value={rupiah(legacyTotal)} foot={`Sisa outstanding ${rupiahShort(legacyOut)}`} icon="history_edu" />
+<section className="grid grid-cols-1 gap-space-md sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <PosTile top="bg-primary" label="Total Piutang Beredar" value={rupiahShort(totalPiutang)} foot={`${receivables.reduce((s, r) => s + r.count, 0)} invoice aktif • ${receivables.filter((r) => r.outstanding > 0).length} mitra`} icon="request_quote" />
+        <PosTile top="bg-error" label="Piutang Lewat Tempo" value={rupiahShort(totalOverdue)} foot={`${pct(totalOverdue, totalPiutang || 1).toFixed(1)}% dari total piutang`} icon="event_busy" tone="error" />
+        <PosTile top="bg-secondary-container" label="Hutang Supplier" value={rupiahShort(supplierTotal)} foot={`${app.suppliers.filter((s) => s.hutang > 0).length} supplier dengan saldo`} icon="storefront" />
+        <PosTile top="bg-secondary-fixed-dim" label="Hutang Lama LBS" value={rupiahShort(legacyTotal)} foot={`Sisa outstanding ${rupiahShort(legacyOut)}`} icon="history_edu" />
         <Card accentTop={netto >= 0 ? "bg-success" : "bg-error"} className="flex flex-col justify-between">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex flex-col">
-              <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Posisi Neto</span>
-              <span className={cn("mt-1 font-headline-md text-headline-md font-bold tabular", netto >= 0 ? "text-success" : "text-error")}>{rupiah(netto)}</span>
-            </div>
-            <span className={cn("rounded-lg p-2", netto >= 0 ? "bg-success-container text-success" : "bg-error-container text-error")}>
+          <div className="flex flex-col items-center gap-2 text-center">
+            <span className={cn("flex h-10 w-10 items-center justify-center rounded-lg", netto >= 0 ? "bg-success-container text-success" : "bg-error-container text-error")}>
               <Icon name={netto >= 0 ? "verified" : "warning"} size={20} />
             </span>
+            <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Posisi Neto</span>
+            <span className={cn("font-headline-md text-headline-md font-bold tabular", netto >= 0 ? "text-success" : "text-error")}>{rupiahShort(netto)}</span>
           </div>
           <p className="mt-space-md rounded-lg bg-surface-container-low px-space-sm py-1.5 font-body-sm text-body-sm text-on-surface-variant">
             Piutang − (hutang supplier + kewajiban historis)
@@ -176,10 +174,10 @@ export default function HutangPiutang() {
                       </div>
                     </Td>
                     <Td align="center">{r.c.term} hari</Td>
-                    <Td align="right" className="font-mono">{rupiah(r.billed)}</Td>
-                    <Td align="right" className="font-mono text-success">{rupiah(r.paid)}</Td>
-                    <Td align="right" className="font-mono font-semibold text-primary">{rupiah(r.outstanding)}</Td>
-                    <Td align="right" className={cn("font-mono", r.overdue > 0 ? "text-error" : "text-on-surface-variant")}>{r.overdue > 0 ? rupiah(r.overdue) : "—"}</Td>
+<Td align="right" className="font-mono">{rupiahPlain(r.billed)}</Td>
+                     <Td align="right" className="font-mono text-success">{rupiahPlain(r.paid)}</Td>
+                     <Td align="right" className="font-mono font-semibold text-primary">{rupiahPlain(r.outstanding)}</Td>
+                     <Td align="right" className={cn("font-mono", r.overdue > 0 ? "text-error" : "text-on-surface-variant")}>{r.overdue > 0 ? rupiahPlain(r.overdue) : "—"}</Td>
                     <Td align="center">
                       {r.maxLate > 0 ? <Pill tone="error">{r.maxLate} hari</Pill> : <Pill tone="success">Dalam termin</Pill>}
                     </Td>
@@ -212,10 +210,10 @@ export default function HutangPiutang() {
               <tfoot>
                 <tr className="bg-surface-container font-label-md text-label-md font-bold text-primary">
                   <Td colSpan={2}>Total {receivables.length} mitra</Td>
-                  <Td align="right" className="font-mono">{rupiah(totalPiutangBilled)}</Td>
-                  <Td align="right" className="font-mono">{rupiah(totalPiutangPaid)}</Td>
-                  <Td align="right" className="font-mono text-primary">{rupiah(totalPiutang)}</Td>
-                  <Td align="right" className="font-mono text-error">{rupiah(totalOverdue)}</Td>
+<Td align="right" className="font-mono">{rupiahPlain(totalPiutangBilled)}</Td>
+                   <Td align="right" className="font-mono">{rupiahPlain(totalPiutangPaid)}</Td>
+                   <Td align="right" className="font-mono text-primary">{rupiahPlain(totalPiutang)}</Td>
+                   <Td align="right" className="font-mono text-error">{rupiahPlain(totalOverdue)}</Td>
                   <Td colSpan={2} align="center" className="font-label-sm text-label-sm">Collection rate {pct(totalPiutangPaid, totalPiutangBilled || 1).toFixed(1)}%</Td>
                 </tr>
               </tfoot>
@@ -262,7 +260,7 @@ export default function HutangPiutang() {
                       <span className="text-[11px] text-on-surface-variant">{s.phone}</span>
                     </Td>
                     <Td align="center">{s.dueDays} hari</Td>
-                    <Td align="right" className={cn("font-mono font-semibold", s.hutang > 0 ? "text-error" : "text-success")}>{rupiah(s.hutang)}</Td>
+                    <Td align="right" className={cn("font-mono font-semibold", s.hutang > 0 ? "text-error" : "text-success")}>{rupiahPlain(s.hutang)}</Td>
                     <Td align="center"><StatusPill status={s.hutang > 0 ? "Jatuh Tempo" : "Lunas"} /></Td>
                     <Td align="center">
                       <div className="flex items-center justify-center gap-1">
@@ -280,7 +278,7 @@ export default function HutangPiutang() {
               <tfoot>
                 <tr className="bg-surface-container font-label-md text-label-md font-bold text-primary">
                   <Td colSpan={4}>Total hutang supplier</Td>
-                  <Td align="right" className="font-mono text-error">{rupiah(supplierTotal)}</Td>
+                  <Td align="right" className="font-mono text-error">{rupiahPlain(supplierTotal)}</Td>
                   <Td colSpan={2} align="center" className="font-label-sm text-label-sm">
                     {pct(supplierTotal, totalPiutang || 1).toFixed(1)}% dari piutang beredar
                   </Td>
@@ -304,12 +302,12 @@ export default function HutangPiutang() {
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
                         <p className="font-label-lg text-label-lg text-primary">{l.tahap}</p>
-                        <p className="font-body-sm text-body-sm text-on-surface-variant">
-                          Kreditur {l.kreditur} • angsuran {rupiah(l.cicilan)}/bulan • {l.paidCount}/{l.tenor} terlaksana
-                        </p>
+<p className="font-body-sm text-body-sm text-on-surface-variant">
+                           Kreditur {l.kreditur} • angsuran {rupiahShort(l.cicilan)}/bulan • {l.paidCount}/{l.tenor} terlaksana
+                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-mono font-bold text-primary">{rupiah(sisa)}</p>
+                        <p className="font-mono font-bold text-primary">{rupiahPlain(sisa)}</p>
                         <p className="font-label-sm text-[10px] uppercase text-on-surface-variant">Jatuh tempo berikutnya {d(parseISO(l.nextDue))}</p>
                       </div>
                     </div>
@@ -348,28 +346,28 @@ export default function HutangPiutang() {
           <Card className="flex flex-col gap-space-md p-space-md sm:p-space-lg lg:col-span-4">
             <SectionHeading icon="insights" title="Ringkasan Kewajiban" subtitle="Posisi hutang lama terhadap likuiditas & piutang" />
             <div className="flex flex-col gap-space-sm">
-              <div className="flex items-center justify-between rounded-lg bg-surface-container-low px-space-sm py-2">
-                <span className="font-body-sm text-body-sm text-on-surface-variant">Pokok kewajiban</span>
-                <span className="font-mono font-semibold text-primary">{rupiah(legacyTotal)}</span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg bg-surface-container-low px-space-sm py-2">
-                <span className="font-body-sm text-body-sm text-on-surface-variant">Sudah terbayar</span>
-                <span className="font-mono font-semibold text-success">{rupiah(legacyTotal - legacyOut)}</span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg bg-secondary-fixed px-space-sm py-2 text-on-secondary-fixed">
-                <span className="font-body-sm text-body-sm font-semibold">Sisa outstanding</span>
-                <span className="font-mono font-bold text-secondary">{rupiah(legacyOut)}</span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg bg-surface-container-low px-space-sm py-2">
-                <span className="font-body-sm text-body-sm text-on-surface-variant">Coverage piutang terhadap kewajiban</span>
-                <span className="font-label-lg text-label-lg text-primary">{pct(totalPiutang, legacyOut || 1).toFixed(0)}%</span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg bg-surface-container-low px-space-sm py-2">
-                <span className="font-body-sm text-body-sm text-on-surface-variant">Total angsuran berikutnya</span>
-                <span className="font-mono font-semibold text-primary">
-                  {rupiah(app.legacyDebts.filter((l) => legacyOutstanding(l) > 0).reduce((s, l) => s + Math.min(l.cicilan, legacyOutstanding(l)), 0))}
-                </span>
-              </div>
+<div className="flex items-center justify-between rounded-lg bg-surface-container-low px-space-sm py-2">
+                 <span className="font-body-sm text-body-sm text-on-surface-variant">Pokok kewajiban</span>
+                 <span className="font-mono font-semibold text-primary">{rupiahShort(legacyTotal)}</span>
+               </div>
+               <div className="flex items-center justify-between rounded-lg bg-surface-container-low px-space-sm py-2">
+                 <span className="font-body-sm text-body-sm text-on-surface-variant">Sudah terbayar</span>
+                 <span className="font-mono font-semibold text-success">{rupiahShort(legacyTotal - legacyOut)}</span>
+               </div>
+               <div className="flex items-center justify-between rounded-lg bg-secondary-fixed px-space-sm py-2 text-on-secondary-fixed">
+                 <span className="font-body-sm text-body-sm font-semibold">Sisa outstanding</span>
+                 <span className="font-mono font-bold text-secondary">{rupiahShort(legacyOut)}</span>
+               </div>
+               <div className="flex items-center justify-between rounded-lg bg-surface-container-low px-space-sm py-2">
+                 <span className="font-body-sm text-body-sm text-on-surface-variant">Coverage piutang terhadap kewajiban</span>
+                 <span className="font-label-lg text-label-lg text-primary">{pct(totalPiutang, legacyOut || 1).toFixed(0)}%</span>
+               </div>
+               <div className="flex items-center justify-between rounded-lg bg-surface-container-low px-space-sm py-2">
+                 <span className="font-body-sm text-body-sm text-on-surface-variant">Total angsuran berikutnya</span>
+                 <span className="font-mono font-semibold text-primary">
+                   {rupiahShort(app.legacyDebts.filter((l) => legacyOutstanding(l) > 0).reduce((s, l) => s + Math.min(l.cicilan, legacyOutstanding(l)), 0))}
+                 </span>
+               </div>
             </div>
             <Button variant="secondary" icon="account_balance_wallet" onClick={() => app.go("kas-bank")}>
               Buka Mutasi & Transfer Bank
@@ -378,9 +376,9 @@ export default function HutangPiutang() {
         </div>
       )}
 
-      {detail === "aging" && (
+{detail === "aging" && (
         <div className="grid grid-cols-1 items-start gap-space-lg lg:grid-cols-12">
-          <Card className="flex flex-col gap-space-md p-space-md sm:p-space-lg lg:col-span-7">
+          <Card className="flex flex-col gap-space-md p-space-md sm:p-space-lg lg:col-span-6">
             <SectionHeading icon="donut_large" title="Profil Umur Piutang Beredar" subtitle={`Total outstanding ${rupiah(totalPiutang)} dari ${receivables.reduce((s, r) => s + r.count, 0)} invoice`} />
             <div className="flex flex-col gap-space-md">
               {app.aging.map((a) => (
@@ -391,9 +389,9 @@ export default function HutangPiutang() {
                       <span className="font-label-md text-label-md text-on-surface">{a.label}</span>
                       <Pill tone="outline">{a.count} invoice</Pill>
                     </span>
-                    <span className={cn("font-mono font-bold", a.key === "b3" ? "text-error" : a.key === "b2" ? "text-secondary" : "text-primary")}>
-                      {rupiah(a.amount)} ({pct(a.amount, agingTotal).toFixed(0)}%)
-                    </span>
+<span className={cn("font-mono font-bold", a.key === "b3" ? "text-error" : a.key === "b2" ? "text-secondary" : "text-primary")}>
+                       {rupiahPlain(a.amount)} ({pct(a.amount, agingTotal).toFixed(0)}%)
+                     </span>
                   </div>
                   <ProgressBar value={pct(a.amount, agingTotal)} tone={a.tone} />
                 </div>
@@ -473,14 +471,12 @@ export default function HutangPiutang() {
 function PosTile({ top, label, value, foot, icon, tone = "primary" }: { top: string; label: string; value: string; foot: string; icon: string; tone?: "primary" | "error" }) {
   return (
     <Card accentTop={top} className="flex flex-col justify-between">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex flex-col">
-          <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">{label}</span>
-          <span className={cn("mt-1 font-headline-md text-headline-md font-bold tabular", tone === "error" ? "text-error" : "text-primary")}>{value}</span>
-        </div>
-        <span className={cn("rounded-lg p-2", tone === "error" ? "bg-error-container text-error" : "bg-surface-container text-primary")}>
+      <div className="flex flex-col items-center gap-2 text-center">
+        <span className={cn("flex h-10 w-10 items-center justify-center rounded-lg", tone === "error" ? "bg-error-container text-error" : "bg-surface-container text-primary")}>
           <Icon name={icon} size={20} />
         </span>
+        <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">{label}</span>
+        <span className={cn("font-headline-md text-headline-md font-bold tabular", tone === "error" ? "text-error" : "text-primary")}>{value}</span>
       </div>
       <p className="mt-space-md rounded-lg bg-surface-container-low px-space-sm py-1.5 font-body-sm text-body-sm text-on-surface-variant">{foot}</p>
     </Card>
@@ -563,7 +559,7 @@ function ReceivePaymentModal({ customerId, invoices, onClose }: { customerId: st
                       </span>
                     </Td>
                     <Td align="center">{d(parseISO(i.dueDate))}</Td>
-                    <Td align="right" className="font-mono font-semibold text-error">{rupiah(app.outstandingOf(i))}</Td>
+                    <Td align="right" className="font-mono font-semibold text-error">{rupiahShort(app.outstandingOf(i))}</Td>
                     <Td align="center">{late > 0 ? <Pill tone="error">lewat {late}h</Pill> : <Pill tone="success">{Math.abs(late)}h lagi</Pill>}</Td>
                   </tr>
                 );

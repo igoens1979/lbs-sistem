@@ -29,6 +29,17 @@ export function rupiahShort(value: number) {
   return `${sign}Rp ${abs}`;
 }
 
+/** Nominal tanpa prefix "Rp" — untuk tampilan tabel yang rapi (angka rata kanan). */
+export function rupiahPlain(value: number, opts: { decimals?: boolean } = {}) {
+  const neg = value < 0;
+  const abs = Math.abs(value);
+  const s = abs.toLocaleString("id-ID", {
+    minimumFractionDigits: opts.decimals ? 2 : 0,
+    maximumFractionDigits: opts.decimals ? 2 : 0,
+  });
+  return `${neg ? "-" : ""}${s}`;
+}
+
 export function num(value: number, digits = 0) {
   return value.toLocaleString("id-ID", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
