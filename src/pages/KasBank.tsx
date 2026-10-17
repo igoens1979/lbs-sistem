@@ -384,9 +384,6 @@ function TxModal({ onClose }: { onClose: () => void }) {
   const app = useApp();
   const [form, setForm] = useState({ accountId: "A-002", direction: "out" as "in" | "out", amount: 5_000_000, date: iso(TODAY), desc: "", category: "Operasional Site", allocation: "LBS" as "LBS" | "KMS" | undefined });
 
-  const selectedAccount = app.accountsWithBalance.find((a) => a.id === form.accountId);
-  const isOperational = Boolean(selectedAccount?.isOperational);
-
   return (
     <Modal
       open
@@ -430,14 +427,12 @@ function TxModal({ onClose }: { onClose: () => void }) {
             <option value="in">Kas Masuk (+)</option>
           </Select>
         </Field>
-        {isOperational && (
-          <Field label="Alokasi Rekening Operasional">
-            <Select value={form.allocation ?? "LBS"} onChange={(e) => setForm({ ...form, allocation: e.target.value as "LBS" | "KMS" })}>
-              <option value="LBS">LBS (Logam Bumi Santosa)</option>
-              <option value="KMS">KMS</option>
-            </Select>
-          </Field>
-        )}
+        <Field label="Alokasi">
+          <Select value={form.allocation ?? "LBS"} onChange={(e) => setForm({ ...form, allocation: e.target.value as "LBS" | "KMS" })}>
+            <option value="LBS">LBS (Logam Bumi Santosa)</option>
+            <option value="KMS">KMS</option>
+          </Select>
+        </Field>
         <Field label="Nominal (Rp)">
           <Input type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: Number(e.target.value) })} />
         </Field>
