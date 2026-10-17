@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { Button, Card, EmptyState, Field, Icon, Input, Modal, Pill, ProgressBar, SectionHeading, Select, StatusPill, Td, Th } from "@/components/ui";
 import { NAV, type Route } from "@/lib/routes";
 import {
@@ -268,7 +268,7 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
               {app.users.map(u => (
                 <tr key={u.id}>
                   <Td><span className="font-label-md text-label-md text-primary">{employeeOf(u.employeeId)?.name ?? u.username}</span><span className="block text-[11px] text-on-surface-variant">{roleLabel(u.role)} - {u.status}</span></Td>
-                  {NAV.map(n => { const p = u.permissions[n.id]; const letters = PERM_ACTIONS.filter(a => p[a.id]).map(a => a.short); return <Td key={n.id} align="center">{letters.length === 0 ? "-" : letters.join("")}</Td>; })}
+                  {NAV.map(n => { const p = u.permissions?.[n.id] ?? { view: false, create: false, edit: false, delete: false }; const letters = PERM_ACTIONS.filter(a => p[a.id]).map(a => a.short); return <Td key={n.id} align="center">{letters.length === 0 ? "-" : letters.join("")}</Td>; })}
                 </tr>
               ))}
             </tbody>
@@ -281,4 +281,5 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
     </div>
   );
 }
+
 
