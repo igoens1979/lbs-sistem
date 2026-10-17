@@ -41,6 +41,7 @@ import type { Route } from "./routes";
 import {
   DEFAULT_USERS,
   roleLabel,
+  rolePermissions,
   type PermAction,
   type UserAccount,
 } from "./permissions";
@@ -305,7 +306,7 @@ const toUserAccount = (r: DbUser): UserAccount => ({
   createdAt: r.user_created_at ?? "",
   lastLogin: r.last_login ?? "",
   note: r.note ?? undefined,
-  permissions: r.permissions ?? {},
+  permissions: r.permissions && Object.keys(r.permissions).length ? r.permissions : rolePermissions(r.role as any),
 });
 
 const toEmployee = (r: DbEmployee): Employee => ({
