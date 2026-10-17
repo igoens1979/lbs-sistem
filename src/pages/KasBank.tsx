@@ -5,6 +5,7 @@ import { legacyOutstanding, type OpeningLogEntry, type OpeningSource } from "@/l
 import { cn, csvDownload, d, iso, monthKey, nextYm, num, parseISO, pct, prevYm, rupiah, rupiahShort, TODAY, ymLabel } from "@/lib/format";
 import { printCashReport, printOpeningBalance } from "@/lib/print";
 import { useApp } from "@/lib/store";
+import type { Ctx } from "@/lib/store";
 
 export default function KasBank() {
   const app = useApp();
@@ -16,6 +17,8 @@ const [txOpen, setTxOpen] = useState(false);
 const [transferOpen, setTransferOpen] = useState(false);
 const [openBalOpen, setOpenBalOpen] = useState(false);
 const [firstTimeOpen, setFirstTimeOpen] = useState(false);
+const [exportOpen, setExportOpen] = useState(false);
+const [exportAccountId, setExportAccountId] = useState<"all" | string>("all");
 const [saldoYm, setSaldoYm] = useState(monthKey(iso(TODAY)));
 const canCreate = app.can("kas-bank", "create");
 const canEdit = app.can("kas-bank", "edit");
@@ -135,9 +138,14 @@ const canEdit = app.can("kas-bank", "edit");
             title="Buku Mutasi Kas & Bank"
             subtitle={`${ledger.length} transaksi sesuai filter`}
             right={
-              <Button size="sm" icon="add_card" disabled={!canCreate} onClick={() => setTxOpen(true)}>
-                Mutasi Baru
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button size="sm" icon="add_card" disabled={!canCreate} onClick={() => setTxOpen(true)}>
+                  Mutasi Baru
+                </Button>
+                <Button size="sm" icon="download" variant="outline" onClick={() => setExportOpen(true)}>
+                  Export
+                </Button>
+              </div>
             }
           />
           <div className="flex flex-wrap items-end gap-space-sm">
@@ -376,6 +384,7 @@ const canEdit = app.can("kas-bank", "edit");
       {firstTimeOpen && <OpeningBalanceModal ym={saldoYm} firstTime onClose={() => setFirstTimeOpen(false)} />}
       {txOpen && <TxModal onClose={() => setTxOpen(false)} />}
       {transferOpen && <TransferModal onClose={() => setTransferOpen(false)} />}
+      {exportOpen && <ExportModal exportAccountId={exportAccountId} setExportAccountId={setExportAccountId} onClose={() => setExportOpen(false)} />}
     </PageBody>
   );
 }
@@ -524,6 +533,81 @@ function TransferModal({ onClose }: { onClose: () => void }) {
         <span className="font-mono font-bold text-primary">
           {rupiah(balance - amount)} → {rupiah(app.accountBalance(to) + amount)}
         </span>
+      </div>
+    </Modal>
+  );
+}
+
+function ledgerExport(app: Ctx, accountId: "all" | string) {
+  const txs = app.bankTx.filter((tx) => {
+    if (accountId !== "all" && tx.accountId !== accountId) return false;
+    return true;
+  });
+  return txs
+    .map((tx) => ({
+      ...tx,
+      accountName: app.accountsWithBalance.find((a) => a.id === tx.accountId)?.name ?? "-",
+    }))
+    .sort((a, b) => (a.date < b.date ? 1 : -1));
+}
+
+function ExportModal({ onClose, exportAccountId, setExportAccountId }: { onClose: () => void; exportAccountId: "all" | string; setExportAccountId: (v: "all" | string) => void }) {
+  const app = useApp();
+  const accounts = app.accountsWithBalance;
+  const rows = ledgerExport(app, exportAccountId);
+  const filename = `mutasi-kas-bank-lbs-${exportAccountId === "all" ? "semua-rekening" : accounts.find((a) => a.id === exportAccountId)?.name}.csv`;
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title="Export Mutasi Kas & Bank"
+      subtitle="Pilih rekening yang akan diexport atau pilih semua rekening"
+      footer={
+        <>
+          <Button variant="outline" onClick={onClose}>
+            Batal
+          </Button>
+          <Button
+            icon="download"
+            onClick={() => {
+              csvDownload(
+                filename,
+                [
+                  ["Tanggal", "Uraian", "Rekening", "Kategori", "Alokasi", "Masuk", "Keluar"],
+                  ...rows.map((r) => [
+                    d(parseISO(r.date)),
+                    r.desc,
+                    r.accountName,
+                    r.category,
+                    r.allocation ?? "-",
+                    r.direction === "in" ? rupiah(r.amount) : "-",
+                    r.direction === "out" ? rupiah(r.amount) : "-",
+                  ]),
+                ],
+              );
+              onClose();
+            }}
+          >
+            Export CSV
+          </Button>
+        </>
+      }
+    >
+      <div className="grid grid-cols-1 gap-space-md sm:grid-cols-2">
+        <Field label="Rekening">
+          <Select value={exportAccountId} onChange={(e) => setExportAccountId(e.target.value as "all" | string)}>
+            <option value="all">Semua Rekening</option>
+            {accounts.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name} — {rupiahShort(a.balance)}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field label="Jumlah Data">
+          <span className="font-body-sm text-body-sm text-on-surface-variant">{rows.length} transaksi akan diexport</span>
+        </Field>
       </div>
     </Modal>
   );
