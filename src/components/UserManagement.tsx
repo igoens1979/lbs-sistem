@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button, Card, EmptyState, Field, Icon, Input, Modal, Pill, ProgressBar, SectionHeading, Select, StatusPill, Td, Th } from "@/components/ui";
 import { NAV, type Route } from "@/lib/routes";
 import {
@@ -205,8 +205,6 @@ export function UserForm({ draft, onSave, onClose, canEdit }: { draft: UserAccou
                     ))}
                     <Td align="center">
                       <button
-                        type="button"
-                        disabled={!canEdit}
                         onClick={() => toggleAll(n.id, !allOn)}
                         className={cn(
                           "rounded-lg px-2 py-1 font-label-sm text-[10px] uppercase transition-colors disabled:opacity-40",
@@ -214,6 +212,7 @@ export function UserForm({ draft, onSave, onClose, canEdit }: { draft: UserAccou
                         )}
                       >
                         {allOn ? "penuh" : "pilih"}
+
                       </button>
                     </Td>
                   </tr>
@@ -238,6 +237,8 @@ export function UserForm({ draft, onSave, onClose, canEdit }: { draft: UserAccou
     </Modal>
   );
 }
+
+
 
 export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefillEmployeeId: string | null; onConsumePrefill: () => void }) {
   const app = useApp();
