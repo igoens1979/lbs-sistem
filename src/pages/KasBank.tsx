@@ -548,6 +548,7 @@ const SOURCE_META: Record<OpeningSource | "koreksi", { label: string; tone: stri
 };
 
 function SaldoAwalSection({ ym, onYm, onInput, onFirstTime }: { ym: string; onYm: (v: string) => void; onInput: () => void; onFirstTime: () => void }) {
+  const SHOW_SALDO_AWAL_DETAIL = false;
   const app = useApp();
   const rows = app.monthSummary(ym);
   const prev = prevYm(ym);
@@ -621,12 +622,13 @@ function SaldoAwalSection({ ym, onYm, onInput, onFirstTime }: { ym: string; onYm
         </Card>
       </div>
 
-      <Card className="flex flex-col gap-space-md p-space-md sm:p-space-lg">
-        <SectionHeading
-          icon="table_rows"
-          title={`Kartu Saldo Awal per Rekening — ${ymLabel(ym)}`}
-          subtitle="Satu rekening satu baris; sumber nilai ditandai pada kolom Sumber"
-        />
+      {SHOW_SALDO_AWAL_DETAIL && (
+        <Card className="flex flex-col gap-space-md p-space-md sm:p-space-lg">
+          <SectionHeading
+            icon="table_rows"
+            title={`Kartu Saldo Awal per Rekening — ${ymLabel(ym)}`}
+            subtitle="Satu rekening satu baris; sumber nilai ditandai pada kolom Sumber"
+          />
         <div className="overflow-x-auto rounded-lg bg-surface-container-low">
           <table className="w-full border-collapse text-left">
             <thead>
@@ -758,6 +760,7 @@ function SaldoAwalSection({ ym, onYm, onInput, onFirstTime }: { ym: string; onYm
           )}
         </div>
       </Card>
+      )}
     </section>
   );
 }
