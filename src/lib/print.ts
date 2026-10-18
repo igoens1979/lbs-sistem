@@ -73,27 +73,31 @@ function run(title: string, body: string) {
   }, 300);
 }
 
-export function printSuratJalan(row: SJ, extras: { site: string; note?: string }) {
+export function printSuratJalan(row: SJ, extras: { site: string; note?: string }, ctx?: { customers: any[]; commodities: any[]; vehicles: any[]; drivers: any[] }) {
+  const customerNameFn = (id: string) => ctx?.customers?.find((c: any) => c.id === id)?.name ?? customerName(id);
+  const commodityNameFn = (id: string) => ctx?.commodities?.find((c: any) => c.id === id)?.name ?? commodityName(id);
+  const vehiclePlateFn = (id: string) => ctx?.vehicles?.find((v: any) => v.id === id)?.plate ?? vehiclePlate(id);
+  const driverNameFn = (id: string) => ctx?.drivers?.find((d: any) => d.id === id)?.name ?? driverName(id);
   const body = `
   ${kop("Surat Jalan / Delivery Order", row.no)}
   <div class="grid">
-    <div class="kv"><b>Pelanggan</b> ${customerName(row.customerId)}</div>
+    <div class="kv"><b>Pelanggan</b> ${customerNameFn(row.customerId)}</div>
     <div class="kv"><b>Tanggal Muat</b> ${d(parseISO(row.date))}</div>
     <div class="kv"><b>Lokasi Muat</b> ${extras.site}</div>
-    <div class="kv"><b>Unit Armada</b> ${vehiclePlate(row.vehicleId)}</div>
-    <div class="kv"><b>Driver</b> ${driverName(row.driverId)}</div>
+    <div class="kv"><b>Unit Armada</b> ${vehiclePlateFn(row.vehicleId)}</div>
+    <div class="kv"><b>Driver</b> ${driverNameFn(row.driverId)}</div>
     <div class="kv"><b>Jumlah Ritase</b> ${num(row.trips)} rit</div>
   </div>
   <table>
     <thead><tr><th>Komoditas</th><th>Volume</th></tr></thead>
     <tbody>
-      <tr><td>${commodityName(row.commodityId)}</td><td>${num(row.volume)} m³</td></tr>
+      <tr><td>${commodityNameFn(row.commodityId)}</td><td>${num(row.volume)} m³</td></tr>
     </tbody>
     <tfoot><tr><td colspan="2">Total Volume Muatan ${num(row.volume)} m³</td></tr></tfoot>
   </table>
   ${extras.note ? `<div class="note"><b>Catatan operasional:</b> ${extras.note}</div>` : ""}
   <div class="sign">
-    <div>Driver<br/><br/>${driverName(row.driverId)}</div>
+    <div>Driver<br/><br/>${driverNameFn(row.driverId)}</div>
     <div>Petugas Timbangan<br/><br/>…………………………</div>
     <div>Penerima / Pelanggan<br/><br/>…………………………</div>
   </div>

@@ -393,7 +393,7 @@ footer={
               Batal
             </Button>
             <Button icon="print" onClick={() => {
-              printSuratJalan(printRow, { site: printRow.site, note: printNote.trim() || undefined });
+              printSuratJalan(printRow, { site: printRow.site, note: printNote.trim() || undefined }, { customers: app.customers, commodities: app.commodities, vehicles: app.vehicles, drivers: app.drivers });
               setPrintRow(null);
               setPrintNote("");
             }}>
