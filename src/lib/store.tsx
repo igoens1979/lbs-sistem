@@ -519,7 +519,7 @@ const dbUser = (u: UserAccount) => ({
   note: u.note ?? null,
   permissions: u.permissions,
   must_change_password: u.mustChangePassword ?? (u.tempPassword ? true : false),
-  temp_password: u.tempPassword ?? undefined,
+  temp_password: u.tempPassword ?? null,
 });
 
 const dbEmployee = (e: Employee) => ({
@@ -1787,7 +1787,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const nextUser = { ...user };
       return { ...s, users: exists ? s.users.map((u) => (u.id === user.id ? nextUser : u)) : [nextUser, ...s.users] };
     });
-    toast("Akun pengguna tersimpan", `${user.username} • ${roleLabel(user.role)} • ${user.status}`, "success");
+    toast("Akun pengguna tersimpan", `${user.username} - ${roleLabel(user.role)} - ${user.status}`, "success");
   };
 
   const removeUser: Ctx["removeUser"] = async (id) => {

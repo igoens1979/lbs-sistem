@@ -19,7 +19,7 @@ import { useApp } from "@/lib/store";
 export function UserForm({ draft, onSave, onClose, canEdit }: { draft: UserAccount; onSave: (u: UserAccount) => void; onClose: () => void; canEdit: boolean }) {
   const app = useApp();
   const [form, setForm] = useState<UserAccount>(draft);
-  const emp = employeeOf(form.employeeId);
+  const emp = app.employees.find(e => e.id === form.employeeId) || employeeOf(form.employeeId);
   const sum = permissionSummary(form.permissions);
 
   const toggle = (route: Route, action: PermAction) =>
@@ -55,7 +55,7 @@ export function UserForm({ draft, onSave, onClose, canEdit }: { draft: UserAccou
       <div className="flex flex-col gap-space-lg">
         <div className="grid grid-cols-1 gap-space-md sm:grid-cols-2">
           <Field label="Karyawan Terhubung" className="sm:col-span-2">
-            <Select value={form.employeeId} onChange={(e) => { const eid = e.target.value; const emp2 = app.employees.find(x=>x.id===eid); const baseUser = emp2?.name.split(" ")[0].toLowerCase().replace(/\s+/g,"") ?? ""; const emailBase = (emp2 as any)?.email ?? (baseUser ? `${baseUser}@lbs-group.co.id` : form.email); setForm(f => ({ ...f, employeeId: eid, username: baseUser || f.username, email: emailBase.toLowerCase() })); }} disabled={!canEdit}>
+            <Select value={form.employeeId} onChange={(e) => { const eid = e.target.value; const emp2 = app.employees.find(x=>x.id===eid); const baseUser = (emp2?.name.split(" ")[0].toLowerCase().replace(/\s+/g,"")) ?? ""; const emailBase = (emp2 as any)?.email ?? (baseUser ? `${baseUser}@lbs-group.co.id` : form.email); setForm(f => ({ ...f, employeeId: eid, username: baseUser || f.username, email: emailBase.toLowerCase() })); }} disabled={!canEdit}>
               <option value="">- Pilih karyawan -</option>
               {app.employees.filter(e => e.status !== "Resign").sort((a,b) => a.name.localeCompare(b.name)).map(e => <option key={e.id} value={e.id}>{e.name} - {e.division} ({e.role})</option>)}
             </Select>
@@ -160,7 +160,7 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
       status: "Aktif",
       scope: "Site Golo Mori",
       createdAt: iso(TODAY()),
-      lastLogin: "-",
+      lastLogin: "",
       note: "",
       permissions: rolePermissions("viewer"),
       tempPassword: genPwd(),
