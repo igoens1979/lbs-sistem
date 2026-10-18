@@ -1783,8 +1783,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
     } catch (e: any) {
       const msg = e?.message ?? String(e);
-      console.error("[saveUser] Gagal menyimpan akun pengguna:", e);
-      toast("Gagal menyimpan akun pengguna", msg, "error");
+      const detail = e?.details ?? e?.detail ?? e?.hint ?? e?.code ?? "";
+      console.error("[saveUser] Gagal menyimpan akun pengguna:", { message: msg, detail, status: e?.status, statusText: e?.statusText, error: e?.error, full: e });
+      toast("Gagal menyimpan akun pengguna", msg + (detail ? " — " + detail : ""), "error");
       return;
     }
     setState((s) => {
