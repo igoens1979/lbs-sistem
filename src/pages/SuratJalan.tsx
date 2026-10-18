@@ -69,7 +69,7 @@ const canCreate = app.can("surat-jalan", "create");
                   r.no,
                   d(parseISO(r.date)),
                   app.customers.find((c) => c.id === r.customerId)?.name ?? "",
-                  commodityName(r.commodityId),
+                  app.commodities.find((c) => c.id === r.commodityId)?.name ?? "-",
                   r.volume,
                   r.trips,
                   vehiclePlate(r.vehicleId),
@@ -217,7 +217,7 @@ const canCreate = app.can("surat-jalan", "create");
                     </div>
                   </Td>
                   <Td>{app.customers.find((c) => c.id === r.customerId)?.name}</Td>
-                  <Td>{commodityName(r.commodityId)}</Td>
+                  <Td>{app.commodities.find((c) => c.id === r.commodityId)?.name ?? "-"}</Td>
                   <Td align="right" className="font-mono">
                     {num(r.volume)} m³
                     <span className="block text-[11px] text-on-surface-variant">{r.trips ?? "-"} rit</span>
@@ -332,7 +332,7 @@ footer={
             <div className="grid grid-cols-2 gap-space-sm">
               <Info label="Pelanggan" value={app.customers.find((c) => c.id === detail.customerId)?.name ?? "-"} icon="business" />
               <Info label="Nilai Muatan" value={rupiah(detail.volume * detail.trips * detail.price)} icon="payments" />
-              <Info label="Komoditas" value={commodityName(detail.commodityId)} icon="category" />
+              <Info label="Komoditas" value={app.commodities.find((c) => c.id === detail.commodityId)?.name ?? "-"} icon="category" />
               <Info label="Volume / Ritase" value={`${num(detail.volume)} m³ • ${detail.trips} rit`} icon="scale" />
               <Info label="Unit Armada" value={`${vehiclePlate(detail.vehicleId)}`} icon="local_shipping" />
               <Info label="Driver" value={driverName(detail.driverId)} icon="badge" />

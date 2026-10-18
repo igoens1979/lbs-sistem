@@ -45,7 +45,7 @@ export default function Dashboard() {
   const maxRevenue = Math.max(...topCustomers.map((t) => t.revenue), 1);
 
   const feed = [
-    ...app.sj.filter((r) => r.status !== "Batal").slice(0, 6).map((r) => ({
+    ...app.sj.filter((r) => r.status !== "Batal").slice(0, 10).map((r) => ({
       id: r.id,
       date: r.date,
       icon: "local_shipping",
