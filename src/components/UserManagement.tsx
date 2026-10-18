@@ -55,7 +55,7 @@ export function UserForm({ draft, onSave, onClose, canEdit }: { draft: UserAccou
       <div className="flex flex-col gap-space-lg">
         <div className="grid grid-cols-1 gap-space-md sm:grid-cols-2">
           <Field label="Karyawan Terhubung" className="sm:col-span-2">
-            <Select value={form.employeeId} onChange={(e) => { const eid = e.target.value; const emp2 = app.employees.find(x=>x.id===eid); const baseUser = (emp2?.name.split(" ")[0].toLowerCase().replace(/\s+/g,"")) ?? ""; const emailBase = (emp2 as any)?.email ?? (baseUser ? `${baseUser}@lbs-group.co.id` : form.email); setForm(f => ({ ...f, employeeId: eid, username: baseUser || f.username, email: emailBase.toLowerCase() })); }} disabled={!canEdit}>
+            <Select value={form.employeeId} onChange={(e) => { const eid = e.target.value; const emp2 = app.employees.find(x=>x.id===eid) || employeeOf(eid); const nameStr = emp2?.name ?? ""; const baseUser = nameStr ? nameStr.split(" ")[0].toLowerCase().replace(/\s+/g,"") : ""; const emailBase = (emp2 as any)?.email ?? (baseUser ? `${baseUser}@lbs-group.co.id` : form.email); setForm(f => ({ ...f, employeeId: eid, username: baseUser || f.username, email: emailBase.toLowerCase() })); }} disabled={!canEdit}>
               <option value="">- Pilih karyawan -</option>
               {app.employees.filter(e => e.status !== "Resign").sort((a,b) => a.name.localeCompare(b.name)).map(e => <option key={e.id} value={e.id}>{e.name} - {e.division} ({e.role})</option>)}
             </Select>
@@ -159,8 +159,10 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
       role: "viewer",
       status: "Aktif",
       scope: "Site Golo Mori",
+      user_created_at: iso(TODAY()),
+      last_login: null,
       createdAt: iso(TODAY()),
-      lastLogin: "",
+      lastLogin: null,
       note: "",
       permissions: rolePermissions("viewer"),
       tempPassword: genPwd(),
@@ -246,10 +248,10 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
                 <tr key={u.id} className={cn("transition-colors hover:bg-surface-container-lowest/60", u.status !== "Aktif" && "opacity-70")}>
                   <Td>
                     <div className="flex items-center gap-space-sm">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-fixed font-label-sm text-[10px] text-primary">{(emp?.name ?? u.username).split(" ").slice(0,2).map(w => w[0]).join("")}</span>
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-fixed font-label-sm text-[10px] text-primary">{(emp?.name || u.username).split(" ").slice(0,2).map(w => w[0]).join("")}</span>
                       <span className="flex flex-col">
-                        <span className="font-label-md text-label-md font-semibold text-primary">{emp?.name ?? "Tanpa data karyawan"}{account && <Pill tone="amberSoft" className="ml-2">Sesi Anda</Pill>}</span>
-                        <span className="text-[11px] text-on-surface-variant">{emp?.code ?? "-"} - {emp?.division ?? "-"} - {emp?.role ?? "-"}</span>
+                        <span className="font-label-md text-label-md font-semibold text-primary">{emp?.name || u.username}{account && <Pill tone="amberSoft" className="ml-2">Sesi Anda</Pill>}</span>
+                        <span className="text-[11px] text-on-surface-variant">{emp?.code || u.employeeId || "-"} - {emp?.division || "-"}</span>
                         {u.tempPassword && <span className="text-[10px] text-secondary">Ada password sementara (wajib diganti)</span>}
                       </span>
                     </div>
@@ -258,7 +260,7 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
                   <Td align="center"><Pill tone={u.role === "super-admin" ? "navy" : u.role === "viewer" ? "outline" : "neutral"}>{roleLabel(u.role)}</Pill></Td>
                   <Td align="center">{u.scope}</Td>
                   <Td align="center"><span className="font-label-md text-label-md text-primary">{sum.visible}/{sum.total} modul - {sum.actions} izin</span></Td>
-                  <Td align="center" className="whitespace-nowrap font-mono">{u.lastLogin === "-" ? "Belum pernah" : d(parseISO(u.lastLogin))}</Td>
+                  <Td align="center" className="whitespace-nowrap font-mono">{u.lastLogin ? (u.lastLogin === "-" ? "Belum pernah" : (u.lastLogin === "null" || !u.lastLogin ? "Belum pernah" : d(parseISO(u.lastLogin)))) : "Belum pernah"}</Td>
                   <Td align="center"><StatusPill status={u.status} /></Td>
                   <Td align="center">
                     <div className="flex items-center justify-center gap-1">

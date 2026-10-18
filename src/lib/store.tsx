@@ -304,7 +304,7 @@ const toUserAccount = (r: DbUser): UserAccount => ({
   status: r.user_status as any,
   scope: r.scope as any,
   createdAt: r.user_created_at ?? "",
-  lastLogin: r.last_login ?? "",
+  lastLogin: r.last_login ?? null,
   note: r.note ?? undefined,
   permissions: r.permissions && Object.keys(r.permissions).length ? r.permissions : rolePermissions(r.role as any),
   mustChangePassword: (r as any).must_change_password ?? undefined,
@@ -1778,7 +1778,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const saveUser: Ctx["saveUser"] = async (user) => {
     try {
-      await supabase.from("users").upsert([dbUser(user)]);
+      const payload = dbUser(user);
+      await supabase.from("users").upsert([payload]);
     } catch (e) {
       // ignore network/db errors in dev if schema differs; still update local state
     }
