@@ -32,7 +32,7 @@ const canCreate = app.can("surat-jalan", "create");
       if (query.trim()) {
         const q = query.toLowerCase();
         const customer = app.customers.find((c) => c.id === r.customerId)?.name.toLowerCase() ?? "";
-        if (!r.no.toLowerCase().includes(q) && !customer.includes(q) && !vehiclePlate(r.vehicleId).toLowerCase().includes(q)) return false;
+        if (!r.no.toLowerCase().includes(q) && !customer.includes(q) && !app.vehicles.find((v) => v.id === r.vehicleId)?.plate ?? "-".toLowerCase().includes(q)) return false;
       }
       return true;
     });
@@ -72,8 +72,8 @@ const canCreate = app.can("surat-jalan", "create");
                   app.commodities.find((c) => c.id === r.commodityId)?.name ?? "-",
                   r.volume,
                   r.trips,
-                  vehiclePlate(r.vehicleId),
-                  driverName(r.driverId),
+                  app.vehicles.find((v) => v.id === r.vehicleId)?.plate ?? "-",
+                  app.drivers.find((d) => d.id === r.driverId)?.name ?? "-",
                   r.volume * r.trips * r.price,
                   r.status,
                   app.invoices.find((i) => i.id === r.invoiceId)?.no ?? "-",
@@ -224,8 +224,8 @@ const canCreate = app.can("surat-jalan", "create");
                   </Td>
                   <Td>
                     <div className="flex flex-col">
-                      <span className="font-label-md text-label-md text-primary">{vehiclePlate(r.vehicleId)}</span>
-                      <span className="text-[11px] text-on-surface-variant">{driverName(r.driverId)}</span>
+                      <span className="font-label-md text-label-md text-primary">{app.vehicles.find((v) => v.id === r.vehicleId)?.plate ?? "-"}</span>
+                      <span className="text-[11px] text-on-surface-variant">{app.drivers.find((d) => d.id === r.driverId)?.name ?? "-"}</span>
                     </div>
                   </Td>
                   <Td align="right" className="font-mono font-semibold text-primary">{rupiah(r.volume * r.trips * r.price)}</Td>
@@ -334,8 +334,8 @@ footer={
               <Info label="Nilai Muatan" value={rupiah(detail.volume * detail.trips * detail.price)} icon="payments" />
               <Info label="Komoditas" value={app.commodities.find((c) => c.id === detail.commodityId)?.name ?? "-"} icon="category" />
               <Info label="Volume / Ritase" value={`${num(detail.volume)} m³ • ${detail.trips} rit`} icon="scale" />
-              <Info label="Unit Armada" value={`${vehiclePlate(detail.vehicleId)}`} icon="local_shipping" />
-              <Info label="Driver" value={driverName(detail.driverId)} icon="badge" />
+              <Info label="Unit Armada" value={`${app.vehicles.find((v) => v.id === detail.vehicleId)?.plate ?? "-"}`} icon="local_shipping" />
+              <Info label="Driver" value={app.drivers.find((d) => d.id === detail.driverId)?.name ?? "-"} icon="badge" />
             </div>
             <div className="rounded-xl bg-surface-container-low p-space-sm">
               <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Catatan Operasional</span>
