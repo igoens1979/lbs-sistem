@@ -1782,7 +1782,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const { error } = await supabase.from("users").upsert([payload]);
       if (error) throw error;
     } catch (e: any) {
-      toast("Gagal menyimpan akun pengguna", e?.message ?? String(e), "error");
+      const msg = e?.message ?? String(e);
+      console.error("[saveUser] Gagal menyimpan akun pengguna:", e);
+      toast("Gagal menyimpan akun pengguna", msg, "error");
       return;
     }
     setState((s) => {
