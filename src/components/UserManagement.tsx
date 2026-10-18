@@ -177,8 +177,8 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
   const rows = useMemo(
     () =>
       app.users
-        .map((u) => ({ u, emp: employeeOf(u.employeeId), account: app.currentAccount?.id === u.id }))
-        .filter((r) => {
+        .map((u) => ({ u, emp: app.employees.find(e => e.id === u.employeeId) || employeeOf(u.employeeId), account: app.currentAccount?.id === u.id }))
+        .filter((r) => { ...
           if (roleFilter !== "all" && r.u.role !== roleFilter) return false;
           if (statusFilter !== "all" && r.u.status !== statusFilter) return false;
           if (query.trim()) {
@@ -248,9 +248,9 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
                 <tr key={u.id} className={cn("transition-colors hover:bg-surface-container-lowest/60", u.status !== "Aktif" && "opacity-70")}>
                   <Td>
                     <div className="flex items-center gap-space-sm">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-fixed font-label-sm text-[10px] text-primary">{(emp?.name || u.username).split(" ").slice(0,2).map(w => w[0]).join("")}</span>
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-fixed font-label-sm text-[10px] text-primary">{((emp?.name || u.username) || '').split(" ").slice(0,2).map(w => w[0]).join("") || '-'}</span>
                       <span className="flex flex-col">
-                        <span className="font-label-md text-label-md font-semibold text-primary">{emp?.name || u.username}{account && <Pill tone="amberSoft" className="ml-2">Sesi Anda</Pill>}</span>
+                        <span className="font-label-md text-label-md font-semibold text-primary">{emp?.name ? emp.name : (u.username || "Tanpa nama")}{account && <Pill tone="amberSoft" className="ml-2">Sesi Anda</Pill>}</span>
                         <span className="text-[11px] text-on-surface-variant">{emp?.code || u.employeeId || "-"} - {emp?.division || "-"}</span>
                         {u.tempPassword && <span className="text-[10px] text-secondary">Ada password sementara (wajib diganti)</span>}
                       </span>

@@ -1781,7 +1781,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const payload = dbUser(user);
       await supabase.from("users").upsert([payload]);
     } catch (e) {
-      // ignore network/db errors in dev if schema differs; still update local state
+      // ignore
     }
     setState((s) => {
       const exists = s.users.some((u) => u.id === user.id);
