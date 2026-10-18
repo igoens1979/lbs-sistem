@@ -304,7 +304,7 @@ const toUserAccount = (r: DbUser): UserAccount => ({
   status: r.user_status as any,
   scope: r.scope as any,
   createdAt: r.user_created_at ?? "",
-  lastLogin: r.last_login ?? null,
+  lastLogin: r.last_login ?? "-",
   note: r.note ?? undefined,
   permissions: r.permissions && Object.keys(r.permissions).length ? r.permissions : rolePermissions(r.role as any),
   mustChangePassword: (r as any).must_change_password ?? undefined,
@@ -515,7 +515,7 @@ const dbUser = (u: UserAccount) => ({
   user_status: u.status,
   scope: u.scope,
   user_created_at: u.createdAt,
-  last_login: u.lastLogin,
+  last_login: u.lastLogin === "-" ? null : u.lastLogin,
   note: u.note ?? null,
   permissions: u.permissions,
   must_change_password: u.mustChangePassword ?? (u.tempPassword ? true : false),
@@ -1779,9 +1779,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const saveUser: Ctx["saveUser"] = async (user) => {
     try {
       const payload = dbUser(user);
-      await supabase.from("users").upsert([payload]);
-    } catch (e) {
-      // ignore
+      const { error } = await supabase.from("users").upsert([payload]);
+      if (error) throw error;
+    } catch (e: any) {
+      toast("Gagal menyimpan akun pengguna", e?.message ?? String(e), "error");
+      return;
     }
     setState((s) => {
       const exists = s.users.some((u) => u.id === user.id);

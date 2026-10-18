@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useState } from "react";
-import { Button, Card, EmptyState, Field, Icon, Input, Modal, Pill, ProgressBar, SectionHeading, Select, StatusPill, Td, Th } from "@/components/ui";
+import { Button, Card, EmptyState, Field, Icon, Input, Modal, Pill, SectionHeading, Select, StatusPill, Td, Th } from "@/components/ui";
 import { NAV, type Route } from "@/lib/routes";
 import {
   PERM_ACTIONS,
@@ -12,7 +12,7 @@ import {
   type UserAccount,
   type UserRoleId,
 } from "@/lib/permissions";
-import { cn, csvDownload, d, iso, parseISO, TODAY } from "@/lib/format";
+import { cn, d, iso, parseISO, TODAY } from "@/lib/format";
 import { printUserAccess } from "@/lib/print";
 import { useApp } from "@/lib/store";
 
@@ -45,6 +45,7 @@ export function UserForm({ draft, onSave, onClose, canEdit }: { draft: UserAccou
           <Button variant="outline" onClick={onClose}>Batal</Button>
           <Button icon="save" disabled={!canEdit} onClick={() => {
             if (!form.employeeId) { app.toast("Karyawan belum dipilih", "Akun login harus terkait dengan data karyawan", "warn"); return; }
+            if (chosenEmployeeTaken) { app.toast("Karyawan sudah memiliki akun", "Pilih karyawan lain yang belum terdaftar sebagai pengguna", "warn"); return; }
             if (!form.email.trim() || !form.username.trim()) { app.toast("Username & email wajib diisi", "Data ini dipakai untuk login ke sistem", "warn"); return; }
             if (sum.visible === 0) { app.toast("Minimal satu modul harus dapat dilihat", "Centang izin Lihat pada menu yang diperlukan", "warn"); return; }
             onSave(form);
@@ -159,10 +160,8 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
       role: "viewer",
       status: "Aktif",
       scope: "Site Golo Mori",
-      user_created_at: iso(TODAY()),
-      last_login: null,
       createdAt: iso(TODAY()),
-      lastLogin: null,
+      lastLogin: "-",
       note: "",
       permissions: rolePermissions("viewer"),
       tempPassword: genPwd(),
@@ -178,7 +177,7 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
     () =>
       app.users
         .map((u) => ({ u, emp: app.employees.find(e => e.id === u.employeeId) || employeeOf(u.employeeId), account: app.currentAccount?.id === u.id }))
-        .filter((r) => { ...
+        .filter((r) => {
           if (roleFilter !== "all" && r.u.role !== roleFilter) return false;
           if (statusFilter !== "all" && r.u.status !== statusFilter) return false;
           if (query.trim()) {
