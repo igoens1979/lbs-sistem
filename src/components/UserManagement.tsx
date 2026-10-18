@@ -277,7 +277,7 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
           </tbody>
         </table>
       </div>
-      {draft && <UserForm draft={draft} onClose={() => setDraft(null)} onSave={(u) => { app.saveUser(u); const isNew = !app.users.some(x => x.id === u.id); const pwd = u.tempPassword || draft.tempPassword; if (isNew && pwd) { setTempPwd({ id: u.id, pwd, email: u.email }); } setDraft(null); }} canEdit={canEdit || canCreate} />}
+      {draft && <UserForm draft={draft} onClose={() => setDraft(null)} onSave={(u) => { const isNew = !app.users.some(x => x.id === u.id); const pwd = u.tempPassword || draft.tempPassword; app.saveUser(u); if (isNew && pwd) { setTempPwd({ id: u.id, pwd, email: u.email }); } setDraft(null); }} canEdit={canEdit || canCreate} />}
       {tempPwd && (
         <Modal open onClose={() => setTempPwd(null)} title="Kata Sandi Sementara Dibuat" subtitle="Salin dan kirim ke email karyawan. Wajib diganti saat login pertama." footer={<Button onClick={() => setTempPwd(null)}>Tutup</Button>}>
           <div className="flex flex-col gap-space-md">
