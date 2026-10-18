@@ -220,7 +220,7 @@ const canCreate = app.can("surat-jalan", "create");
                   <Td>{commodityName(r.commodityId)}</Td>
                   <Td align="right" className="font-mono">
                     {num(r.volume)} m³
-                    <span className="block text-[11px] text-on-surface-variant">{r.trips} rit</span>
+                    <span className="block text-[11px] text-on-surface-variant">{r.trips ?? "-"} rit</span>
                   </Td>
                   <Td>
                     <div className="flex flex-col">

@@ -40,7 +40,8 @@ export function rupiahPlain(value: number, opts: { decimals?: boolean } = {}) {
   return `${neg ? "-" : ""}${s}`;
 }
 
-export function num(value: number, digits = 0) {
+export function num(value: number | null | undefined, digits = 0) {
+  if (value == null) return "-";
   return value.toLocaleString("id-ID", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
