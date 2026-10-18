@@ -212,7 +212,7 @@ const canCreate = app.can("surat-jalan", "create");
                     <div className="flex flex-col">
                       <span className="font-label-md text-label-md font-semibold text-primary">{r.no}</span>
                       <span className="text-[11px] text-on-surface-variant">
-                        {d(parseISO(r.date))} • {r.site}
+                        {r.date ? d(parseISO(r.date)) : "-"} • {r.site}
                       </span>
                     </div>
                   </Td>

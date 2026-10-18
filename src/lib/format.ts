@@ -57,7 +57,8 @@ export function iso(dt: Date) {
   return `${dt.getFullYear()}-${mm}-${dd}`;
 }
 
-export function parseISO(value: string) {
+export function parseISO(value: string | null | undefined) {
+  if (!value) return new Date();
   const [y, m, day] = value.split("-").map(Number);
   return new Date(y || 2026, (m || 1) - 1, day || 1);
 }
