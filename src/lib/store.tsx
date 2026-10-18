@@ -1782,10 +1782,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const { error } = await supabase.from("users").upsert([payload]);
       if (error) throw error;
     } catch (e: any) {
-      const msg = e?.message ?? String(e);
-      const detail = e?.details ?? e?.detail ?? e?.hint ?? e?.code ?? "";
-      console.error("[saveUser] Gagal menyimpan akun pengguna:", { message: msg, detail, status: e?.status, statusText: e?.statusText, error: e?.error, full: e });
-      toast("Gagal menyimpan akun pengguna", msg + (detail ? " — " + detail : ""), "error");
+      const err = e?.error ?? e;
+      const serializable = {
+        message: err?.message ?? e?.message ?? String(e),
+        code: err?.code ?? e?.code,
+        details: err?.details ?? err?.detail ?? e?.details ?? e?.detail,
+        hint: err?.hint ?? e?.hint,
+        status: err?.status ?? e?.status,
+      };
+      const readable = Object.entries(serializable)
+        .map(([k, v]) => (v != null && v !== "" ? `${k}: ${v}` : null))
+        .filter(Boolean)
+        .join(" | ");
+      console.error("[saveUser] Gagal menyimpan akun pengguna:", serializable);
+      toast("Gagal menyimpan akun pengguna", readable || String(e), "error");
       return;
     }
     setState((s) => {
