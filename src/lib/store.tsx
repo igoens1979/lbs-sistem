@@ -518,8 +518,6 @@ const dbUser = (u: UserAccount) => ({
   last_login: u.lastLogin === "-" ? null : u.lastLogin,
   note: u.note ?? null,
   permissions: u.permissions,
-  must_change_password: u.mustChangePassword ?? (u.tempPassword ? true : false),
-  temp_password: u.tempPassword ?? null,
 });
 
 const dbEmployee = (e: Employee) => ({
