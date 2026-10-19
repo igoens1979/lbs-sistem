@@ -91,14 +91,15 @@ const [email, setEmail] = useState("");
           <div className="mt-space-lg flex items-center gap-space-sm rounded-xl bg-surface-container-low p-space-sm">
             <Icon name="shield_person" size={22} className="text-primary" />
             <span className="font-body-sm text-body-sm text-on-surface-variant">
-              Peran akun menentukan hak akses: <b className="text-primary">Lihat / Tambah / Ubah / Hapus</b> per menu, diatur pada Master Data → Pengguna &amp; Hak Akses.
+              Akses hanya diperuntukkan bagi personel dan staf resmi PT Logam Bumi Santosa. Seluruh aktivitas login dipantau dan diaudit secara berkala.
             </span>
           </div>
 
-</Card>
-        <p className="mt-space-md max-w-md text-center font-body-sm text-body-sm text-on-surface-variant">
-          Data pada aplikasi demo ini tersimpan di memori sesi browser. Setiap transaksi yang Anda buat akan langsung memperbarui dashboard.
-        </p>
+          <div className="mt-space-md flex items-center justify-center gap-space-sm">
+            <Icon name="support_agent" size={18} className="text-primary" />
+            <span className="font-body-sm text-body-sm text-on-surface-variant">IT Helpdesk Site : +62 88991593993</span>
+          </div>
+        </Card>
       </div>
     </div>
   );
