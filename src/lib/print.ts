@@ -272,25 +272,7 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
     })
     .join("");
 
-  const recap = isGabungan ? `
-  <div class="sec-title">Rekapitulasi Lampiran Surat Jalan — ${inv.no}</div>
-  <table>
-    <thead><tr><th>Pelanggan Asal Muatan</th><th style="text-align:center">Jumlah SJ</th><th style="text-align:right">Volume</th><th style="text-align:right">Nilai Muatan (DPP)</th></tr></thead>
-    <tbody>${summaryRows}</tbody>
-    <tfoot>
-      <tr><td>TOTAL DPP LAMPIRAN</td><td style="text-align:center">${totalSj}</td><td style="text-align:right">${num(totalVolume)} m³</td><td style="text-align:right">${rupiah(inv.dpp)}</td></tr>
-    </tfoot>
-  </table>
-  <table>
-    <tbody>
-      <tr><td>${rateLabel}</td><td style="text-align:right">${rupiah(inv.ppn)}</td></tr>
-    </tbody>
-    <tfoot>
-      <tr><td>Total Tagihan (sesuai halaman 1)</td><td style="text-align:right">${rupiah(inv.total)}</td></tr>
-      <tr><td>Sudah Dibayar</td><td style="text-align:right">${rupiah(ctx.paid)}</td></tr>
-      <tr><td>Sisa Kewajiban</td><td style="text-align:right">${rupiah(Math.max(0, inv.total - ctx.paid))}</td></tr>
-    </tfoot>
-  </table>` : "";
+  const recap = "";
 
   const lampiran = `
   <div class="page">
