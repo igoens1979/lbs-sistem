@@ -1,4 +1,4 @@
-import type { Invoice, SJ } from "./data";
+import type { Customer, Invoice, SJ } from "./data";
 import { CUSTOMERS, commodityName, customerName, driverName, vehiclePlate } from "./data";
 import { d, daysBetween, num, parseISO, rupiah } from "./format";
 
@@ -106,8 +106,9 @@ export function printSuratJalan(row: SJ, extras: { site: string; note?: string }
 }
 
 /** Membangun HTML invoice: halaman 1 ringkasan, halaman 2+ lampiran surat jalan (dikelompokkan per pelanggan asal muatan). */
-export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; rows: SJ[]; allInvoices?: Invoice[] }) {
-  const cust = CUSTOMERS.find((c) => c.id === inv.customerId);
+export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; rows: SJ[]; allInvoices?: Invoice[]; customers?: Customer[] }) {
+  const CUSTOMERS_SRC = ctx.customers ?? CUSTOMERS;
+  const cust = CUSTOMERS_SRC.find((c) => c.id === inv.customerId);
   /** Tarif pajak per invoice (dapat diisi manual) — fallback 11%. */
   const rate = inv.ppnRate ?? 0.11;
   const ratePct = rate * 100;
@@ -131,7 +132,7 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
       });
     return [...map.entries()]
       .map(([cid, rows]) => {
-        const c = CUSTOMERS.find((x) => x.id === cid);
+         const c = CUSTOMERS_SRC.find((x) => x.id === cid);
         return {
           cid,
           name: c?.name ?? cid,
@@ -302,7 +303,7 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
   return { title: `Invoice ${inv.no}`, body };
 }
 
-export function printInvoice(inv: Invoice, ctx: { paid: number; status: string; rows: SJ[]; allInvoices?: Invoice[] }) {
+export function printInvoice(inv: Invoice, ctx: { paid: number; status: string; rows: SJ[]; allInvoices?: Invoice[]; customers?: Customer[] }) {
   const { title, body } = invoiceHtml(inv, ctx);
   run(title, body);
 }
