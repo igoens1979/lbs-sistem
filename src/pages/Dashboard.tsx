@@ -129,7 +129,7 @@ export default function Dashboard() {
             icon="task_alt"
             iconClass="bg-surface-container text-primary-container"
             footLabel="Rasio Penerbitan"
-            footValue={`${pct(kpi.sjInvoiced, kpi.sjCount).toFixed(1)}%`}
+            footValue={`${rupiahShort(kpi.sjInvoicedValue)} • ${pct(kpi.sjInvoiced, kpi.sjCount).toFixed(1)}%`}
             dot="bg-primary-container"
           />
           <KpiTile
@@ -140,7 +140,7 @@ export default function Dashboard() {
             icon="pending_actions"
             iconClass="bg-secondary-fixed text-on-secondary-fixed"
             footLabel="Sisa dari periode"
-            footValue={`${pct(kpi.sjPending, kpi.sjCount).toFixed(1)}%`}
+            footValue={`${rupiahShort(kpi.sjPendingValue)} • ${pct(kpi.sjPending, kpi.sjCount).toFixed(1)}%`}
           />
           <KpiTile
             top="bg-primary"

@@ -623,6 +623,8 @@ export interface Ctx extends State {
     sjCount: number;
     sjInvoiced: number;
     sjPending: number;
+    sjInvoicedValue: number;
+    sjPendingValue: number;
     invoiceTotal: number;
     invoiceCount: number;
     volume: number;
@@ -864,6 +866,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const periodSJ = state.sj.filter((r) => inPeriod(r.date) && r.status !== "Batal");
     const sjInvoiced = periodSJ.filter((r) => r.invoiceId).length;
     const sjPending = periodSJ.length - sjInvoiced;
+    const sjValue = (r: (typeof periodSJ)[number]) => r.volume * r.trips * r.price;
+    const sjInvoicedValue = periodSJ.filter((r) => r.invoiceId).reduce((s, r) => s + sjValue(r), 0);
+    const sjPendingValue = periodSJ.filter((r) => !r.invoiceId).reduce((s, r) => s + sjValue(r), 0);
     const periodInvoices = state.invoices.filter((i) => inPeriod(i.date));
     const invoiceTotal = periodInvoices.reduce((s, i) => s + i.total, 0);
     const volume = periodSJ.reduce((s, r) => s + r.volume * r.trips, 0);
@@ -981,7 +986,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       closingOf,
       monthlyMutations,
       monthSummary,
-      kpi: { sjCount: periodSJ.length, sjInvoiced, sjPending, invoiceTotal, invoiceCount: periodInvoices.length, volume },
+      kpi: { sjCount: periodSJ.length, sjInvoiced, sjPending, sjInvoicedValue, sjPendingValue, invoiceTotal, invoiceCount: periodInvoices.length, volume },
       aging,
       outstandingTotal,
       supplierDebtTotal,
