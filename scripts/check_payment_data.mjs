@@ -19,6 +19,7 @@ rows.forEach(r => {
   } else {
     withoutPayment++;
   }
+});
 
 console.log(`Invoice dengan pembayaran: ${withPayment}`);
 console.log(`Invoice tanpa pembayaran: ${withoutPayment}`);
