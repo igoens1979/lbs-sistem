@@ -119,7 +119,7 @@ const initialState: State = {
   openingLog: [],
   users: DEFAULT_USERS,
   userFormRequest: null,
-user: null,
+user: (() => { try { return JSON.parse(localStorage.getItem("lbs_user") || "null"); } catch { return null; } })(),
   loaded: false,
 };
 
@@ -1752,9 +1752,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         email: acc.email,
         accountId: acc.id,
         division: emp?.division,
-      },
-    }));
-    if (acc.mustChangePassword) {
+       },
+     }));
+     try { localStorage.setItem("lbs_user", JSON.stringify({ name: emp?.name ?? acc.username, role: roleLabel(acc.role), email: acc.email, accountId: acc.id, division: emp?.division })); } catch {}
+     if (acc.mustChangePassword) {
       toast("Wajib ganti password", "Silakan ganti password Anda melalui 'Ganti Password'", "warn");
     } else {
       toast(`Selamat datang, ${emp?.name ?? acc.username}`, `${roleLabel(acc.role)} • ${acc.scope} • hak akses diterapkan ke seluruh modul`, "info");
@@ -1763,6 +1764,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    try { localStorage.removeItem("lbs_user"); } catch {}
     setState((s) => ({ ...s, user: null }));
     setRoute("dashboard");
     toast("Sesi diakhiri", "Anda telah keluar dari LBS System", "info");

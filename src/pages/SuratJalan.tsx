@@ -27,7 +27,10 @@ const canCreate = app.can("surat-jalan", "create");
   const filtered = useMemo(() => {
     return app.sj.filter((r) => {
       if (scope === "periode" && (r.date < app.period.from || r.date > app.period.to)) return false;
-      if (status !== "all" && r.status !== status) return false;
+      if (status !== "all") {
+        const eff = r.invoiceId ? "Diinvoice" : r.status;
+        if (eff !== status) return false;
+      }
       if (customerId !== "all" && r.customerId !== customerId) return false;
       if (query.trim()) {
         const q = query.toLowerCase();
