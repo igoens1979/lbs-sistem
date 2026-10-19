@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PageBody, PageHeader, PeriodActions } from "@/components/Shell";
 import { BarPairs, Button, Card, Field, Icon, Input, Modal, Pill, ProgressBar, SectionHeading, Select, Td, Th } from "@/components/ui";
 import { legacyOutstanding, type OpeningLogEntry, type OpeningSource } from "@/lib/data";
@@ -23,6 +23,9 @@ const [saldoYm, setSaldoYm] = useState(monthKey(iso(TODAY())));
 const canCreate = app.can("kas-bank", "create");
 const canEdit = app.can("kas-bank", "edit");
 
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
+
   const accounts = app.accountsWithBalance;
   const liquidity = accounts.reduce((s, a) => s + a.balance, 0);
 
@@ -39,6 +42,14 @@ const canEdit = app.can("kas-bank", "edit");
         .sort((a, b) => (a.date < b.date ? 1 : -1)),
     [app.bankTx, app.period, accountId, direction, query, scope],
   );
+
+  const totalPages = Math.max(1, Math.ceil(ledger.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pagedLedger = ledger.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  useEffect(() => {
+    setPage(1);
+  }, [accountId, direction, query, scope, app.period.from, app.period.to]);
 
   const chart = app.cashFlowDaily.slice(-12).map((c) => ({ label: c.date.slice(8), a: c.in, b: c.out }));
   const legacyOut = app.legacyOutstandingTotal;
@@ -190,7 +201,7 @@ const canEdit = app.can("kas-bank", "edit");
                 </tr>
               </thead>
               <tbody className="divide-y divide-surface-container font-body-sm text-body-sm">
-                {ledger.slice(0, 18).map((tx) => (
+                {pagedLedger.map((tx) => (
                   <tr key={tx.id} className="transition-colors hover:bg-surface-container-lowest/60">
                     <Td className="whitespace-nowrap font-mono">{d(parseISO(tx.date))}</Td>
                     <Td>
@@ -232,9 +243,9 @@ const canEdit = app.can("kas-bank", "edit");
               {ledger.length > 0 && (
                 <tfoot>
                   <tr className="bg-surface-container font-label-md text-label-md font-bold text-primary">
-<Td colSpan={5}>Total {Math.min(ledger.length, 18)} baris terfilter</Td>
+<Td colSpan={5}>Total {pagedLedger.length} baris halaman ini (dari {ledger.length} terfilter)</Td>
                      <Td align="right" className="font-mono">
-                       {rupiahPlain(ledger.slice(0, 18).reduce((s, tx) => s + (tx.direction === "in" ? tx.amount : -tx.amount), 0))}
+                       {rupiahPlain(pagedLedger.reduce((s, tx) => s + (tx.direction === "in" ? tx.amount : -tx.amount), 0))}
                      </Td>
                     <Td align="center" className="font-label-sm text-label-sm">Net posisi</Td>
                   </tr>
@@ -242,6 +253,21 @@ const canEdit = app.can("kas-bank", "edit");
               )}
             </table>
           </div>
+          {ledger.length > pageSize && (
+            <div className="mt-space-sm flex items-center justify-between gap-space-sm">
+              <span className="font-body-sm text-body-sm text-on-surface-variant">
+                Halaman {currentPage} dari {totalPages}
+              </span>
+              <div className="flex gap-space-xs">
+                <Button variant="ghost" disabled={currentPage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+                  Sebelumnya
+                </Button>
+                <Button variant="ghost" disabled={currentPage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>
+                  Berikutnya
+                </Button>
+              </div>
+            </div>
+          )}
           <BarPairs data={chart} />
         </Card>
 
