@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Icon, ToastHost } from "@/components/ui";
 import { Shell } from "@/components/Shell";
 import { pageFor } from "@/pages/registry";
@@ -41,6 +42,23 @@ function AccessDenied() {
 
 function Router() {
   const app = useApp();
+
+  useEffect(() => {
+    if (!app.user) return;
+    const IDLE_MS = 15 * 60 * 1000;
+    let timer: ReturnType<typeof setTimeout>;
+    const reset = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => app.logout(), IDLE_MS);
+    };
+    const events = ["mousemove", "mousedown", "keydown", "scroll", "touchstart", "click"];
+    events.forEach((e) => window.addEventListener(e, reset, { passive: true }));
+    reset();
+    return () => {
+      clearTimeout(timer);
+      events.forEach((e) => window.removeEventListener(e, reset));
+    };
+  }, [app.user, app.logout]);
 
   if (!app.user) {
     return (
