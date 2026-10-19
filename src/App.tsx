@@ -71,6 +71,10 @@ function Router() {
 
   const allowed = app.can(app.route, "view");
 
+  if (!app.loaded) {
+    return <div className="flex min-h-screen items-center justify-center text-on-surface-variant">Memuat...</div>;
+  }
+
   return (
     <>
       <Shell>{allowed ? pageFor(app.route) : <AccessDenied />}</Shell>
