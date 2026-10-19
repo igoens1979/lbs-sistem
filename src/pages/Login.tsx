@@ -1,15 +1,13 @@
 import { useState } from "react";
 import { Button, Card, Field, Icon, Input, Pill } from "@/components/ui";
-import { cn } from "@/lib/format";
 import { d, TODAY } from "@/lib/format";
-import { roleLabel } from "@/lib/permissions";
 import { useApp } from "@/lib/store";
 
 export default function Login() {
   const app = useApp();
-  const [email, setEmail] = useState("gunawan.s@lbs-group.co.id");
-  const [password, setPassword] = useState("lbs-system-1.0");
-  const [remember, setRemember] = useState(true);
+const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(false);
 
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-12">
@@ -97,42 +95,7 @@ export default function Login() {
             </span>
           </div>
 
-          <div className="mt-space-md flex flex-col gap-space-sm">
-            <div className="flex items-center justify-between">
-              <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Pilih akun demo (hak akses berbeda)</span>
-              <Pill tone="outline">{app.users.length} akun terdaftar</Pill>
-            </div>
-            <div className="grid grid-cols-1 gap-space-sm sm:grid-cols-2">
-              {app.users.map((u) => {
-                const emp = app.employees.find((e) => e.id === u.employeeId);
-                const aktif = u.status === "Aktif";
-                return (
-                  <button
-                    key={u.id}
-                    type="button"
-                    onClick={() => app.login(u.email, u.tempPassword)}
-                    className={cn(
-                      "flex items-center gap-space-sm rounded-xl p-space-sm text-left transition-colors",
-                      aktif ? "bg-surface-container-low hover:bg-surface-container" : "bg-error-container/40 hover:bg-error-container/70",
-                    )}
-                  >
-                    <Icon name={u.role === "super-admin" ? "shield_person" : u.role === "viewer" ? "visibility" : "person"} size={18} className={aktif ? "text-primary" : "text-error"} />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate font-label-md text-label-md text-primary">{emp?.name ?? u.username}</span>
-                      <span className="block truncate font-body-sm text-body-sm text-on-surface-variant">
-                        {roleLabel(u.role)} • {u.scope}
-                      </span>
-                    </span>
-                    <Pill tone={aktif ? "success" : "error"}>{u.status}</Pill>
-                  </button>
-                );
-              })}
-            </div>
-            <p className="font-body-sm text-body-sm text-on-surface-variant">
-              Izin modul mengikuti peran akun: memilih <b>Viewer</b> hanya dapat melihat laporan, sementara <b>Super Admin</b> dapat menambah, mengubah, dan menghapus data.
-            </p>
-          </div>
-        </Card>
+</Card>
         <p className="mt-space-md max-w-md text-center font-body-sm text-body-sm text-on-surface-variant">
           Data pada aplikasi demo ini tersimpan di memori sesi browser. Setiap transaksi yang Anda buat akan langsung memperbarui dashboard.
         </p>

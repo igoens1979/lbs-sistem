@@ -119,13 +119,7 @@ const initialState: State = {
   openingLog: [],
   users: DEFAULT_USERS,
   userFormRequest: null,
-  user: {
-    name: "Gunawan Santosa",
-    role: "Super Admin",
-    email: "gunawan.s@lbs-group.co.id",
-    accountId: "U-001",
-    division: "Finance & Strategy",
-  },
+user: null,
   loaded: false,
 };
 
