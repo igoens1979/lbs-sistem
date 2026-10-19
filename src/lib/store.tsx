@@ -864,11 +864,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const inPeriod = (date: string) => date >= period.from && date <= period.to;
     const periodSJ = state.sj.filter((r) => inPeriod(r.date) && r.status !== "Batal");
-    const sjInvoiced = periodSJ.filter((r) => r.invoiceId).length;
+    // Hubungan invoice–surat jalan tersimpan di tabel join invoice_sj (kolom surat_jalan.invoice_id kosong di DB)
+    const invoicedSjIds = new Set(state.invoiceSJ.map((x) => x.sjId));
+    const sjInvoiced = periodSJ.filter((r) => invoicedSjIds.has(r.id)).length;
     const sjPending = periodSJ.length - sjInvoiced;
     const sjValue = (r: (typeof periodSJ)[number]) => r.volume * r.trips * r.price;
-    const sjInvoicedValue = periodSJ.filter((r) => r.invoiceId).reduce((s, r) => s + sjValue(r), 0);
-    const sjPendingValue = periodSJ.filter((r) => !r.invoiceId).reduce((s, r) => s + sjValue(r), 0);
+    const sjInvoicedValue = periodSJ.filter((r) => invoicedSjIds.has(r.id)).reduce((s, r) => s + sjValue(r), 0);
+    const sjPendingValue = periodSJ.filter((r) => !invoicedSjIds.has(r.id)).reduce((s, r) => s + sjValue(r), 0);
     const periodInvoices = state.invoices.filter((i) => inPeriod(i.date));
     const invoiceTotal = periodInvoices.reduce((s, i) => s + i.total, 0);
     const volume = periodSJ.reduce((s, r) => s + r.volume * r.trips, 0);
