@@ -746,7 +746,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         commodities: (commodities.data ?? []).map(toCommodity),
         vehicles: (vehicles.data ?? []).map(toVehicle),
         drivers: (drivers.data ?? []).map(toDriver),
-        sj: (sj.data ?? []).map(toSJ),
+        sj: (sj.data ?? []).map((r) => {
+          const inv = (invoiceSJ.data ?? []).find((x) => x.sj_id === r.id);
+          return toSJ({ ...r, invoice_id: inv?.invoice_id ?? r.invoice_id ?? null });
+        }),
         invoices: builtInvoices,
         invoiceRevisions: (invoiceRevs.data ?? []).map(toInvoiceRevision),
         payments: (payments.data ?? []).map(toPayment),

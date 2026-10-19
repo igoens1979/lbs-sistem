@@ -232,7 +232,7 @@ const canCreate = app.can("surat-jalan", "create");
                   </Td>
                   <Td align="right" className="font-mono font-semibold text-primary">{rupiah(r.volume * r.trips * r.price)}</Td>
                   <Td align="center">
-                    <StatusPill status={r.invoiceId ? (app.invoices.find((i) => i.id === r.invoiceId)?.status === "Lunas" ? "Dibayar" : "Diinvoice") : r.status} />
+                    <StatusPill status={r.invoiceId ? (app.computedStatus(app.invoices.find((i) => i.id === r.invoiceId)!) === "Lunas" ? "Dibayar" : "Diinvoice") : r.status} />
                   </Td>
 <Td align="center">
                        <div className="flex items-center justify-center gap-1">
