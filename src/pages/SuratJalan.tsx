@@ -559,12 +559,13 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
           <Input type="number" value={form.trips} onChange={(e) => setForm({ ...form, trips: Number(e.target.value) })} />
         </Field>
         <Field label="Unit Armada">
-          <input list="vehicle-list" value={app.vehicles.find((v) => v.id === form.vehicleId)?.plate ?? ""} onChange={(e) => { const v = app.vehicles.find((x) => x.plate === e.target.value); if (v) setForm({ ...form, vehicleId: v.id }); }} className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm" placeholder="Ketik 3 huruf/angka nopol..." />
-          <datalist id="vehicle-list">
+          <Select value={form.vehicleId} onChange={(e) => setForm({ ...form, vehicleId: e.target.value })}>
             {app.vehicles.map((v) => (
-              <option key={v.id} value={v.plate}>{v.plate} — {v.model}</option>
+              <option key={v.id} value={v.id}>
+                {v.plate} — {v.model} ({v.capacity} m³)
+              </option>
             ))}
-          </datalist>
+          </Select>
         </Field>
         <Field label="Driver">
           <Select value={form.driverId} onChange={(e) => setForm({ ...form, driverId: e.target.value })}>
