@@ -680,6 +680,7 @@ function SaldoAwalSection({ ym, onYm, onInput, onFirstTime }: { ym: string; onYm
         <Card accentTop="bg-primary">
           <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Saldo Awal {ymLabel(ym)}</span>
           <p className="mt-1 font-numeric-metric text-primary tabular">{rupiah(totalOpening)}</p>
+          <p className="mt-1 font-body-sm text-[11px] text-on-surface-variant">{rows.map((r) => `${r.account.name} ${rupiahShort(r.opening)}`).join(" • ")}</p>
           <p className="mt-space-md rounded-lg bg-surface-container-low px-space-sm py-1.5 font-body-sm text-body-sm text-on-surface-variant">
             {manualCount} akun bernilai tersimpan • {autoCount} akun otomatis dari {ymLabel(prev)}
           </p>
