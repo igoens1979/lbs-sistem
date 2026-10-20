@@ -36,7 +36,7 @@ export default function RekapKeuangan() {
       net: masuk - keluar,
       margin: dpp - payroll - bbm,
     };
-  });
+  }).filter((m) => m.invoiceCount > 0 || m.masuk > 0 || m.keluar > 0).slice(-5);
 
   /* ---------- Periode berjalan ---------- */
   const periodInvoices = app.invoices.filter((i) => i.date >= from && i.date <= to);
@@ -123,7 +123,7 @@ export default function RekapKeuangan() {
             subtitle={`${BULAN} bulan terakhir — pendapatan, kas, biaya, dan laba operasional`}
             right={<Pill tone="amberSoft">Bulan terbaik: {best?.full}</Pill>}
           />
-          <div className="overflow-x-auto rounded-lg bg-surface-container-low">
+          <div className="max-h-72 overflow-auto rounded-lg bg-surface-container-low">
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr>
