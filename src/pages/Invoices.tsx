@@ -15,6 +15,8 @@ export default function Invoices() {
   const [detail, setDetail] = useState<Invoice | null>(null);
   const [payTarget, setPayTarget] = useState<Invoice | null>(null);
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [manualNo, setManualNo] = useState("");
+  const [manualDate, setManualDate] = useState("");
   const canPay = app.can("invoice", "edit");
   const canBill = app.can("invoice", "create");
   const canRevisePerm = app.can("invoice", "edit");
@@ -426,6 +428,14 @@ export default function Invoices() {
       {/* Bulk billing modal */}
       <Modal open={bulkOpen} onClose={() => setBulkOpen(false)} width="max-w-3xl" title="Penagihan Surat Jalan Belum Diinvoice" subtitle="Sistem mengelompokkan dokumen per pelanggan; satu klik menerbitkan satu invoice">
         <BulkTaxField />
+        <div className="grid grid-cols-1 gap-space-sm sm:grid-cols-2">
+          <Field label="Nomor Invoice Manual (opsional)">
+            <Input value={manualNo} onChange={(e) => setManualNo(e.target.value)} placeholder="Kosongkan untuk otomatis" />
+          </Field>
+          <Field label="Tanggal Invoice Manual (opsional)">
+            <Input type="date" value={manualDate} onChange={(e) => setManualDate(e.target.value)} />
+          </Field>
+        </div>
         {unbilled.length === 0 && <p className="font-body-md text-body-md text-on-surface-variant">Semua surat jalan periode berjalan sudah diterbitkan invoice.</p>}
         <div className="flex flex-col gap-space-sm">
           {unbilled.map((g) => (
@@ -453,7 +463,7 @@ export default function Invoices() {
                     size="sm"
                     icon="receipt_long"
                     onClick={async () => {
-                      const inv = await app.createInvoice(g.list.map((r) => r.id), { ppnRate: app.bulkTaxRate ?? app.tax.ppnRate, term: termByCustomer[g.c.id] ?? g.c.term });
+                      const inv = await app.createInvoice(g.list.map((r) => r.id), { ppnRate: app.bulkTaxRate ?? app.tax.ppnRate, term: termByCustomer[g.c.id] ?? g.c.term, no: manualNo, date: manualDate || undefined });
                       if (inv && unbilled.length === 1) setBulkOpen(false);
                     }}
                   >

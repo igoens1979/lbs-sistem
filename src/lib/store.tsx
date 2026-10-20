@@ -637,7 +637,7 @@ export interface Ctx extends State {
   addSJ: (payload: Partial<SJ>) => Promise<SJ>;
   updateSJ: (id: ID, patch: Partial<SJ>) => Promise<void>;
   deleteSJ: (id: ID) => Promise<void>;
-  createInvoice: (sjIds: ID[], opts?: { note?: string; term?: number; billTo?: ID; kind?: Invoice["kind"]; ppnRate?: number; saveRateAsDefault?: boolean }) => Promise<Invoice | null>;
+  createInvoice: (sjIds: ID[], opts?: { note?: string; term?: number; billTo?: ID; kind?: Invoice["kind"]; ppnRate?: number; saveRateAsDefault?: boolean; no?: string; date?: string }) => Promise<Invoice | null>;
   reviseInvoice: (invoiceId: ID, p: { addSjIds?: ID[]; removeSjIds?: ID[]; note?: string; ppnRate?: number }) => Promise<Invoice | null>;
   carryForward: (invoiceId: ID, sjIds: ID[], opts?: { date?: string; term?: number; note?: string; ppnRate?: number }) => Promise<Invoice | null>;
   setTaxRate: (ppnRate: number) => void;
@@ -1079,14 +1079,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const valueByCustomer = distinct.map((id) => ({ id, value: rows.filter((r) => r.customerId === id).reduce((s, r) => s + sjValue(r), 0) }));
     const billToId = opts?.billTo ?? valueByCustomer.sort((a, b) => b.value - a.value)[0].id;
     const billTo = state.customers.find((c) => c.id === billToId) ?? state.customers[0];
-    const date = iso(TODAY());
+    const date = opts?.date ?? iso(TODAY());
     const term = opts?.term ?? billTo.term;
     const rate = Math.max(0, Math.min(1, opts?.ppnRate ?? state.tax.ppnRate));
     const { dpp, ppn, total } = calcTotals(rows, rate);
-    const kind: Invoice["kind"] = distinct.length > 1 ? "Gabungan" : "Reguler";
+    const kind: Invoice["kind"] = opts?.kind ?? (distinct.length > 1 ? "Gabungan" : "Reguler");
     const invoice: Invoice = {
       id: uid("INV"),
-      no: nextInvoiceNo(date),
+      no: opts?.no?.trim() || nextInvoiceNo(date),
       customerId: billTo.id,
       date,
       dueDate: iso(addDays(TODAY(), term)),
