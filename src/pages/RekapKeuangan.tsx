@@ -75,7 +75,7 @@ export default function RekapKeuangan() {
     cur.revenue += k.revenue;
     perKomoditasMap.set(k.name, cur);
   });
-  const perKomoditas = [...perKomoditasMap.values()].filter((k) => k.revenue > 0).sort((a, b) => b.revenue - a.revenue);
+  const perKomoditas = [...perKomoditasMap.values()].filter((k) => k.revenue > 0 && !/free/i.test(k.name)).sort((a, b) => b.revenue - a.revenue);
   const perPelanggan = app.customers
     .map((c) => {
       const rows = app.sj.filter((r) => r.customerId === c.id && r.date >= from && r.date <= to && r.status !== "Batal");
