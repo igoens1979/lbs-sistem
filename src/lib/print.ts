@@ -106,12 +106,14 @@ export function printSuratJalan(row: SJ, extras: { site: string; note?: string }
 }
 
 /** Membangun HTML invoice: halaman 1 ringkasan, halaman 2+ lampiran surat jalan (dikelompokkan per pelanggan asal muatan). */
-export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; rows: SJ[]; allInvoices?: Invoice[]; customers?: Customer[]; vehicles?: any[]; drivers?: any[] }) {
+export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; rows: SJ[]; allInvoices?: Invoice[]; customers?: Customer[]; vehicles?: any[]; drivers?: any[]; commodities?: any[] }) {
   const CUSTOMERS_SRC = ctx.customers ?? CUSTOMERS;
   const VEHICLES_SRC = ctx.vehicles;
   const DRIVERS_SRC = ctx.drivers;
+  const COMMODITIES_SRC = ctx.commodities;
   const vehiclePlateFn = (id: string) => VEHICLES_SRC?.find((v: any) => v.id === id)?.plate ?? vehiclePlate(id);
   const driverNameFn = (id: string) => DRIVERS_SRC?.find((d: any) => d.id === id)?.name ?? driverName(id);
+  const commodityNameFn = (id: string) => COMMODITIES_SRC?.find((c: any) => c.id === id)?.name ?? commodityName(id);
   const cust = CUSTOMERS_SRC.find((c) => c.id === inv.customerId);
   /** Tarif pajak per invoice (dapat diisi manual) — fallback 11%. */
   const rate = inv.ppnRate ?? 0.11;
@@ -236,7 +238,7 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
             <td style="font-size:9px">${r.no}<br/><span class="mini" style="font-size:9px">${d(parseISO(r.date))} • ${r.site}</span></td>
             <td style="font-size:9px">${driverNameFn(r.driverId)}</td>
             <td style="font-size:9px">${vehiclePlateFn(r.vehicleId)}</td>
-            <td style="font-size:9px">${commodityName(r.commodityId)}</td>
+            <td style="font-size:9px">${commodityNameFn(r.commodityId)}</td>
             <td style="text-align:right;font-size:9px">${num(r.volume * r.trips)} m³</td>
             <td style="text-align:right;font-size:9px">${rupiah(r.volume * r.trips * r.price)}</td>
           </tr>`,
