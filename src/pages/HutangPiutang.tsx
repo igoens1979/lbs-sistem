@@ -29,7 +29,7 @@ export default function HutangPiutang() {
           const paid = invoices.reduce((s, i) => s + app.paidOf(i.id), 0);
           return { c, open, outstanding, overdue, billed, paid, maxLate: open[0]?.late ?? 0, count: open.length };
         })
-        .filter((r) => r.billed > 0)
+        .filter((r) => r.outstanding > 0)
         .sort((a, b) => b.outstanding - a.outstanding),
     [app],
   );
