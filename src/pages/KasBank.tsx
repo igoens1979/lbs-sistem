@@ -307,27 +307,7 @@ const canEdit = app.can("kas-bank", "edit");
                     <ProgressBar value={pct(l.paidCount, l.tenor)} tone={sisa <= 0 ? "bg-success" : "bg-secondary"} height="h-1.5" />
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <Pill tone={sisa <= 0 ? "success" : "amberSoft"}>{sisa <= 0 ? "Lunas" : "Aktif Terjadwal"}</Pill>
-                      <div className="flex gap-1">
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          icon="payments"
-                          disabled={sisa <= 0 || !canEdit}
-                          onClick={() => app.payLegacy(l.id, "A-001", 1)}
-                        >
-                          Bayar 1 Angsuran
-                        </Button>
-                        <Button
-                          size="sm"
-                          disabled={sisa <= 0 || !canEdit}
-                          onClick={() => {
-                            const pinjaman = Math.min(3, Math.ceil(sisa / l.cicilan));
-                            app.payLegacy(l.id, "A-001", pinjaman);
-                          }}
-                        >
-                          Bayar {Math.min(3, Math.ceil(sisa / l.cicilan))}x
-                        </Button>
-                      </div>
+                      <span className="font-body-sm text-body-sm text-on-surface-variant">Pembayaran via menu Hutang Piutang</span>
                     </div>
                   </div>
                 );
