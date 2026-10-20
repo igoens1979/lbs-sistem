@@ -61,12 +61,21 @@ export default function RekapKeuangan() {
   const biayaTotal = biaya.reduce((s, b) => s + b.amount, 0) || 1;
 
   /* ---------- Kontribusi revenue ---------- */
-  const perKomoditas = app.commodities
+  const perKomoditasRaw = app.commodities
     .map((c) => {
       const rows = app.sj.filter((r) => r.commodityId === c.id && r.date >= from && r.date <= to && r.status !== "Batal");
-      return { name: c.name, unit: c.unit, trips: rows.reduce((s, r) => s + r.trips, 0), volume: rows.reduce((s, r) => s + r.volume * r.trips, 0), revenue: rows.reduce((s, r) => s + r.volume * r.trips * r.price, 0) };
+      return { name: /free/i.test(c.name) ? "Material Free" : c.name, unit: c.unit, trips: rows.reduce((s, r) => s + r.trips, 0), volume: rows.reduce((s, r) => s + r.volume * r.trips, 0), revenue: rows.reduce((s, r) => s + r.volume * r.trips * r.price, 0) };
     })
-    .sort((a, b) => b.revenue - a.revenue);
+    .filter((k) => k.revenue > 0 || k.trips > 0);
+  const perKomoditasMap = new Map<string, { name: string; unit: string; trips: number; volume: number; revenue: number }>();
+  perKomoditasRaw.forEach((k) => {
+    const cur = perKomoditasMap.get(k.name) ?? { name: k.name, unit: k.unit, trips: 0, volume: 0, revenue: 0 };
+    cur.trips += k.trips;
+    cur.volume += k.volume;
+    cur.revenue += k.revenue;
+    perKomoditasMap.set(k.name, cur);
+  });
+  const perKomoditas = [...perKomoditasMap.values()].filter((k) => k.revenue > 0).sort((a, b) => b.revenue - a.revenue);
   const perPelanggan = app.customers
     .map((c) => {
       const rows = app.sj.filter((r) => r.customerId === c.id && r.date >= from && r.date <= to && r.status !== "Batal");
