@@ -329,8 +329,11 @@ export default function HutangPiutang() {
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <Pill tone={sisa <= 0 ? "success" : "amberSoft"}>{sisa <= 0 ? "Lunas" : `${pct(l.paidCount, l.tenor).toFixed(0)}% terlaksana`}</Pill>
                       <div className="flex gap-1">
-                        <Button size="sm" variant="secondary" icon="payments" disabled={sisa <= 0 || !canSettle} onClick={() => app.payLegacy(l.id, "A-001", 1)}>
-                          Bayar 1 Angsuran
+                        <Button size="sm" variant="secondary" icon="payments" disabled={sisa <= 0 || !canSettle} onClick={() => {
+                          const amt = Number(window.prompt("Nominal pembayaran hutang lama LBS:", String(l.cicilan)) || 0);
+                          if (amt > 0) app.payLegacy(l.id, "A-001", amt);
+                        }}>
+                          Bayar Angsuran
                         </Button>
                         <Button size="sm" disabled={sisa <= 0 || !canSettle} onClick={() => app.payLegacy(l.id, "A-001", bayarMax)}>
                           Bayar {bayarMax} Angsuran
