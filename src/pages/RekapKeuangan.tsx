@@ -12,7 +12,10 @@ export default function RekapKeuangan() {
   const { from, to } = app.period;
 
   /* ---------- Rekap per bulan (6 bulan terakhir s.d. periode berjalan) ---------- */
-  const months = Array.from({ length: BULAN }, (_, i) => new Date(TODAY().getFullYear(), TODAY().getMonth() - (BULAN - 1 - i), 1));
+  const start = new Date(2026, 8, 1);
+  const now = new Date(TODAY().getFullYear(), TODAY().getMonth(), 1);
+  const monthCount = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth()) + 1;
+  const months = Array.from({ length: Math.max(1, monthCount) }, (_, i) => new Date(start.getFullYear(), start.getMonth() + i, 1));
   const monthly = months.map((m) => {
     const ym = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, "0")}`;
     const invoices = app.invoices.filter((i) => i.date.startsWith(ym));
