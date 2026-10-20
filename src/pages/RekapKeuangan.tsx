@@ -47,7 +47,8 @@ export default function RekapKeuangan() {
   const ppnKeluaran = periodInvoices.reduce((s, i) => s + i.ppn, 0);
   const payrollPeriod = app.payrollRuns.filter((p) => p.date >= from && p.date <= to).reduce((s, p) => s + p.net, 0);
   const bbmPeriod = app.fuelLogs.filter((f) => f.date >= from && f.date <= to).reduce((s, f) => s + f.liter * f.pricePerLiter, 0);
-  const laba = pendapatan - (payrollPeriod + bbmPeriod);
+  const operasionalPeriod = app.bankTx.filter((t) => t.date >= from && t.date <= to && t.direction === "out" && t.category === "OPERASIONAL").reduce((s, t) => s + t.amount, 0);
+  const laba = pendapatan - (payrollPeriod + bbmPeriod + operasionalPeriod);
 
   /* ---------- Rincian kas keluar & masuk per kategori ---------- */
   const byCategory = (dir: "in" | "out") => {
@@ -109,7 +110,7 @@ export default function RekapKeuangan() {
       <section className="grid grid-cols-1 gap-space-md sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <RecapTile top="bg-primary" label="Pendapatan Periode" value={rupiah(pendapatan)} foot={`${periodInvoices.length} invoice • DPP tidak termasuk PPN`} icon="trending_up" />
         <RecapTile top="bg-primary-container" label="PPN Keluaran" value={rupiah(ppnKeluaran)} foot="11% dari dasar pengenaan pajak" icon="receipt" />
-        <RecapTile top="bg-secondary-container" label="Biaya Operasional + Payroll" value={rupiah(payrollPeriod + bbmPeriod)} foot={`Payroll ${rupiahShort(payrollPeriod)} • BBM ${rupiahShort(bbmPeriod)}`} icon="payments" />
+        <RecapTile top="bg-secondary-container" label="Biaya Operasional + Payroll" value={rupiah(payrollPeriod + bbmPeriod + operasionalPeriod)} foot={`Payroll ${rupiahShort(payrollPeriod)} • BBM ${rupiahShort(bbmPeriod)} • Operasional ${rupiahShort(operasionalPeriod)}`} icon="payments" />
         <RecapTile top="bg-primary" label="Laba Operasional" value={rupiah(laba)} foot={`Margin ${pct(laba, pendapatan || 1).toFixed(1)}% dari pendapatan`} icon="savings" />
         <RecapTile top="bg-secondary-fixed-dim" label="Arus Kas Bersih" value={rupiah(masuk - keluar)} foot={`Masuk ${rupiahShort(masuk)} • keluar ${rupiahShort(keluar)}`} icon="swap_vert" />
       </section>
