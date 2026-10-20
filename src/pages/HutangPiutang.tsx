@@ -335,8 +335,11 @@ export default function HutangPiutang() {
                         }}>
                           Bayar Angsuran
                         </Button>
-                        <Button size="sm" disabled={sisa <= 0 || !canSettle} onClick={() => app.payLegacy(l.id, "A-001", bayarMax)}>
-                          Bayar {bayarMax} Angsuran
+                        <Button size="sm" disabled={sisa <= 0 || !canSettle} onClick={() => {
+                          const amt = Number(window.prompt("Nominal pembayaran hutang lama LBS:", String(l.cicilan)) || 0);
+                          if (amt > 0) app.payLegacy(l.id, "A-001", amt);
+                        }}>
+                          Bayar Angsuran
                         </Button>
                       </div>
                     </div>
