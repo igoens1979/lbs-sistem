@@ -57,13 +57,15 @@ Tambahkan entri di `src/lib/routes.ts` (menambah `id` pada union `Route` + entri
 
 `useApp()` (`src/lib/store.tsx`) menyediakan data hidup dan aksi yang bisa langsung dipakai halaman Anda:
 
-**Data**: `sj`, `invoices`, `payments`, `bankTx`, `customers`, `suppliers`, `commodities`, `vehicles`, `drivers`, `employees`, `payrollRuns`, `fuelLogs`, `legacyDebts`, `period`.
+**Data**: `sj`, `invoices`, `payments`, `bankTx`, `customers`, `suppliers`, `commodities`, `vehicles`, `drivers`, `employees`, `payrollRuns`, `fuelLogs`, `fuelConsumptions`, `legacyDebts`, `period`.
 
 **Kepemilikan armada**: Jalankan `scripts/migrate_vehicle_ownership.sql` satu kali melalui SQL Editor Supabase untuk menambah status kepemilikan, menandai DT CANTER DD 8238 UF sebagai milik sendiri, dan mendaftarkan SUNY 215, PC 100, serta PC 200. Armada lain diberi nilai awal "Milik Customer"; ubah ke "Sewa" atau kategori yang benar melalui Master Data → Armada.
 
+**Konsumsi BBM aktual**: Jalankan `scripts/migrate_fuel_consumptions.sql` satu kali melalui SQL Editor Supabase sebelum menggunakan tombol "Catat Konsumsi" di Operasional BBM. Catatan konsumsi menyimpan tanggal, armada milik sendiri, rute, ritase, liter, harga per liter, dan catatan; biaya yang dicatat hanya untuk laporan konsumsi dan tidak membuat transaksi kas/bank baru.
+
 **Turunan siap pakai**: `kpi` (SJ, sudah/belum invoice, total tagihan), `aging`, `outstandingTotal`, `supplierDebtTotal`, `legacyTotal`, `legacyOutstandingTotal`, `fuelStock`, `ritaseToday`, `cashFlowDaily`, `accountsWithBalance`, `accountBalance(id)`, `paidOf(invoiceId)`, `outstandingOf(invoice)`, `computedStatus(invoice)`, `notifications`.
 
-**Aksi**: `addSJ`, `updateSJ`, `deleteSJ`, `createInvoice(sjIds)`, `recordPayment({…})`, `addBankTx`, `transfer`, `paySupplier`, `payLegacy`, `addFuelPurchase`, `runPayroll`, `saveMaster`, `removeMaster`, `setPeriod`, `go(route)`, `toast(title, detail, tone)`.
+**Aksi**: `addSJ`, `updateSJ`, `deleteSJ`, `createInvoice(sjIds)`, `recordPayment({…})`, `addBankTx`, `transfer`, `paySupplier`, `payLegacy`, `addFuelPurchase`, `addFuelConsumption`, `runPayroll`, `saveMaster`, `removeMaster`, `setPeriod`, `go(route)`, `toast(title, detail, tone)`.
 
 Semua aksi otomatis memperbarui Dashboard, aging piutang, dan saldo rekening — jadi halaman baru Anda tetap sinkron dengan modul lain.
 

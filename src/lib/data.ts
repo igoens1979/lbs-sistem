@@ -176,6 +176,16 @@ export interface FuelLog {
   pricePerLiter: number;
   note: string;
 }
+export interface FuelConsumption {
+  id: ID;
+  date: string;
+  vehicleId: ID;
+  route: string;
+  trips: number;
+  liter: number;
+  pricePerLiter: number;
+  note: string;
+}
 export interface LegacyDebt {
   id: ID;
   tahap: string;

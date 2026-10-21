@@ -266,6 +266,18 @@ export type DbFuelLog = {
   created_at: string;
 };
 
+export type DbFuelConsumption = {
+  id: string;
+  consumption_date: string;
+  vehicle_id: string;
+  route: string;
+  trips: number;
+  liter: number;
+  price_per_liter: number;
+  note: string;
+  created_at: string;
+};
+
 export type DbPayrollRun = {
   id: string;
   period: string;

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { PageBody, PageHeader, PeriodActions } from "@/components/Shell";
 import { Button, Card, Field, Icon, Input, Modal, Pill, ProgressBar, SectionHeading, Select, StatusPill, Td, Th } from "@/components/ui";
-import { FUEL_STATE, commodityName, driverName } from "@/lib/data";
+import { FUEL_STATE, commodityName, driverName, type Vehicle } from "@/lib/data";
 import { cn, csvDownload, d, iso, num, parseISO, pct, rupiah, rupiahShort, TODAY } from "@/lib/format";
 import { printServiceSchedule } from "@/lib/print";
 import { useApp } from "@/lib/store";
@@ -9,6 +9,7 @@ import { useApp } from "@/lib/store";
 export default function Bbm() {
   const app = useApp();
   const [purchaseOpen, setPurchaseOpen] = useState(false);
+  const [consumptionOpen, setConsumptionOpen] = useState(false);
   const [tab, setTab] = useState<"konsumsi" | "ritase" | "pemeliharaan">("konsumsi");
   const canCreate = app.can("bbm", "create");
   const canEdit = app.can("bbm", "edit");
@@ -40,16 +41,19 @@ export default function Bbm() {
     () =>
       ownVehicles
         .map((v) => {
-          const rows = periodSJ.filter((r) => r.vehicleId === v.id);
-          const trips = rows.reduce((s, r) => s + r.trips, 0);
-          const volume = rows.reduce((s, r) => s + r.volume * r.trips, 0);
-          const revenue = rows.reduce((s, r) => s + r.volume * r.trips * r.price, 0);
-          const liter = v.type === "Dump Truck" ? trips * FUEL_STATE.literPerRit : 0;
-          const fuelCost = liter * FUEL_STATE.pricePerLiter;
+          const sjRows = periodSJ.filter((r) => r.vehicleId === v.id);
+          const consumptionRows = app.fuelConsumptions.filter(
+            (r) => r.vehicleId === v.id && r.date >= app.period.from && r.date <= app.period.to,
+          );
+          const trips = consumptionRows.reduce((s, r) => s + r.trips, 0);
+          const volume = sjRows.reduce((s, r) => s + r.volume * r.trips, 0);
+          const revenue = sjRows.reduce((s, r) => s + r.volume * r.trips * r.price, 0);
+          const liter = consumptionRows.reduce((s, r) => s + r.liter, 0);
+          const fuelCost = consumptionRows.reduce((s, r) => s + r.liter * r.pricePerLiter, 0);
           return { v, trips, volume, revenue, liter, fuelCost, driver: app.drivers.find((x) => x.id === v.driverId)?.name ?? "-", margin: revenue - fuelCost };
         })
         .sort((a, b) => b.trips - a.trips),
-    [ownVehicles, app.drivers, periodSJ],
+    [ownVehicles, app.drivers, app.fuelConsumptions, app.period, periodSJ],
   );
 
   const perDriver = useMemo(
@@ -95,6 +99,9 @@ export default function Bbm() {
   const periodVolume = perVehicle.reduce((s, p) => s + p.volume, 0);
   const periodLiter = perVehicle.reduce((s, p) => s + p.liter, 0);
   const periodFuelCost = perVehicle.reduce((s, p) => s + p.fuelCost, 0);
+  const periodFuelRecords = app.fuelConsumptions
+    .filter((r) => r.date >= app.period.from && r.date <= app.period.to && ownVehicleIds.has(r.vehicleId))
+    .sort((a, b) => b.date.localeCompare(a.date));
 
   return (
     <PageBody>
@@ -106,7 +113,7 @@ export default function Bbm() {
           <PeriodActions
             onExport={() =>
               csvDownload("operasional-bbm-lbs.csv", [
-                ["Unit", "Model", "Driver", "Ritase", "Volume (m3)", "Solar (L)", "Biaya Solar", "Revenue", "Margin"],
+                ["Unit", "Model", "Driver", "Ritase (input manual)", "Volume SJ (m3)", "Solar aktual (L)", "Biaya Solar aktual", "Revenue SJ", "Margin"],
                 ...perVehicle.map((p) => [p.v.plate, p.v.model, p.driver, p.trips, p.volume, p.liter, p.fuelCost, p.revenue, p.margin]),
               ])
             }
@@ -155,7 +162,7 @@ export default function Bbm() {
             </span>
           </div>
           <p className="mt-space-md rounded-lg bg-surface-container-low px-space-sm py-1.5 font-body-sm text-body-sm text-on-surface-variant">
-            Biaya solar {rupiahShort(periodFuelCost)} • {FUEL_STATE.literPerRit} L/rit
+            Biaya solar {rupiahShort(periodFuelCost)} • berdasarkan catatan manual
           </p>
         </Card>
         <Card accentTop={fuel.liter < 6000 ? "bg-error" : "bg-primary"} className="min-w-[210px] flex-1">
@@ -182,9 +189,14 @@ export default function Bbm() {
           <SectionHeading
             icon="view_list"
             title="Kinerja Armada & Konsumsi Solar"
-            subtitle="Ritase, volume, biaya solar, dan margin kontribusi armada milik sendiri"
+            subtitle="Ritase, liter, dan harga BBM diinput aktual; volume dan revenue mengikuti Surat Jalan armada milik sendiri"
             right={
               <div className="flex flex-wrap items-center gap-1">
+                {tab === "konsumsi" && (
+                  <Button size="sm" icon="add_circle" disabled={!canCreate || ownVehicles.length === 0} onClick={() => setConsumptionOpen(true)}>
+                    Catat Konsumsi
+                  </Button>
+                )}
                 {(["konsumsi", "ritase", "pemeliharaan"] as const).map((t) => (
                   <Button key={t} size="sm" variant={tab === t ? "primary" : "secondary"} onClick={() => setTab(t)} className="capitalize">
                     {t}
@@ -201,7 +213,7 @@ export default function Bbm() {
                   <tr>
                     <Th>Unit &amp; Driver</Th>
                     <Th align="center">Status</Th>
-                    <Th align="right">Ritase</Th>
+                    <Th align="right">Ritase (input)</Th>
                     <Th align="right">Volume</Th>
                     <Th align="right">Solar</Th>
                     <Th align="right">Biaya Solar</Th>
@@ -254,6 +266,43 @@ export default function Bbm() {
                   </tr>
                 </tfoot>
               </table>
+              <div className="mt-space-md overflow-x-auto rounded-lg bg-surface-container-low">
+                <table className="w-full border-collapse text-left">
+                  <thead>
+                    <tr>
+                      <Th>Tanggal</Th>
+                      <Th>Unit</Th>
+                      <Th>Rute</Th>
+                      <Th align="right">Ritase</Th>
+                      <Th align="right">Solar</Th>
+                      <Th align="right">Harga/L</Th>
+                      <Th align="right">Biaya</Th>
+                      <Th>Catatan</Th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-surface-container font-body-sm text-body-sm">
+                    {periodFuelRecords.map((record) => (
+                      <tr key={record.id}>
+                        <Td>{d(parseISO(record.date))}</Td>
+                        <Td>{ownVehicles.find((v) => v.id === record.vehicleId)?.plate ?? "-"}</Td>
+                        <Td>{record.route}</Td>
+                        <Td align="right" className="font-mono">{num(record.trips)}</Td>
+                        <Td align="right" className="font-mono">{num(record.liter)} L</Td>
+                        <Td align="right" className="font-mono">{rupiah(record.pricePerLiter)}</Td>
+                        <Td align="right" className="font-mono font-semibold text-error">{rupiah(record.liter * record.pricePerLiter)}</Td>
+                        <Td>{record.note || "-"}</Td>
+                      </tr>
+                    ))}
+                    {periodFuelRecords.length === 0 && (
+                      <tr>
+                        <Td colSpan={8} align="center" className="py-space-md text-on-surface-variant">
+                          Belum ada detail konsumsi BBM.
+                        </Td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
@@ -543,6 +592,7 @@ export default function Bbm() {
       </div>
 
       {purchaseOpen && <PurchaseModal onClose={() => setPurchaseOpen(false)} />}
+      {consumptionOpen && <FuelConsumptionModal vehicles={ownVehicles} onClose={() => setConsumptionOpen(false)} />}
       {paramOpen && <MaintenanceParamsModal onClose={() => setParamOpen(false)} />}
       {odoTarget && <OdometerModal vehicleId={odoTarget} onClose={() => setOdoTarget(null)} />}
       {svcTarget && <ServiceModal vehicleId={svcTarget} onClose={() => setSvcTarget(null)} />}
@@ -566,6 +616,88 @@ function AlertRow({ icon, tone, title, detail }: { icon: string; tone: "info" | 
         <span className="block font-body-sm text-body-sm text-on-surface-variant">{detail}</span>
       </span>
     </div>
+  );
+}
+
+function FuelConsumptionModal({ vehicles, onClose }: { vehicles: Vehicle[]; onClose: () => void }) {
+  const app = useApp();
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    date: iso(TODAY()),
+    vehicleId: vehicles[0]?.id ?? "",
+    route: "",
+    trips: 1,
+    liter: 0,
+    pricePerLiter: FUEL_STATE.pricePerLiter,
+    note: "",
+  });
+  const total = form.liter * form.pricePerLiter;
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title="Catat Konsumsi BBM"
+      subtitle="Masukkan data aktual untuk armada milik sendiri. Catatan ini tidak membuat transaksi kas/bank."
+      footer={
+        <>
+          <Button variant="outline" disabled={saving} onClick={onClose}>Batal</Button>
+          <Button
+            icon="save"
+            disabled={saving || !form.vehicleId}
+            onClick={async () => {
+              if (!form.date || !form.route.trim() || form.trips <= 0 || form.liter <= 0 || form.pricePerLiter <= 0) {
+                app.toast("Data konsumsi belum valid", "Isi tanggal, rute, ritase, liter, dan harga per liter dengan nilai yang benar.", "warn");
+                return;
+              }
+              setSaving(true);
+              try {
+                const saved = await app.addFuelConsumption({
+                  ...form,
+                  route: form.route.trim(),
+                  note: form.note.trim(),
+                });
+                if (saved) onClose();
+              } finally {
+                setSaving(false);
+              }
+            }}
+          >
+            {saving ? "Menyimpan..." : "Simpan Catatan"}
+          </Button>
+        </>
+      }
+    >
+      <div className="grid grid-cols-1 gap-space-md sm:grid-cols-2">
+        <Field label="Tanggal">
+          <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+        </Field>
+        <Field label="Armada milik sendiri">
+          <Select value={form.vehicleId} onChange={(e) => setForm({ ...form, vehicleId: e.target.value })}>
+            {vehicles.map((v) => <option key={v.id} value={v.id}>{v.plate} • {v.model}</option>)}
+          </Select>
+        </Field>
+        <Field label="Rute">
+          <Input value={form.route} onChange={(e) => setForm({ ...form, route: e.target.value })} placeholder="Contoh: Stockpile - Site" />
+        </Field>
+        <Field label="Jumlah ritase">
+          <Input type="number" min="1" step="1" value={form.trips} onChange={(e) => setForm({ ...form, trips: Number(e.target.value) })} />
+        </Field>
+        <Field label="Konsumsi solar (liter)">
+          <Input type="number" min="0.01" step="0.01" value={form.liter} onChange={(e) => setForm({ ...form, liter: Number(e.target.value) })} />
+        </Field>
+        <Field label="Harga solar per liter (Rp)">
+          <Input type="number" min="0.01" step="1" value={form.pricePerLiter} onChange={(e) => setForm({ ...form, pricePerLiter: Number(e.target.value) })} />
+        </Field>
+        <Field label="Catatan (opsional)" className="sm:col-span-2">
+          <Input value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="Contoh: kondisi jalan, antrean, atau muatan" />
+        </Field>
+      </div>
+      <div className="mt-space-md flex items-center justify-between rounded-xl bg-surface-container-low p-space-md">
+        <span className="font-body-sm text-body-sm text-on-surface-variant">Biaya konsumsi tercatat</span>
+        <span className="font-headline-md text-headline-md text-primary tabular">{rupiah(total)}</span>
+      </div>
+    </Modal>
   );
 }
 

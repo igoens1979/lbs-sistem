@@ -19,6 +19,7 @@ import {
   type Customer,
   type Driver,
   type Employee,
+  type FuelConsumption,
   type FuelLog,
   type ID,
   type Invoice,
@@ -35,7 +36,7 @@ import {
   type Supplier,
   type Vehicle,
 } from "./data";
-import { supabase, type DbAccount, type DbBankTx, type DbCustomer, type DbCommodity, type DbDriver, type DbEmployee, type DbFuelLog, type DbInvoice, type DbInvoiceRevision, type DbLead, type DbLegacyDebt, type DbOpeningBalance, type DbOpeningLog, type DbPayrollRun, type DbPayment, type DbSupplier, type DbSuratJalan, type DbUser, type DbVehicle } from "./supabase";
+import { supabase, type DbAccount, type DbBankTx, type DbCustomer, type DbCommodity, type DbDriver, type DbEmployee, type DbFuelConsumption, type DbFuelLog, type DbInvoice, type DbInvoiceRevision, type DbLead, type DbLegacyDebt, type DbOpeningBalance, type DbOpeningLog, type DbPayrollRun, type DbPayment, type DbSupplier, type DbSuratJalan, type DbUser, type DbVehicle } from "./supabase";
 import { addDays, daysBetween, iso, monthKey, nextYm, prevYm, rupiah, TODAY, ymLabel } from "./format";
 import type { Route } from "./routes";
 import {
@@ -80,6 +81,7 @@ interface State {
   payrollRuns: PayrollRun[];
   leads: Lead[];
   fuelLogs: FuelLog[];
+  fuelConsumptions: FuelConsumption[];
   fuelLiter: number;
   maintenance: { defaultIntervalKm: number; warnKm: number };
   tax: { ppnRate: number };
@@ -110,6 +112,7 @@ const initialState: State = {
   payrollRuns: [],
   leads: [],
   fuelLogs: [],
+  fuelConsumptions: [],
   fuelLiter: 12_400,
   maintenance: { ...MAINT_DEFAULT },
   tax: { ppnRate: 0.11 },
@@ -348,6 +351,17 @@ const toFuelLog = (r: DbFuelLog): FuelLog => ({
   note: r.note,
 });
 
+const toFuelConsumption = (r: DbFuelConsumption): FuelConsumption => ({
+  id: r.id,
+  date: r.consumption_date,
+  vehicleId: r.vehicle_id,
+  route: r.route,
+  trips: r.trips,
+  liter: r.liter,
+  pricePerLiter: r.price_per_liter,
+  note: r.note,
+});
+
 const toPayrollRun = (r: DbPayrollRun): PayrollRun => ({
   id: r.id,
   period: r.period,
@@ -566,6 +580,17 @@ const dbFuelLog = (p: { id: string; liter: number; pricePerLiter: number; accoun
   note: p.note,
 });
 
+const dbFuelConsumption = (p: FuelConsumption) => ({
+  id: p.id,
+  consumption_date: p.date,
+  vehicle_id: p.vehicleId,
+  route: p.route,
+  trips: p.trips,
+  liter: p.liter,
+  price_per_liter: p.pricePerLiter,
+  note: p.note,
+});
+
 const dbPayrollRun = (r: PayrollRun) => ({
   id: r.id,
   period: r.period,
@@ -655,6 +680,7 @@ export interface Ctx extends State {
   paySupplier: (id: ID, amount: number, accountId: ID) => Promise<void>;
   payLegacy: (id: ID, accountId: ID, count?: number) => Promise<void>;
   addFuelPurchase: (p: { liter: number; pricePerLiter: number; accountId: ID; supplierId: ID | null; date: string; note: string }) => Promise<void>;
+  addFuelConsumption: (p: Omit<FuelConsumption, "id">) => Promise<boolean>;
   setMaintenanceParams: (p: { defaultIntervalKm: number; warnKm: number }, applyToAll?: boolean) => void;
   updateOdometer: (vehicleId: ID, odometer: number, note?: string) => void;
   recordService: (vehicleId: ID, p: { date: string; odometerAtService: number; intervalKm: number; cost: number; accountId: ID; note: string; nextStatus?: Vehicle["status"] }) => Promise<void>;
@@ -697,7 +723,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const loadAll = useCallback(async () => {
     try {
-      const [accounts, bankTx, customers, suppliers, commodities, vehicles, drivers, sj, invoices, invoiceRevs, payments, invoiceSJ, legacyDebts, openingBalances, openingLog, users, employees, payrollRuns, leads, fuelLogs] = await Promise.all([
+      const [accounts, bankTx, customers, suppliers, commodities, vehicles, drivers, sj, invoices, invoiceRevs, payments, invoiceSJ, legacyDebts, openingBalances, openingLog, users, employees, payrollRuns, leads, fuelLogs, fuelConsumptions] = await Promise.all([
         supabase.from("accounts").select("*"),
         supabase.from("bank_tx").select("*").order("tx_date", { ascending: false }),
         supabase.from("customers").select("*"),
@@ -718,7 +744,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
         supabase.from("payroll_runs").select("*"),
         supabase.from("leads").select("*"),
         supabase.from("fuel_logs").select("*").order("fuel_date", { ascending: false }),
+        supabase.from("fuel_consumptions").select("*").order("consumption_date", { ascending: false }),
       ]);
+
+      if (fuelConsumptions.error) {
+        const missingTable = fuelConsumptions.error.code === "PGRST205" || fuelConsumptions.error.code === "42P01";
+        console.error("Gagal memuat catatan konsumsi BBM:", fuelConsumptions.error);
+        toast(
+          "Catatan konsumsi BBM belum tersedia",
+          missingTable
+            ? "Jalankan scripts/migrate_fuel_consumptions.sql di SQL Editor Supabase."
+            : fuelConsumptions.error.message,
+          "warn",
+        );
+      }
 
       const invoiceRows = invoices.data ?? [];
       const revByInv = new Map<string, DbInvoiceRevision[]>();
@@ -768,6 +807,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         payrollRuns: (payrollRuns.data ?? []).map(toPayrollRun),
         leads: (leads.data ?? []).map(toLead),
         fuelLogs: (fuelLogs.data ?? []).map(toFuelLog),
+        fuelConsumptions: (fuelConsumptions.data ?? []).map(toFuelConsumption),
         loaded: true,
       }));
     } catch (err) {
@@ -1474,6 +1514,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast("Pembelian solar tersimpan", `${p.liter.toLocaleString("id-ID")} liter masuk tangki`, "success");
   };
 
+  const addFuelConsumption: Ctx["addFuelConsumption"] = async (p) => {
+    const record: FuelConsumption = { id: uid("FC"), ...p };
+    const { error } = await supabase.from("fuel_consumptions").insert([dbFuelConsumption(record)]);
+    if (error) {
+      const missingTable = error.code === "PGRST205" || error.code === "42P01";
+      toast(
+        "Catatan konsumsi gagal disimpan",
+        missingTable
+          ? "Tabel pencatatan konsumsi belum tersedia. Jalankan scripts/migrate_fuel_consumptions.sql di SQL Editor Supabase."
+          : error.message,
+        "error",
+      );
+      return false;
+    }
+    setState((s) => ({ ...s, fuelConsumptions: [record, ...s.fuelConsumptions] }));
+    toast("Konsumsi BBM tersimpan", `${p.vehicleId} • ${p.trips} rit • ${p.liter.toLocaleString("id-ID")} L`, "success");
+    return true;
+  };
+
   const setMaintenanceParams: Ctx["setMaintenanceParams"] = (params, applyToAll = false) => {
     setState((s) => ({
       ...s,
@@ -1954,6 +2013,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     paySupplier,
     payLegacy,
     addFuelPurchase,
+    addFuelConsumption,
     setTaxRate,
     setBulkTaxRate,
     setOpeningBalance,
