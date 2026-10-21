@@ -472,9 +472,10 @@ onClick={() => {
 
 function TransferModal({ onClose }: { onClose: () => void }) {
   const app = useApp();
-  const [from, setFrom] = useState("A-001");
+const [from, setFrom] = useState("A-001");
   const [to, setTo] = useState("A-002");
   const [amount, setAmount] = useState(25_000_000);
+  const [date, setDate] = useState(iso(TODAY()));
   const [note, setNote] = useState("Dana operasional BBM lapangan");
   const balance = app.accountBalance(from);
 
@@ -496,7 +497,7 @@ onClick={() => {
                 app.toast("Rekening asal & tujuan sama", "Pilih rekening yang berbeda", "warn");
                 return;
               }
-              app.transfer(from, to, amount, note);
+              app.transfer(from, to, amount, note, date);
               onClose();
             }}
           >
@@ -524,9 +525,12 @@ onClick={() => {
             ))}
           </Select>
         </Field>
-        <Field label="Nominal (Rp)" hint={`Saldo tersedia ${rupiah(balance)}`}>
-          <Input type="number" value={amount} onChange={(e) => setAmount(Number(e.target.value))} />
-        </Field>
+<Field label="Nominal (Rp)" hint={`Saldo tersedia ${rupiah(balance)}`}>
+            <Input type="number" value={amount} onChange={(e) => setAmount(Number(e.target.value))} />
+          </Field>
+          <Field label="Tanggal">
+            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          </Field>
         <Field label="Keterangan">
           <Input value={note} onChange={(e) => setNote(e.target.value)} />
         </Field>
