@@ -64,16 +64,16 @@ const canEdit = app.can("kas-bank", "edit");
         actions={
           <PeriodActions
             onExport={() =>
-              csvDownload("mutasi-kas-bank-lbs.csv", [
-                ["Tanggal", "Rekening", "Uraian", "Kategori", "Alokasi", "Arah", "Nominal"],
+csvDownload("mutasi-kas-bank-lbs.csv", [
+                ["Tanggal", "Rekening", "Uraian", "Kategori", "Alokasi", "Masuk", "Keluar"],
                 ...ledger.map((tx) => [
                   d(parseISO(tx.date)),
                   accounts.find((a) => a.id === tx.accountId)?.name ?? "",
                   tx.desc,
                   tx.category,
                   tx.allocation ?? "-",
-                  tx.direction === "in" ? "Masuk" : "Keluar",
-                  tx.amount,
+                  tx.direction === "in" ? tx.amount : "",
+                  tx.direction === "out" ? tx.amount : "",
                 ]),
               ])
             }
