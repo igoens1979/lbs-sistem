@@ -588,8 +588,8 @@ function ExportModal({ onClose, exportAccountId, setExportAccountId }: { onClose
                     r.accountName,
                     r.category,
                     r.allocation ?? "-",
-                    r.direction === "in" ? rupiah(r.amount) : "-",
-                    r.direction === "out" ? rupiah(r.amount) : "-",
+r.direction === "in" ? r.amount : "-",
+                     r.direction === "out" ? r.amount : "-",
                   ]),
                 ],
               );
