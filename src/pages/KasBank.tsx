@@ -546,8 +546,9 @@ onClick={() => {
 }
 
 function ledgerExport(app: Ctx, accountId: "all" | string) {
-  const txs = app.bankTx.filter((tx) => {
+const txs = app.bankTx.filter((tx) => {
     if (accountId !== "all" && tx.accountId !== accountId) return false;
+    if (tx.date < app.period.from || tx.date > app.period.to) return false;
     return true;
   });
   return txs
