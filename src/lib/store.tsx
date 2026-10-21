@@ -670,7 +670,12 @@ export interface Ctx extends State {
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<State>(initialState);
   const [route, setRoute] = useState<Route>("dashboard");
-  const [period, setPeriod] = useState({ from: "2026-10-01", to: "2026-10-15" });
+  const todayIso = iso(TODAY());
+  const [period, setPeriod] = useState(() => {
+    const ym = todayIso.slice(0, 7);
+    const lastDay = new Date(Number(ym.slice(0, 4)), Number(ym.slice(5, 7)), 0).getDate();
+    return { from: `${ym}-01`, to: `${ym}-${String(lastDay).padStart(2, "0")}` };
+  });
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const toast = useCallback((title: string, detail?: string, tone: Toast["tone"] = "success") => {
