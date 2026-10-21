@@ -94,6 +94,7 @@ export default function MasterData() {
   const [tab, setTab] = useState<TabKey>("customers");
   const [editing, setEditing] = useState<Record<string, unknown> | null>(null);
   const [query, setQuery] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const isUsersTab = tab === "users";
   const collection = (isUsersTab ? "employees" : tab) as CollectionKey;
@@ -249,13 +250,18 @@ export default function MasterData() {
               </Button>
               <Button
                 icon="save"
-                disabled={!canEdit && !canCreate}
-                onClick={() => {
-                  app.saveMaster(collection, editing as unknown as never);
-                  setEditing(null);
+                disabled={saving || (!canEdit && !canCreate)}
+                onClick={async () => {
+                  setSaving(true);
+                  try {
+                    const saved = await app.saveMaster(collection, editing as unknown as never);
+                    if (saved) setEditing(null);
+                  } finally {
+                    setSaving(false);
+                  }
                 }}
               >
-                Simpan Data
+                {saving ? "Menyimpan..." : "Simpan Data"}
               </Button>
             </>
           }

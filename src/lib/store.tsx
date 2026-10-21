@@ -665,7 +665,7 @@ export interface Ctx extends State {
   saveMaster: <K extends "customers" | "suppliers" | "commodities" | "vehicles" | "drivers" | "employees">(
     collection: K,
     item: State[K][number],
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   removeMaster: (collection: "customers" | "suppliers" | "commodities" | "vehicles" | "drivers" | "employees", id: ID) => Promise<void>;
 }
 
@@ -1720,14 +1720,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
         case "employees": return dbEmployee(item as Employee);
       }
     })();
-    await supabase.from(table).upsert([dbItem]);
+    const { error } = await supabase.from(table).upsert([dbItem]);
+    if (error) {
+      const missingOwnershipColumn =
+        collection === "vehicles" &&
+        (error.message.includes("ownership") || error.code === "PGRST204");
+      toast(
+        "Master data gagal disimpan",
+        missingOwnershipColumn
+          ? "Kolom kepemilikan belum tersedia di database. Jalankan scripts/migrate_vehicle_ownership.sql di SQL Editor Supabase, lalu coba lagi."
+          : error.message,
+        "error",
+      );
+      return false;
+    }
     setState((s) => {
       const list = s[collection] as { id: ID }[];
       const exists = list.some((x) => x.id === item.id);
       const next = exists ? list.map((x) => (x.id === item.id ? item : x)) : [item, ...list];
       return { ...s, [collection]: next } as State;
     });
-    toast("Master data tersimpan", (item as { name: string }).name, "success");
+    const label = collection === "vehicles"
+      ? (item as Vehicle).plate
+      : (item as { name: string }).name;
+    toast("Master data tersimpan", label, "success");
+    return true;
   };
 
   const removeMaster: Ctx["removeMaster"] = async (collection, id) => {
