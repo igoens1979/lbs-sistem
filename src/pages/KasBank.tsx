@@ -491,13 +491,9 @@ function TransferModal({ onClose }: { onClose: () => void }) {
           </Button>
           <Button
             icon="swap_horiz"
-            onClick={() => {
+onClick={() => {
               if (from === to) {
                 app.toast("Rekening asal & tujuan sama", "Pilih rekening yang berbeda", "warn");
-                return;
-              }
-              if (amount > balance) {
-                app.toast("Saldo tidak mencukupi", `Saldo tersedia ${rupiah(balance)}`, "error");
                 return;
               }
               app.transfer(from, to, amount, note);
