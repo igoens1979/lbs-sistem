@@ -59,6 +59,8 @@ Tambahkan entri di `src/lib/routes.ts` (menambah `id` pada union `Route` + entri
 
 **Data**: `sj`, `invoices`, `payments`, `bankTx`, `customers`, `suppliers`, `commodities`, `vehicles`, `drivers`, `employees`, `payrollRuns`, `fuelLogs`, `legacyDebts`, `period`.
 
+**Kepemilikan armada**: Jalankan `scripts/migrate_vehicle_ownership.sql` satu kali melalui SQL Editor Supabase untuk menambah status kepemilikan, menandai DT CANTER DD 8238 UF sebagai milik sendiri, dan mendaftarkan SUNY 215, PC 100, serta PC 200. Armada lain diberi nilai awal "Milik Customer"; ubah ke "Sewa" atau kategori yang benar melalui Master Data → Armada.
+
 **Turunan siap pakai**: `kpi` (SJ, sudah/belum invoice, total tagihan), `aging`, `outstandingTotal`, `supplierDebtTotal`, `legacyTotal`, `legacyOutstandingTotal`, `fuelStock`, `ritaseToday`, `cashFlowDaily`, `accountsWithBalance`, `accountBalance(id)`, `paidOf(invoiceId)`, `outstandingOf(invoice)`, `computedStatus(invoice)`, `notifications`.
 
 **Aksi**: `addSJ`, `updateSJ`, `deleteSJ`, `createInvoice(sjIds)`, `recordPayment({…})`, `addBankTx`, `transfer`, `paySupplier`, `payLegacy`, `addFuelPurchase`, `runPayroll`, `saveMaster`, `removeMaster`, `setPeriod`, `go(route)`, `toast(title, detail, tone)`.

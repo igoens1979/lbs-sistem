@@ -185,6 +185,7 @@ const toVehicle = (r: DbVehicle): Vehicle => ({
   plate: r.plate,
   model: r.model,
   type: r.vehicle_type as any,
+  ownership: r.ownership ?? "Milik Customer",
   capacity: r.capacity,
   status: r.status as any,
   driverId: r.driver_id ?? undefined,
@@ -409,6 +410,7 @@ const dbVehicle = (v: Vehicle) => ({
   plate: v.plate,
   model: v.model,
   vehicle_type: v.type,
+  ownership: v.ownership ?? "Milik Customer",
   capacity: v.capacity,
   status: v.status,
   driver_id: v.driverId ?? null,
@@ -1476,12 +1478,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setState((s) => ({
       ...s,
       maintenance: params,
-      vehicles: applyToAll ? s.vehicles.map((v) => ({ ...v, serviceIntervalKm: params.defaultIntervalKm })) : s.vehicles,
+      vehicles: applyToAll
+        ? s.vehicles.map((v) => (v.ownership === "Milik Sendiri" ? { ...v, serviceIntervalKm: params.defaultIntervalKm } : v))
+        : s.vehicles,
     }));
     toast(
       "Parameter pemeliharaan disimpan",
       applyToAll
-        ? `Interval ${params.defaultIntervalKm.toLocaleString("id-ID")} km diterapkan ke ${state.vehicles.length} unit • peringatan ${params.warnKm.toLocaleString("id-ID")} km`
+        ? `Interval ${params.defaultIntervalKm.toLocaleString("id-ID")} km diterapkan ke ${state.vehicles.filter((v) => v.ownership === "Milik Sendiri").length} unit milik sendiri • peringatan ${params.warnKm.toLocaleString("id-ID")} km`
         : `Interval default ${params.defaultIntervalKm.toLocaleString("id-ID")} km • peringatan ${params.warnKm.toLocaleString("id-ID")} km`,
       "success",
     );
@@ -1958,4 +1962,3 @@ export function useApp() {
   if (!ctx) throw new Error("useApp harus dipakai di dalam AppProvider");
   return ctx;
 }
-

@@ -75,6 +75,7 @@ export type DbVehicle = {
   plate: string;
   model: string;
   vehicle_type: string;
+  ownership?: "Milik Sendiri" | "Milik Customer" | "Sewa";
   capacity: number;
   status: string;
   driver_id: string | null;

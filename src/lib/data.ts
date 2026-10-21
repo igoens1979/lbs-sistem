@@ -36,11 +36,13 @@ export interface Commodity {
   price: number;
   stock: number;
 }
+export type VehicleOwnership = "Milik Sendiri" | "Milik Customer" | "Sewa";
 export interface Vehicle {
   id: ID;
   plate: string;
   model: string;
   type: "Dump Truck" | "Excavator" | "Wheel Loader";
+  ownership?: VehicleOwnership;
   capacity: number;
   status: "Aktif" | "Servis" | "Nonaktif";
   driverId?: ID;
@@ -614,4 +616,3 @@ export const MAINT_DEFAULT = { defaultIntervalKm: 10_000, warnKm: 1_500 };
 export const nextServiceKm = (v: Vehicle) => v.lastServiceOdometer + v.serviceIntervalKm;
 /** Sisa jarak menuju servis berikutnya (negatif = sudah terlewat). */
 export const remainingServiceKm = (v: Vehicle) => nextServiceKm(v) - v.odometer;
-

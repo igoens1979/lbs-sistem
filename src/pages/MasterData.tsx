@@ -50,6 +50,7 @@ const SCHEMAS: Record<CollectionKey, FieldDef[]> = {
     { key: "plate", label: "Nomor Polisi" },
     { key: "model", label: "Model / Merk" },
     { key: "type", label: "Jenis", type: "select", options: ["Dump Truck", "Excavator", "Wheel Loader"] },
+    { key: "ownership", label: "Kepemilikan Armada", type: "select", options: ["Milik Customer", "Milik Sendiri", "Sewa"] },
     { key: "capacity", label: "Kapasitas (m³)", type: "number" },
     { key: "status", label: "Status", type: "select", options: ["Aktif", "Servis", "Nonaktif"] },
     { key: "odometer", label: "Odometer Kini (km)", type: "number" },
@@ -326,6 +327,7 @@ function renderHeader(tab: CollectionKey, showAccount = false) {
         <>
           <Th>Unit</Th>
           <Th>Model</Th>
+          <Th align="center">Kepemilikan</Th>
           <Th align="center">Jenis</Th>
           <Th align="right">Kapasitas</Th>
           <Th align="right">Odometer Kini</Th>
@@ -416,6 +418,7 @@ function renderCells(tab: CollectionKey, row: Record<string, unknown>, app: Retu
             <span className="block text-[11px] text-on-surface-variant">{trips} ritase periode ini</span>
           </Td>
           <Td>{v.model}</Td>
+          <Td align="center"><Pill tone={v.ownership === "Milik Sendiri" ? "success" : "outline"}>{v.ownership ?? "Milik Customer"}</Pill></Td>
           <Td align="center"><Pill tone="outline">{v.type}</Pill></Td>
           <Td align="right" className="font-mono">{num(v.capacity)} m³</Td>
           <Td align="right" className="font-mono">{num(v.odometer)} km</Td>
@@ -509,4 +512,3 @@ function renderCells(tab: CollectionKey, row: Record<string, unknown>, app: Retu
     }
   }
 }
-

@@ -15,30 +15,37 @@ export default function Bbm() {
   const [svcTarget, setSvcTarget] = useState<string | null>(null);
   const [odoTarget, setOdoTarget] = useState<string | null>(null);
   const [paramOpen, setParamOpen] = useState(false);
-  const plan = app.maintenancePlan;
+  const ownVehicles = useMemo(
+    () => app.vehicles.filter((v) => v.ownership === "Milik Sendiri"),
+    [app.vehicles],
+  );
+  const ownVehicleIds = useMemo(() => new Set(ownVehicles.map((v) => v.id)), [ownVehicles]);
+  const plan = useMemo(
+    () => app.maintenancePlan.filter((x) => ownVehicleIds.has(x.v.id)),
+    [app.maintenancePlan, ownVehicleIds],
+  );
   const dueCount = plan.filter((x) => x.overdue).length;
   const soonCount = plan.filter((x) => x.dueSoon).length;
 
   const periodSJ = useMemo(
-    () => app.sj.filter((r) => r.date >= app.period.from && r.date <= app.period.to && r.status !== "Batal"),
-    [app.sj, app.period],
+    () => app.sj.filter((r) => r.date >= app.period.from && r.date <= app.period.to && r.status !== "Batal" && ownVehicleIds.has(r.vehicleId)),
+    [app.sj, app.period, ownVehicleIds],
   );
 
   const perVehicle = useMemo(
     () =>
-      app.vehicles
-        .filter((v) => v.type === "Dump Truck")
+      ownVehicles
         .map((v) => {
           const rows = periodSJ.filter((r) => r.vehicleId === v.id);
           const trips = rows.reduce((s, r) => s + r.trips, 0);
           const volume = rows.reduce((s, r) => s + r.volume * r.trips, 0);
           const revenue = rows.reduce((s, r) => s + r.volume * r.trips * r.price, 0);
-          const liter = trips * FUEL_STATE.literPerRit;
+          const liter = v.type === "Dump Truck" ? trips * FUEL_STATE.literPerRit : 0;
           const fuelCost = liter * FUEL_STATE.pricePerLiter;
           return { v, trips, volume, revenue, liter, fuelCost, driver: app.drivers.find((x) => x.id === v.driverId)?.name ?? "-", margin: revenue - fuelCost };
         })
         .sort((a, b) => b.trips - a.trips),
-    [app.vehicles, app.drivers, periodSJ],
+    [ownVehicles, app.drivers, periodSJ],
   );
 
   const perDriver = useMemo(
@@ -53,18 +60,39 @@ export default function Bbm() {
     [app.drivers, periodSJ],
   );
 
-  const ritaseToday = app.ritaseToday;
+  const ritaseToday = useMemo(() => {
+    const rows = app.sj.filter((r) => r.date === iso(TODAY()) && r.status !== "Batal" && ownVehicleIds.has(r.vehicleId));
+    const byCommodity = app.commodities
+      .map((c) => {
+        const commodityRows = rows.filter((r) => r.commodityId === c.id);
+        return {
+          name: c.name,
+          trips: commodityRows.reduce((s, r) => s + r.trips, 0),
+          volume: commodityRows.reduce((s, r) => s + r.volume * r.trips, 0),
+          units: new Set(commodityRows.map((r) => r.vehicleId)).size,
+        };
+      })
+      .filter((c) => c.trips > 0);
+    return {
+      trips: rows.reduce((s, r) => s + r.trips, 0),
+      volume: rows.reduce((s, r) => s + r.volume * r.trips, 0),
+      byCommodity,
+      vehiclesActive: new Set(rows.map((r) => r.vehicleId)).size,
+    };
+  }, [app.sj, app.commodities, ownVehicleIds]);
   const fuel = app.fuelStock;
   const maxTrips = Math.max(...perVehicle.map((p) => p.trips), 1);
-  const periodLiter = periodSJ.reduce((s, r) => s + r.trips * FUEL_STATE.literPerRit, 0);
-  const periodFuelCost = periodLiter * FUEL_STATE.pricePerLiter;
+  const periodTrips = perVehicle.reduce((s, p) => s + p.trips, 0);
+  const periodVolume = perVehicle.reduce((s, p) => s + p.volume, 0);
+  const periodLiter = perVehicle.reduce((s, p) => s + p.liter, 0);
+  const periodFuelCost = perVehicle.reduce((s, p) => s + p.fuelCost, 0);
 
   return (
     <PageBody>
       <PageHeader
         eyebrow="Operasional Armada & Energi"
-        title="Operasional Dump Truck, BBM & Pemeliharaan"
-        description="Monitor ritase per unit dan per komoditas, konsumsi solar site Golo Mori, nilai stok tangki, serta jadwal pemeliharaan armada."
+        title="Operasional Armada Sendiri, BBM & Pemeliharaan"
+        description="Pantau ritase dan estimasi konsumsi BBM khusus armada milik sendiri, stok solar site Golo Mori, serta jadwal pemeliharaan."
         actions={
           <PeriodActions
             onExport={() =>
@@ -145,7 +173,7 @@ export default function Bbm() {
           <SectionHeading
             icon="view_list"
             title="Kinerja Armada & Konsumsi Solar"
-            subtitle="Ritase, volume, biaya solar, dan margin kontribusi per unit dump truck"
+            subtitle="Ritase, volume, biaya solar, dan margin kontribusi armada milik sendiri"
             right={
               <div className="flex flex-wrap items-center gap-1">
                 {(["konsumsi", "ritase", "pemeliharaan"] as const).map((t) => (
@@ -197,12 +225,19 @@ export default function Bbm() {
                       <Td align="right" className="font-mono font-semibold text-success">{rupiah(p.margin)}</Td>
                     </tr>
                   ))}
+                  {perVehicle.length === 0 && (
+                    <tr>
+                      <Td colSpan={8} align="center" className="py-space-lg text-on-surface-variant">
+                        Belum ada armada berstatus Milik Sendiri. Perbarui status kepemilikan di Master Data → Armada.
+                      </Td>
+                    </tr>
+                  )}
                 </tbody>
                 <tfoot>
                   <tr className="bg-surface-container font-label-md text-label-md font-bold text-primary">
-                    <Td colSpan={2}>Total {perVehicle.length} unit dump truck</Td>
-                    <Td align="right" className="font-mono">{num(perVehicle.reduce((s, p) => s + p.trips, 0))}</Td>
-                    <Td align="right" className="font-mono">{num(perVehicle.reduce((s, p) => s + p.volume, 0))} m³</Td>
+                    <Td colSpan={2}>Total {perVehicle.length} unit milik sendiri</Td>
+                    <Td align="right" className="font-mono">{num(periodTrips)}</Td>
+                    <Td align="right" className="font-mono">{num(periodVolume)} m³</Td>
                     <Td align="right" className="font-mono">{num(periodLiter)} L</Td>
                     <Td align="right" className="font-mono text-error">{rupiah(periodFuelCost)}</Td>
                     <Td align="right" className="font-mono">{rupiah(perVehicle.reduce((s, p) => s + p.revenue, 0))}</Td>
@@ -464,8 +499,8 @@ export default function Bbm() {
             <SectionHeading icon="calendar_month" title="Jadwal & Alert Operasional" subtitle="Diperbarui otomatis dari data armada dan surat jalan" />
             <div className="flex flex-col gap-space-sm">
               <AlertRow icon="water_drop" tone={fuel.liter < 6000 ? "error" : "info"} title="Stok solar site" detail={`${num(fuel.liter)} L dari kapasitas ${num(fuel.capacity)} L`} />
-              <AlertRow icon="build_circle" tone="warn" title={`${app.vehicles.filter((v) => v.status === "Servis").length} unit di bengkel`} detail="Armada masuk pemeliharaan berkala" />
-              <AlertRow icon="speed" tone="info" title="Rata-rata ritase harian" detail={`${(periodSJ.reduce((s, r) => s + r.trips, 0) / 15).toFixed(1)} rit/hari periode ini`} />
+              <AlertRow icon="build_circle" tone="warn" title={`${ownVehicles.filter((v) => v.status === "Servis").length} unit milik sendiri di bengkel`} detail="Armada masuk pemeliharaan berkala" />
+                <AlertRow icon="speed" tone="info" title="Rata-rata ritase harian" detail={`${(periodTrips / 15).toFixed(1)} rit/hari periode ini`} />
               <AlertRow icon="person_alert" tone="warn" title={`${app.drivers.filter((x) => x.status === "Cuti").length} driver cuti`} detail="Perlu penyesuaian jadwal ritase" />
               <AlertRow icon="verified" tone="info" title="SLA pengiriman" detail="Tidak ada komplain keterlambatan periode ini" />
             </div>
@@ -596,18 +631,19 @@ function PurchaseModal({ onClose }: { onClose: () => void }) {
 /* ------------------------- Modal: parameter servis ------------------------- */
 function MaintenanceParamsModal({ onClose }: { onClose: () => void }) {
   const app = useApp();
+  const ownVehicles = app.vehicles.filter((v) => v.ownership === "Milik Sendiri");
   const [interval, setInterval] = useState(app.maintenance.defaultIntervalKm);
   const [warn, setWarn] = useState(app.maintenance.warnKm);
   const [applyAll, setApplyAll] = useState(true);
 
-  const affected = applyAll ? app.vehicles.length : app.vehicles.filter((v) => v.serviceIntervalKm === app.maintenance.defaultIntervalKm).length;
+  const affected = applyAll ? ownVehicles.length : ownVehicles.filter((v) => v.serviceIntervalKm === app.maintenance.defaultIntervalKm).length;
 
   return (
     <Modal
       open
       onClose={onClose}
       title="Parameter Pemeliharaan & Servis Berkala"
-      subtitle="Menentukan target km servis berikutnya untuk seluruh unit armada"
+      subtitle="Menentukan target servis untuk armada milik sendiri"
       footer={
         <>
           <Button variant="outline" onClick={onClose}>
@@ -645,7 +681,7 @@ function MaintenanceParamsModal({ onClose }: { onClose: () => void }) {
       <label className="mt-space-md flex items-start gap-2 rounded-xl bg-surface-container-low p-space-sm">
         <input type="checkbox" checked={applyAll} onChange={(e) => setApplyAll(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[#00274e]" />
         <span>
-          <span className="block font-label-md text-label-md text-primary">Terapkan interval ke seluruh unit ({app.vehicles.length} armada)</span>
+          <span className="block font-label-md text-label-md text-primary">Terapkan interval ke seluruh armada milik sendiri ({ownVehicles.length} armada)</span>
           <span className="block font-body-sm text-body-sm text-on-surface-variant">
             Bila tidak dicentang, hanya parameter default yang berubah dan interval per unit tetap seperti pengaturan masing-masing (dapat diatur di Master Data → Armada).
           </span>
@@ -664,7 +700,7 @@ function MaintenanceParamsModal({ onClose }: { onClose: () => void }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-surface-container font-body-sm text-body-sm">
-            {app.vehicles.slice(0, 6).map((v) => {
+            {ownVehicles.slice(0, 6).map((v) => {
               const newInterval = applyAll ? interval : v.serviceIntervalKm;
               const target = v.lastServiceOdometer + newInterval;
               return (
@@ -850,4 +886,3 @@ function ServiceModal({ vehicleId, onClose }: { vehicleId: string; onClose: () =
     </Modal>
   );
 }
-
