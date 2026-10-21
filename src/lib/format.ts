@@ -122,7 +122,8 @@ export function pct(part: number, total: number) {
 
 export function csvDownload(filename: string, rows: (string | number)[][]) {
   const csv = rows
-    .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(";"))
+    .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
+
     .join("\n");
   const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
