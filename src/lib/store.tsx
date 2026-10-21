@@ -647,6 +647,8 @@ export interface Ctx extends State {
   invoiceCoverage: (invoiceId: ID) => { sj: SJ; value: number; covered: number; remaining: number }[];
   recordPayment: (p: { invoiceId: ID; amount: number; accountId: ID; method: Payment["method"]; date?: string; ref?: string }) => Promise<void>;
   addBankTx: (tx: Omit<BankTx, "id">) => Promise<void>;
+  deleteBankTx: (id: string) => Promise<void>;
+  updateBankTx: (id: string, tx: Omit<BankTx, "id">) => Promise<void>;
   transfer: (from: ID, to: ID, amount: number, note: string, date?: string) => Promise<void>;
   paySupplier: (id: ID, amount: number, accountId: ID) => Promise<void>;
   payLegacy: (id: ID, accountId: ID, count?: number) => Promise<void>;
@@ -1383,6 +1385,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, bankTx: [fullTx, ...s.bankTx] }));
     toast("Mutasi kas/bank tersimpan", tx.desc, "success");
   };
+  const deleteBankTx: Ctx["deleteBankTx"] = async (id) => {
+    await supabase.from("bank_tx").delete().eq("id", id);
+    setState((s) => ({ ...s, bankTx: s.bankTx.filter((t) => t.id !== id) }));
+    toast("Mutasi dihapus", id, "success");
+  };
+  const updateBankTx: Ctx["updateBankTx"] = async (id, tx) => {
+    const fullTx: BankTx = { ...tx, id };
+    await supabase.from("bank_tx").update(dbBankTx(fullTx)).eq("id", id);
+    setState((s) => ({ ...s, bankTx: s.bankTx.map((t) => (t.id === id ? fullTx : t)) }));
+    toast("Mutasi diperbarui", tx.desc, "success");
+  };
 
   const transfer: Ctx["transfer"] = async (from, to, amount, note, date) => {
     const d = date ?? iso(TODAY());
@@ -1909,6 +1922,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     invoiceCoverage,
     recordPayment,
     addBankTx,
+    deleteBankTx,
+    updateBankTx,
     transfer,
     paySupplier,
     payLegacy,

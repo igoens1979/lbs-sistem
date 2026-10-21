@@ -14,6 +14,7 @@ export default function KasBank() {
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<"periode" | "semua">("semua");
 const [txOpen, setTxOpen] = useState(false);
+const [editingTx, setEditingTx] = useState<any>(null);
 const [transferOpen, setTransferOpen] = useState(false);
 const [openBalOpen, setOpenBalOpen] = useState(false);
 const [firstTimeOpen, setFirstTimeOpen] = useState(false);
@@ -218,17 +219,15 @@ const canEdit = app.can("kas-bank", "edit");
 <Td align="right" className={cn("font-mono font-semibold", tx.direction === "in" ? "text-primary" : "text-error")}>
                        {tx.direction === "in" ? "+" : "-"} {rupiahPlain(tx.amount)}
                      </Td>
-                    <Td align="center">
-                      <button
-                        type="button"
-                        title="Batalkan mutasi"
-                        onClick={() => {
-                          app.toast("Mutasi ditandai untuk review", `${tx.desc} — menunggu persetujuan supervisor`, "warn");
-                        }}
-                        className="rounded-lg p-1.5 text-on-surface-variant hover:bg-error-container hover:text-error"
-                      >
-                        <Icon name="undo" size={18} />
-                      </button>
+<Td align="center">
+                      <div className="flex items-center justify-center gap-1">
+                        <button type="button" title="Edit mutasi" onClick={() => setEditingTx(tx)} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary">
+                          <Icon name="edit" size={18} />
+                        </button>
+                        <button type="button" title="Hapus mutasi" onClick={() => app.deleteBankTx(tx.id)} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-error-container hover:text-error">
+                          <Icon name="delete" size={18} />
+                        </button>
+                      </div>
                     </Td>
                   </tr>
                 ))}
@@ -389,15 +388,16 @@ const canEdit = app.can("kas-bank", "edit");
       {openBalOpen && <OpeningBalanceModal ym={saldoYm} onClose={() => setOpenBalOpen(false)} />}
       {firstTimeOpen && <OpeningBalanceModal ym={saldoYm} firstTime onClose={() => setFirstTimeOpen(false)} />}
       {txOpen && <TxModal onClose={() => setTxOpen(false)} />}
+{editingTx && <TxModal initial={editingTx} onClose={() => setEditingTx(null)} />}
       {transferOpen && <TransferModal onClose={() => setTransferOpen(false)} />}
       {exportOpen && <ExportModal exportAccountId={exportAccountId} setExportAccountId={setExportAccountId} onClose={() => setExportOpen(false)} />}
     </PageBody>
   );
 }
 
-function TxModal({ onClose }: { onClose: () => void }) {
+function TxModal({ initial, onClose }: { initial?: any; onClose: () => void }) {
   const app = useApp();
-  const [form, setForm] = useState({ accountId: "A-002", direction: "out" as "in" | "out", amount: 5_000_000, date: iso(TODAY()), desc: "", category: "Operasional Site", allocation: "LBS" as "LBS" | "KMS" | undefined });
+  const [form, setForm] = useState(initial ? { accountId: initial.accountId, direction: initial.direction, amount: initial.amount, date: initial.date, desc: initial.desc, category: initial.category, allocation: initial.allocation } : { accountId: "A-002", direction: "out" as "in" | "out", amount: 5_000_000, date: iso(TODAY()), desc: "", category: "Operasional Site", allocation: "LBS" as "LBS" | "KMS" | undefined });
 
   return (
     <Modal
@@ -412,12 +412,13 @@ function TxModal({ onClose }: { onClose: () => void }) {
           </Button>
           <Button
             icon="save"
-            onClick={() => {
+onClick={() => {
               if (!form.desc.trim()) {
                 app.toast("Uraian mutasi wajib diisi", undefined, "warn");
                 return;
               }
-              app.addBankTx({ ...form, ref: undefined });
+              if (initial) app.updateBankTx(initial.id, { ...form, ref: initial.ref });
+              else app.addBankTx({ ...form, ref: undefined });
               onClose();
             }}
           >
@@ -456,7 +457,7 @@ function TxModal({ onClose }: { onClose: () => void }) {
         </Field>
         <Field label="Kategori">
           <Select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
-            {["Operasional Site", "BBM & Solar", "Sparepart", "Pemeliharaan", "Payroll", "Penerimaan Piutang", "Pendapatan Lain", "Kewajiban Historis", "Bank Charge"].map((c) => (
+            {["Operasional Site", "BBM & Solar", "Sparepart", "Pemeliharaan", "Payroll", "Penerimaan Piutang", "Pendapatan Lain", "Pengeluaran Lain", "Kewajiban Historis", "Bank Charge"].map((c) => (
               <option key={c}>{c}</option>
             ))}
           </Select>

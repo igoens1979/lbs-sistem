@@ -291,7 +291,7 @@ export function invoiceHtml(inv: Invoice, ctx: { paid: number; status: string; r
   return { title: `Invoice ${inv.no}`, body };
 }
 
-export function printInvoice(inv: Invoice, ctx: { paid: number; status: string; rows: SJ[]; allInvoices?: Invoice[]; customers?: Customer[] }) {
+export function printInvoice(inv: Invoice, ctx: { paid: number; status: string; rows: SJ[]; allInvoices?: Invoice[]; customers?: Customer[]; vehicles?: any[]; drivers?: any[]; commodities?: any[] }) {
   const { title, body } = invoiceHtml(inv, ctx);
   run(title, body);
 }
