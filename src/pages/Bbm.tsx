@@ -31,6 +31,10 @@ export default function Bbm() {
     () => app.sj.filter((r) => r.date >= app.period.from && r.date <= app.period.to && r.status !== "Batal" && ownVehicleIds.has(r.vehicleId)),
     [app.sj, app.period, ownVehicleIds],
   );
+  const ritaseSJ = useMemo(
+    () => periodSJ.filter((r) => r.volume * r.trips * r.price > 0),
+    [periodSJ],
+  );
 
   const perVehicle = useMemo(
     () =>
@@ -52,16 +56,21 @@ export default function Bbm() {
     () =>
       app.drivers
         .map((dr) => {
-          const rows = periodSJ.filter((r) => r.driverId === dr.id);
+          const rows = ritaseSJ.filter((r) => r.driverId === dr.id);
           return { dr, trips: rows.reduce((s, r) => s + r.trips, 0), volume: rows.reduce((s, r) => s + r.volume * r.trips, 0) };
         })
         .filter((x) => x.trips > 0)
         .sort((a, b) => b.trips - a.trips),
-    [app.drivers, periodSJ],
+    [app.drivers, ritaseSJ],
   );
 
   const ritaseToday = useMemo(() => {
-    const rows = app.sj.filter((r) => r.date === iso(TODAY()) && r.status !== "Batal" && ownVehicleIds.has(r.vehicleId));
+    const rows = app.sj.filter((r) =>
+      r.date === iso(TODAY()) &&
+      r.status !== "Batal" &&
+      ownVehicleIds.has(r.vehicleId) &&
+      r.volume * r.trips * r.price > 0,
+    );
     const byCommodity = app.commodities
       .map((c) => {
         const commodityRows = rows.filter((r) => r.commodityId === c.id);
@@ -300,7 +309,9 @@ export default function Bbm() {
                   </thead>
                   <tbody className="divide-y divide-surface-container font-body-sm text-body-sm">
                     {app.commodities.map((c) => {
-                      const rows = periodSJ.filter((r) => r.commodityId === c.id);
+                      const rows = ritaseSJ.filter((r) => r.commodityId === c.id);
+                      const loadValue = rows.reduce((s, r) => s + r.volume * r.trips * r.price, 0);
+                      if (loadValue <= 0) return null;
                       return (
                         <tr key={c.id}>
                           <Td>{c.name}</Td>
@@ -308,10 +319,17 @@ export default function Bbm() {
                           <Td align="right" className="font-mono">{rupiah(c.price)}</Td>
                           <Td align="right" className="font-mono">{num(rows.reduce((s, r) => s + r.trips, 0))}</Td>
                           <Td align="right" className="font-mono">{num(rows.reduce((s, r) => s + r.volume * r.trips, 0))} m³</Td>
-                          <Td align="right" className="font-mono font-semibold text-primary">{rupiah(rows.reduce((s, r) => s + r.volume * r.trips * r.price, 0))}</Td>
+                          <Td align="right" className="font-mono font-semibold text-primary">{rupiah(loadValue)}</Td>
                         </tr>
                       );
                     })}
+                    {ritaseSJ.every((r) => r.volume * r.trips * r.price <= 0) && (
+                      <tr>
+                        <Td colSpan={6} align="center" className="py-space-lg text-on-surface-variant">
+                          Belum ada ritase dengan nilai muatan pada periode ini.
+                        </Td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
