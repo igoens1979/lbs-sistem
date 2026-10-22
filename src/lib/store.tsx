@@ -952,7 +952,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       })
       .filter((c) => c.trips > 0);
 
-    const consumption = state.sj.filter((r) => inPeriod(r.date) && r.status !== "Batal").reduce((s, r) => s + r.trips * FUEL_STATE.literPerRit, 0);
+    const ownVehicleIds = new Set(state.vehicles.filter((v) => v.ownership === "Milik Sendiri").map((v) => v.id));
+    const consumption = state.fuelConsumptions
+      .filter((r) => inPeriod(r.date) && ownVehicleIds.has(r.vehicleId))
+      .reduce((s, r) => s + r.liter, 0);
 
     const dayMap = new Map<string, { in: number; out: number }>();
     state.bankTx.forEach((tx) => {

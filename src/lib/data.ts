@@ -517,7 +517,7 @@ export const FUEL_LOGS: FuelLog[] = [
   { id: "FL-003", date: "2026-10-13", accountId: "A-002", supplierId: "S-002", liter: 4_216, pricePerLiter: 8_900, note: "Pembelian solar industrial batch 3" },
 ];
 
-export const FUEL_STATE = { capacity: 20_000, literPerRit: 42, pricePerLiter: 8_900 };
+export const FUEL_STATE = { capacity: 20_000, pricePerLiter: 8_900 };
 
 export const EMPLOYEES: Employee[] = (() => {
   const list: Employee[] = [];
