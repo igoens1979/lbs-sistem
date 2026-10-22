@@ -1143,8 +1143,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toast("Gagal mengubah", "Surat jalan sudah diinvoice dan tidak dapat diubah.", "error");
       return false;
     }
-    if (!(await persistWrite(supabase.from("surat_jalan").update({ ...dbSJ({ ...current!, ...patch }), id }).eq("id", id), "Perubahan surat jalan"))) return false;
-    setState((s) => ({ ...s, sj: s.sj.map((r) => (r.id === id ? { ...r, ...patch } : r)) }));
+    const updated = { ...current!, ...patch };
+    if (!(await persistWrite(supabase.from("surat_jalan").update(dbSJ(updated)).eq("id", id), "Perubahan surat jalan"))) return false;
+    setState((s) => ({ ...s, sj: s.sj.map((r) => (r.id === id ? updated : r)) }));
     return true;
   };
 
@@ -1570,11 +1571,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
   const updateBankTx: Ctx["updateBankTx"] = async (id, tx) => {
     const fullTx: BankTx = { ...tx, id };
-    const { error } = await supabase.from("bank_tx").update(dbBankTx(fullTx)).eq("id", id);
-    if (error) {
-      toast("Mutasi kas/bank gagal diperbarui", error.message, "error");
-      return false;
-    }
+    if (!(await persistWrite(supabase.from("bank_tx").update(dbBankTx(fullTx)).eq("id", id), "Perubahan mutasi kas/bank"))) return false;
     setState((s) => ({ ...s, bankTx: s.bankTx.map((t) => (t.id === id ? fullTx : t)) }));
     toast("Mutasi diperbarui", tx.desc, "success");
     return true;
