@@ -75,6 +75,21 @@ function Router() {
     return <div className="flex min-h-screen items-center justify-center text-on-surface-variant">Memuat...</div>;
   }
 
+  if (app.loadError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-6">
+        <div className="max-w-xl rounded-2xl bg-surface-container-lowest p-6 text-center shadow-sm">
+          <h1 className="font-headline-md text-primary">Data Supabase belum termuat</h1>
+          <p className="mt-3 break-words text-sm text-on-surface-variant">{app.loadError}</p>
+          <button type="button" onClick={() => app.reload()} className="mt-5 rounded-lg bg-primary px-4 py-2 font-label-md text-on-primary">
+            Coba muat ulang
+          </button>
+        </div>
+        <ToastHost toasts={app.toasts} onDismiss={app.dismissToast} />
+      </div>
+    );
+  }
+
   return (
     <>
       <Shell>{allowed ? pageFor(app.route) : <AccessDenied />}</Shell>

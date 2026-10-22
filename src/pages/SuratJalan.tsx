@@ -499,13 +499,17 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
             disabled={isEdit && !!editing.invoiceId}
             onClick={async () => {
               if (isEdit) {
-                await app.updateSJ(editing.id, { ...form });
-                onClose();
-                app.toast("Surat jalan diperbarui", form.no, "success");
+                const saved = await app.updateSJ(editing.id, { ...form });
+                if (saved) {
+                  onClose();
+                  app.toast("Surat jalan diperbarui", form.no, "success");
+                }
               } else {
                 const row = await app.addSJ({ ...form });
-                onClose();
-                app.toast("Dokumen siap dicetak", row.no, "info");
+                if (row) {
+                  onClose();
+                  app.toast("Dokumen siap dicetak", row.no, "info");
+                }
               }
             }}
           >
@@ -593,4 +597,3 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
     </Modal>
   );
 }
-

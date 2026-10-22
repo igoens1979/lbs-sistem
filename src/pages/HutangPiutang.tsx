@@ -296,7 +296,6 @@ export default function HutangPiutang() {
             <div className="flex flex-col gap-space-sm">
               {app.legacyDebts.map((l) => {
                 const sisa = legacyOutstanding(l);
-                const bayarMax = Math.max(1, Math.min(3, Math.ceil(sisa / l.cicilan)));
                 return (
                   <div key={l.id} className="flex flex-col gap-space-sm rounded-xl bg-surface-container-low p-space-sm">
                     <div className="flex flex-wrap items-start justify-between gap-2">

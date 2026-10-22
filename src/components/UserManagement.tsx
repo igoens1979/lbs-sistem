@@ -16,9 +16,10 @@ import { cn, d, iso, parseISO, TODAY } from "@/lib/format";
 import { printUserAccess } from "@/lib/print";
 import { useApp } from "@/lib/store";
 
-export function UserForm({ draft, onSave, onClose, canEdit }: { draft: UserAccount; onSave: (u: UserAccount) => void; onClose: () => void; canEdit: boolean }) {
+export function UserForm({ draft, onSave, onClose, canEdit }: { draft: UserAccount; onSave: (u: UserAccount) => Promise<void>; onClose: () => void; canEdit: boolean }) {
   const app = useApp();
   const [form, setForm] = useState<UserAccount>(draft);
+  const [saving, setSaving] = useState(false);
   const emp = app.employees.find(e => e.id === form.employeeId) || employeeOf(form.employeeId);
   const sum = permissionSummary(form.permissions);
 
@@ -43,13 +44,18 @@ export function UserForm({ draft, onSave, onClose, canEdit }: { draft: UserAccou
       footer={
         <>
           <Button variant="outline" onClick={onClose}>Batal</Button>
-          <Button icon="save" disabled={!canEdit} onClick={() => {
+          <Button icon="save" disabled={!canEdit || saving} onClick={async () => {
             if (!form.employeeId) { app.toast("Karyawan belum dipilih", "Akun login harus terkait dengan data karyawan", "warn"); return; }
             if (chosenEmployeeTaken) { app.toast("Karyawan sudah memiliki akun", "Pilih karyawan lain yang belum terdaftar sebagai pengguna", "warn"); return; }
             if (!form.email.trim() || !form.username.trim()) { app.toast("Username & email wajib diisi", "Data ini dipakai untuk login ke sistem", "warn"); return; }
             if (sum.visible === 0) { app.toast("Minimal satu modul harus dapat dilihat", "Centang izin Lihat pada menu yang diperlukan", "warn"); return; }
-            onSave(form);
-          }}>Simpan Akun & Hak Akses</Button>
+            setSaving(true);
+            try {
+              await onSave(form);
+            } finally {
+              setSaving(false);
+            }
+          }}>{saving ? "Menyimpan…" : "Simpan Akun & Hak Akses"}</Button>
         </>
       }
     >
@@ -276,7 +282,7 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
           </tbody>
         </table>
       </div>
-      {draft && <UserForm draft={draft} onClose={() => setDraft(null)} onSave={(u) => { const isNew = !app.users.some(x => x.id === u.id); const pwd = u.tempPassword || draft.tempPassword; app.saveUser(u); if (isNew && pwd) { setTempPwd({ id: u.id, pwd, email: u.email }); } setDraft(null); }} canEdit={canEdit || canCreate} />}
+      {draft && <UserForm draft={draft} onClose={() => setDraft(null)} onSave={async (u) => { const isNew = !app.users.some(x => x.id === u.id); const pwd = u.tempPassword || draft.tempPassword; const saved = await app.saveUser(u); if (!saved) return; if (isNew && pwd) { setTempPwd({ id: u.id, pwd, email: u.email }); } setDraft(null); }} canEdit={canEdit || canCreate} />}
       {tempPwd && (
         <Modal open onClose={() => setTempPwd(null)} title="Kata Sandi Sementara Dibuat" subtitle="Salin dan kirim ke email karyawan. Wajib diganti saat login pertama." footer={<Button onClick={() => setTempPwd(null)}>Tutup</Button>}>
           <div className="flex flex-col gap-space-md">
@@ -306,11 +312,9 @@ export function UserManagement({ prefillEmployeeId, onConsumePrefill }: { prefil
           </table>
         </div>
       </Modal>
-      <Modal open={!!confirmDelete} onClose={() => setConfirmDelete(null)} title="Hapus Akun Pengguna" footer={<><Button variant="outline" onClick={() => setConfirmDelete(null)}>Batal</Button><Button variant="danger" icon="delete_forever" onClick={() => { if (confirmDelete) app.removeUser(confirmDelete.id); setConfirmDelete(null); }}>Hapus Akun</Button></>}>
+      <Modal open={!!confirmDelete} onClose={() => setConfirmDelete(null)} title="Hapus Akun Pengguna" footer={<><Button variant="outline" onClick={() => setConfirmDelete(null)}>Batal</Button><Button variant="danger" icon="delete_forever" onClick={async () => { if (confirmDelete && await app.removeUser(confirmDelete.id)) setConfirmDelete(null); }}>Hapus Akun</Button></>}>
         <p className="font-body-md text-body-md text-on-surface">Menghapus akun akan mencabut seluruh akses modul milik pengguna ini.</p>
       </Modal>
     </div>
   );
 }
-
-

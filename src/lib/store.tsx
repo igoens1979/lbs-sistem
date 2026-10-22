@@ -93,6 +93,7 @@ interface State {
   userFormRequest: string | null;
   user: Session | null;
   loaded: boolean;
+  loadError: string | null;
 }
 
 const initialState: State = {
@@ -124,6 +125,7 @@ const initialState: State = {
   userFormRequest: null,
 user: (() => { try { return JSON.parse(localStorage.getItem("lbs_user") || "null"); } catch { return null; } })(),
   loaded: false,
+loadError: null,
 };
 
 /* ---------- Converters DB -> App ---------- */
@@ -609,6 +611,7 @@ const AppCtx = createContext<Ctx | null>(null);
 const uid = (prefix: string) => `${prefix}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
 export interface Ctx extends State {
+  reload: () => Promise<void>;
   route: Route;
   go: (r: Route) => void;
   period: { from: string; to: string };
@@ -620,9 +623,9 @@ export interface Ctx extends State {
   logout: () => void;
   currentAccount: UserAccount | null;
   can: (route: Route, action: PermAction) => boolean;
-  saveUser: (user: UserAccount) => Promise<void>;
-  removeUser: (id: ID) => Promise<void>;
-  setUserStatus: (id: ID, status: UserAccount["status"]) => Promise<void>;
+  saveUser: (user: UserAccount) => Promise<boolean>;
+  removeUser: (id: ID) => Promise<boolean>;
+  setUserStatus: (id: ID, status: UserAccount["status"]) => Promise<boolean>;
   resetUserPassword: (id: ID) => void;
   changeMyPassword: (oldPass: string, newPass: string) => Promise<boolean>;
   setMyPassword: (newPass: string) => Promise<boolean>;
@@ -661,9 +664,9 @@ export interface Ctx extends State {
   cashFlowDaily: { date: string; in: number; out: number; net: number }[];
   notifications: { id: string; tone: "warn" | "error" | "info"; title: string; detail: string; route: Route }[];
 
-  addSJ: (payload: Partial<SJ>) => Promise<SJ>;
-  updateSJ: (id: ID, patch: Partial<SJ>) => Promise<void>;
-  deleteSJ: (id: ID) => Promise<void>;
+  addSJ: (payload: Partial<SJ>) => Promise<SJ | null>;
+  updateSJ: (id: ID, patch: Partial<SJ>) => Promise<boolean>;
+  deleteSJ: (id: ID) => Promise<boolean>;
   createInvoice: (sjIds: ID[], opts?: { note?: string; term?: number; billTo?: ID; kind?: Invoice["kind"]; ppnRate?: number; saveRateAsDefault?: boolean; no?: string; date?: string }) => Promise<Invoice | null>;
   reviseInvoice: (invoiceId: ID, p: { addSjIds?: ID[]; removeSjIds?: ID[]; note?: string; ppnRate?: number }) => Promise<Invoice | null>;
   carryForward: (invoiceId: ID, sjIds: ID[], opts?: { date?: string; term?: number; note?: string; ppnRate?: number }) => Promise<Invoice | null>;
@@ -681,8 +684,8 @@ export interface Ctx extends State {
   payLegacy: (id: ID, accountId: ID, count?: number) => Promise<void>;
   addFuelPurchase: (p: { liter: number; pricePerLiter: number; accountId: ID; supplierId: ID | null; date: string; note: string }) => Promise<void>;
   addFuelConsumption: (p: Omit<FuelConsumption, "id">) => Promise<boolean>;
-  setMaintenanceParams: (p: { defaultIntervalKm: number; warnKm: number }, applyToAll?: boolean) => void;
-  updateOdometer: (vehicleId: ID, odometer: number, note?: string) => void;
+  setMaintenanceParams: (p: { defaultIntervalKm: number; warnKm: number }, applyToAll?: boolean) => Promise<boolean>;
+  updateOdometer: (vehicleId: ID, odometer: number, note?: string) => Promise<boolean>;
   recordService: (vehicleId: ID, p: { date: string; odometerAtService: number; intervalKm: number; cost: number; accountId: ID; note: string; nextStatus?: Vehicle["status"] }) => Promise<void>;
   runPayroll: (periodLabel: string, accountId: ID) => Promise<void>;
   addLead: (lead: Lead) => Promise<void>;
@@ -747,6 +750,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
         supabase.from("fuel_consumptions").select("*").order("consumption_date", { ascending: false }),
       ]);
 
+      const requiredResults = [
+        ["accounts", accounts],
+        ["bank_tx", bankTx],
+        ["customers", customers],
+        ["suppliers", suppliers],
+        ["commodities", commodities],
+        ["vehicles", vehicles],
+        ["drivers", drivers],
+        ["surat_jalan", sj],
+        ["invoices", invoices],
+        ["invoice_revisions", invoiceRevs],
+        ["payments", payments],
+        ["invoice_sj", invoiceSJ],
+        ["legacy_debts", legacyDebts],
+        ["opening_balances", openingBalances],
+        ["opening_log", openingLog],
+        ["users", users],
+        ["employees", employees],
+        ["payroll_runs", payrollRuns],
+        ["leads", leads],
+        ["fuel_logs", fuelLogs],
+      ] as const;
+      const failedResults = requiredResults.filter(([, result]) => result.error);
+      if (failedResults.length) {
+        throw new Error(failedResults.map(([table, result]) => `${table}: ${result.error!.message}`).join("; "));
+      }
+
       if (fuelConsumptions.error) {
         const missingTable = fuelConsumptions.error.code === "PGRST205" || fuelConsumptions.error.code === "42P01";
         console.error("Gagal memuat catatan konsumsi BBM:", fuelConsumptions.error);
@@ -809,17 +839,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
         fuelLogs: (fuelLogs.data ?? []).map(toFuelLog),
         fuelConsumptions: (fuelConsumptions.data ?? []).map(toFuelConsumption),
         loaded: true,
+        loadError: null,
       }));
     } catch (err) {
       console.error("Gagal memuat data dari Supabase:", err);
-      toast("Gagal memuat data", "Periksa koneksi dan VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY di .env", "error");
-      setState((s) => ({ ...s, loaded: true }));
+      const message = err instanceof Error ? err.message : String(err);
+      setState((s) => ({ ...s, loaded: true, loadError: message }));
+      toast("Gagal memuat data dari Supabase", message, "error");
     }
   }, []);
 
   useEffect(() => {
     loadAll();
   }, [loadAll]);
+
+  const persistWrite = async (
+    operation: PromiseLike<{ error: { message: string } | null }>,
+    action: string,
+  ): Promise<boolean> => {
+    try {
+      const { error } = await operation;
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`${action} gagal disimpan ke Supabase:`, error);
+      await loadAll();
+      toast(`${action} gagal disimpan`, `${message}. Data ditampilkan ulang dari Supabase; periksa sebelum mencoba kembali.`, "error");
+      return false;
+    }
+  };
 
   /* ---------- derivations ---------- */
 
@@ -1082,7 +1131,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       site: payload.site ?? "SITE GOLO MORI",
       note: payload.note ?? "",
     };
-    await supabase.from("surat_jalan").insert([dbSJ(row)]);
+    if (!(await persistWrite(supabase.from("surat_jalan").insert([dbSJ(row)]), "Surat jalan"))) return null;
     setState((s) => ({ ...s, sj: [row, ...s.sj] }));
     toast("Surat jalan diterbitkan", `${row.no} • ${row.volume} m³`, "success");
     return row;
@@ -1092,16 +1141,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const current = state.sj.find((r) => r.id === id);
     if (current?.invoiceId) {
       toast("Gagal mengubah", "Surat jalan sudah diinvoice dan tidak dapat diubah.", "error");
-      return;
+      return false;
     }
-    await supabase.from("surat_jalan").update({ ...dbSJ({ ...current!, ...patch }), id }).eq("id", id);
+    if (!(await persistWrite(supabase.from("surat_jalan").update({ ...dbSJ({ ...current!, ...patch }), id }).eq("id", id), "Perubahan surat jalan"))) return false;
     setState((s) => ({ ...s, sj: s.sj.map((r) => (r.id === id ? { ...r, ...patch } : r)) }));
+    return true;
   };
 
   const deleteSJ: Ctx["deleteSJ"] = async (id) => {
-    await supabase.from("surat_jalan").delete().eq("id", id);
+    if (!(await persistWrite(supabase.from("surat_jalan").delete().eq("id", id), "Penghapusan surat jalan"))) return false;
     setState((s) => ({ ...s, sj: s.sj.filter((r) => r.id !== id) }));
     toast("Surat jalan dihapus", undefined, "info");
+    return true;
   };
 
   const sjValue = (r: SJ) => r.volume * r.trips * r.price;
@@ -1161,10 +1212,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
       ],
     };
-    await supabase.from("invoices").insert([dbInvoice(invoice)]);
-    await supabase.from("invoice_revisions").insert([dbInvoiceRevision(invoice.revisions![0], invoice.id)]);
-    await supabase.from("invoice_sj").insert([...rows.map((r) => ({ invoice_id: invoice.id, sj_id: r.id }))]);
-    await supabase.from("surat_jalan").update({ invoice_id: invoice.id, status: "Diinvoice" }).in("id", rows.map((r) => r.id));
+    if (!(await persistWrite(supabase.from("invoices").insert([dbInvoice(invoice)]), "Invoice"))) return null;
+    const rollbackInvoiceCreate = async () => {
+      const failures: string[] = [];
+      for (const row of rows) {
+        const { error } = await supabase.from("surat_jalan").update({ invoice_id: null, status: row.status }).eq("id", row.id).eq("invoice_id", invoice.id);
+        if (error) failures.push(`surat_jalan ${row.no}: ${error.message}`);
+      }
+      for (const [table, result] of [
+        ["invoice_sj", await supabase.from("invoice_sj").delete().eq("invoice_id", invoice.id)],
+        ["invoice_revisions", await supabase.from("invoice_revisions").delete().eq("invoice_id", invoice.id)],
+        ["invoices", await supabase.from("invoices").delete().eq("id", invoice.id)],
+      ] as const) {
+        if (result.error) failures.push(`${table}: ${result.error.message}`);
+      }
+      await loadAll();
+      if (failures.length) {
+        toast("Invoice gagal diterbitkan sepenuhnya", `Pembersihan data parsial gagal: ${failures.join("; ")}. Perlu rekonsiliasi database.`, "error");
+      }
+    };
+    if (!(await persistWrite(supabase.from("invoice_revisions").insert([dbInvoiceRevision(invoice.revisions![0], invoice.id)]), "Riwayat invoice"))) {
+      await rollbackInvoiceCreate();
+      return null;
+    }
+    if (!(await persistWrite(supabase.from("invoice_sj").insert([...rows.map((r) => ({ invoice_id: invoice.id, sj_id: r.id }))]), "Relasi invoice dan surat jalan"))) {
+      await rollbackInvoiceCreate();
+      return null;
+    }
+    if (!(await persistWrite(supabase.from("surat_jalan").update({ invoice_id: invoice.id, status: "Diinvoice" }).in("id", rows.map((r) => r.id)), "Status surat jalan"))) {
+      await rollbackInvoiceCreate();
+      return null;
+    }
     setState((s) => ({
       ...s,
       invoices: [invoice, ...s.invoices],
@@ -1231,12 +1309,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       status: (derived.paidOf(inv.id) >= total - 1 ? "Lunas" : "Sebagian") as Invoice["status"],
       revisions: [...(inv.revisions ?? []), revision],
     };
-    await supabase.from("invoices").update(dbInvoice(updated)).eq("id", invoiceId);
-    await supabase.from("invoice_revisions").insert([dbInvoiceRevision(revision, invoiceId)]);
-    await supabase.from("invoice_sj").delete().eq("invoice_id", invoiceId);
-    await supabase.from("invoice_sj").insert([...finalRows.map((r) => ({ invoice_id: invoiceId, sj_id: r.id }))]);
-    await supabase.from("surat_jalan").update({ invoice_id: null, status: "Terkirim" }).in("id", removeIds);
-    await supabase.from("surat_jalan").update({ invoice_id: invoiceId, status: "Diinvoice" }).in("id", addRows.map((r) => r.id));
+    if (!(await persistWrite(supabase.from("invoices").update(dbInvoice(updated)).eq("id", invoiceId), "Pembaruan invoice"))) return null;
+    if (!(await persistWrite(supabase.from("invoice_revisions").insert([dbInvoiceRevision(revision, invoiceId)]), "Riwayat revisi invoice"))) return null;
+    if (!(await persistWrite(supabase.from("invoice_sj").delete().eq("invoice_id", invoiceId), "Relasi invoice dan surat jalan"))) return null;
+    if (!(await persistWrite(supabase.from("invoice_sj").insert([...finalRows.map((r) => ({ invoice_id: invoiceId, sj_id: r.id }))]), "Relasi invoice dan surat jalan"))) return null;
+    if (removeIds.length && !(await persistWrite(supabase.from("surat_jalan").update({ invoice_id: null, status: "Terkirim" }).in("id", removeIds), "Pelepasan surat jalan dari invoice"))) return null;
+    if (addRows.length && !(await persistWrite(supabase.from("surat_jalan").update({ invoice_id: invoiceId, status: "Diinvoice" }).in("id", addRows.map((r) => r.id)), "Penautan surat jalan ke invoice"))) return null;
     setState((s) => ({
       ...s,
       invoices: s.invoices.map((i) => (i.id === invoiceId ? updated : i)),
@@ -1326,12 +1404,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       type: "Carry Forward",
       detail: `${carried.length} surat jalan (${rupiah(carriedTotal)}) diteruskan ke ${newInvoice.no} • total invoice disesuaikan menjadi ${rupiah(origin.total)}`,
     };
-    await supabase.from("invoices").insert([dbInvoice(newInvoice)]);
-    await supabase.from("invoice_revisions").insert([dbInvoiceRevision(newInvoice.revisions![0], newInvoice.id), dbInvoiceRevision(originRevision, invoiceId)]);
-    await supabase.from("invoice_sj").delete().eq("invoice_id", invoiceId);
-    await supabase.from("invoice_sj").insert([...carried.map((r) => ({ invoice_id: newInvoice.id, sj_id: r.id })), ...keptRows.map((r) => ({ invoice_id: invoiceId, sj_id: r.id }))]);
-    await supabase.from("surat_jalan").update({ invoice_id: newInvoice.id, status: "Diinvoice" }).in("id", carried.map((r) => r.id));
-    await supabase.from("invoices").update({ dpp: origin.dpp, ppn: origin.ppn, total: origin.total, ppn_rate: rate, status: paid >= origin.total - 1 ? "Lunas" : "Sebagian" }).eq("id", invoiceId);
+    if (!(await persistWrite(supabase.from("invoices").insert([dbInvoice(newInvoice)]), "Invoice carry-forward"))) return null;
+    if (!(await persistWrite(supabase.from("invoice_revisions").insert([dbInvoiceRevision(newInvoice.revisions![0], newInvoice.id), dbInvoiceRevision(originRevision, invoiceId)]), "Riwayat carry-forward"))) return null;
+    if (!(await persistWrite(supabase.from("invoice_sj").delete().eq("invoice_id", invoiceId), "Relasi invoice carry-forward"))) return null;
+    if (!(await persistWrite(supabase.from("invoice_sj").insert([...carried.map((r) => ({ invoice_id: newInvoice.id, sj_id: r.id })), ...keptRows.map((r) => ({ invoice_id: invoiceId, sj_id: r.id }))]), "Relasi invoice carry-forward"))) return null;
+    if (!(await persistWrite(supabase.from("surat_jalan").update({ invoice_id: newInvoice.id, status: "Diinvoice" }).in("id", carried.map((r) => r.id)), "Penautan surat jalan carry-forward"))) return null;
+    if (!(await persistWrite(supabase.from("invoices").update({ dpp: origin.dpp, ppn: origin.ppn, total: origin.total, ppn_rate: rate, status: paid >= origin.total - 1 ? "Lunas" : "Sebagian" }).eq("id", invoiceId), "Pembaruan invoice asal carry-forward"))) return null;
     setState((s) => ({
       ...s,
       invoices: [
@@ -1411,19 +1489,51 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const bankTxResult = await supabase.from("bank_tx").insert([dbBankTx(bankTx)]);
     if (bankTxResult.error) {
       const rollbackResult = await supabase.from("payments").delete().eq("id", payload.id);
-      if (rollbackResult.error) {
-        setState((s) => ({ ...s, payments: [...s.payments, payload] }));
-        toast(
-          "Pembayaran tersimpan, tetapi mutasi gagal",
-          `Gagal menyimpan mutasi: ${bankTxResult.error.message}. Pembayaran tidak dapat dibatalkan: ${rollbackResult.error.message}. Hubungi administrator untuk menyelaraskan transaksi.`,
-          "error",
-        );
-      } else {
-        toast("Pembayaran gagal disimpan", `Mutasi kas/bank gagal disimpan dan pembayaran dibatalkan: ${bankTxResult.error.message}`, "error");
-      }
+      await loadAll();
+      toast(
+        rollbackResult.error ? "Pembayaran dan mutasi tidak selaras" : "Pembayaran gagal disimpan",
+        rollbackResult.error
+          ? `Gagal menyimpan mutasi: ${bankTxResult.error.message}. Pembayaran tidak dapat dibatalkan: ${rollbackResult.error.message}. Hubungi administrator untuk menyelaraskan transaksi.`
+          : `Mutasi kas/bank gagal disimpan dan pembayaran dibatalkan: ${bankTxResult.error.message}`,
+        "error",
+      );
       return false;
     }
-    const accName = state.accounts.find((a) => a.id === accountId)?.name ?? accountId;
+    const nextPaid = derived.paidOf(inv.id) + amount;
+    const dueDays = daysBetween(new Date(inv.dueDate), TODAY());
+    const nextStatus: Invoice["status"] = nextPaid >= inv.total - 1
+      ? "Lunas"
+      : dueDays > 0
+        ? "Terlambat"
+        : "Sebagian";
+    const revision: InvoiceRevision = {
+      id: uid("RV"),
+      date: payDate,
+      by: state.user?.name ?? "Sistem LBS",
+      type: "Pembayaran",
+      detail: `${method} ${rupiah(amount)} ke ${state.accounts.find((a) => a.id === accountId)?.name ?? accountId} • sisa tagihan ${rupiah(Math.max(0, inv.total - nextPaid))}`,
+    };
+    const statusResult = await supabase.from("invoices").update({ status: nextStatus }).eq("id", invoiceId);
+    const revisionResult = statusResult.error
+      ? null
+      : await supabase.from("invoice_revisions").insert([dbInvoiceRevision(revision, invoiceId)]);
+    if (statusResult.error || revisionResult?.error) {
+      const rollbackResults = await Promise.all([
+        supabase.from("bank_tx").delete().eq("id", bankTx.id),
+        supabase.from("payments").delete().eq("id", payload.id),
+        supabase.from("invoices").update({ status: inv.status }).eq("id", invoiceId),
+      ]);
+      const rollbackError = rollbackResults.find((result) => result.error)?.error;
+      await loadAll();
+      toast(
+        rollbackError ? "Pembayaran perlu rekonsiliasi" : "Pembayaran gagal disimpan",
+        rollbackError
+          ? `Gagal memperbarui status/riwayat invoice: ${statusResult.error?.message ?? revisionResult?.error?.message}. Pembatalan transaksi juga gagal: ${rollbackError.message}. Periksa database sebelum mencoba ulang.`
+          : `Status/riwayat invoice gagal disimpan: ${statusResult.error?.message ?? revisionResult?.error?.message}. Transaksi pembayaran dan mutasi sudah dibatalkan.`,
+        "error",
+      );
+      return false;
+    }
     setState((s) => ({
       ...s,
       payments: [...s.payments, payload],
@@ -1432,16 +1542,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         i.id === invoiceId
           ? {
               ...i,
-              revisions: [
-                ...(i.revisions ?? []),
-                {
-                  id: uid("RV"),
-                  date: payDate,
-                  by: s.user?.name ?? "Sistem LBS",
-                  type: "Pembayaran" as const,
-                  detail: `${method} ${rupiah(amount)} ke ${accName} • sisa tagihan ${rupiah(Math.max(0, i.total - derived.paidOf(i.id) - amount))}`,
-                },
-              ],
+              status: nextStatus,
+              revisions: [...(i.revisions ?? []), revision],
             }
           : i,
       ),
@@ -1462,7 +1564,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return true;
   };
   const deleteBankTx: Ctx["deleteBankTx"] = async (id) => {
-    await supabase.from("bank_tx").delete().eq("id", id);
+    if (!(await persistWrite(supabase.from("bank_tx").delete().eq("id", id), "Penghapusan mutasi"))) return;
     setState((s) => ({ ...s, bankTx: s.bankTx.filter((t) => t.id !== id) }));
     toast("Mutasi dihapus", id, "success");
   };
@@ -1482,7 +1584,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const d = date ?? iso(TODAY());
     const txIn: BankTx = { id: uid("TX"), accountId: to, date: d, desc: `Transfer masuk dari ${from} — ${note}`, category: "Internal Transfer", direction: "in", amount };
     const txOut: BankTx = { id: uid("TX"), accountId: from, date: d, desc: `Transfer keluar ke ${to} — ${note}`, category: "Internal Transfer", direction: "out", amount };
-    await supabase.from("bank_tx").insert([dbBankTx(txIn), dbBankTx(txOut)]);
+    if (!(await persistWrite(supabase.from("bank_tx").insert([dbBankTx(txIn), dbBankTx(txOut)]), "Transfer rekening"))) return;
     setState((s) => ({
       ...s,
       bankTx: [txIn, txOut, ...s.bankTx],
@@ -1494,9 +1596,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const sup = state.suppliers.find((s) => s.id === id);
     if (!sup) return;
     const pay = Math.min(amount, sup.hutang);
-    await supabase.from("suppliers").update({ hutang: Math.max(0, sup.hutang - pay) }).eq("id", id);
     const tx: BankTx = { id: uid("TX"), accountId, date: iso(TODAY()), desc: `Pembayaran hutang ${sup.name}`, category: "Hutang Supplier", direction: "out", amount: pay, ref: sup.code };
-    await supabase.from("bank_tx").insert([dbBankTx(tx)]);
+    if (!(await persistWrite(supabase.from("bank_tx").insert([dbBankTx(tx)]), "Mutasi pembayaran supplier"))) return;
+    if (!(await persistWrite(supabase.from("suppliers").update({ hutang: Math.max(0, sup.hutang - pay) }).eq("id", id), "Saldo hutang supplier"))) {
+      await persistWrite(supabase.from("bank_tx").delete().eq("id", tx.id), "Pembatalan mutasi pembayaran supplier");
+      return;
+    }
     setState((s) => ({
       ...s,
       suppliers: s.suppliers.map((x) => (x.id === id ? { ...x, hutang: Math.max(0, x.hutang - pay) } : x)),
@@ -1513,9 +1618,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toast("Kewajiban sudah lunas", dbt.tahap, "info");
       return;
     }
-    await supabase.from("legacy_debts").update({ paid_count: Math.min(dbt.tenor, dbt.paidCount + count) }).eq("id", id);
     const tx: BankTx = { id: uid("TX"), accountId, date: iso(TODAY()), desc: `Angsuran ${dbt.tahap}`, category: "Kewajiban Historis", direction: "out", amount };
-    await supabase.from("bank_tx").insert([dbBankTx(tx)]);
+    if (!(await persistWrite(supabase.from("bank_tx").insert([dbBankTx(tx)]), "Mutasi angsuran kewajiban"))) return;
+    if (!(await persistWrite(supabase.from("legacy_debts").update({ paid_count: Math.min(dbt.tenor, dbt.paidCount + count) }).eq("id", id), "Saldo kewajiban historis"))) {
+      await persistWrite(supabase.from("bank_tx").delete().eq("id", tx.id), "Pembatalan mutasi angsuran kewajiban");
+      return;
+    }
     setState((s) => ({
       ...s,
       legacyDebts: s.legacyDebts.map((x) => (x.id === id ? { ...x, paidCount: Math.min(x.tenor, x.paidCount + count) } : x)),
@@ -1527,7 +1635,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addFuelPurchase: Ctx["addFuelPurchase"] = async (p) => {
     const id = uid("FL");
     const log: FuelLog = { id, ...p };
-    await supabase.from("fuel_logs").insert([dbFuelLog({ id, liter: p.liter, pricePerLiter: p.pricePerLiter, accountId: p.accountId, supplierId: p.supplierId, date: p.date, note: p.note })]);
+    if (!(await persistWrite(supabase.from("fuel_logs").insert([dbFuelLog({ id, liter: p.liter, pricePerLiter: p.pricePerLiter, accountId: p.accountId, supplierId: p.supplierId, date: p.date, note: p.note })]), "Catatan pembelian BBM"))) return;
     const tx: BankTx = {
       id: uid("TX"),
       accountId: p.accountId,
@@ -1538,7 +1646,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       amount: p.liter * p.pricePerLiter,
       ref: p.supplierId ?? undefined,
     };
-    await supabase.from("bank_tx").insert([dbBankTx(tx)]);
+    if (!(await persistWrite(supabase.from("bank_tx").insert([dbBankTx(tx)]), "Mutasi pembelian BBM"))) {
+      await persistWrite(supabase.from("fuel_logs").delete().eq("id", id), "Pembatalan catatan pembelian BBM");
+      return;
+    }
     setState((s) => ({
       ...s,
       fuelLogs: [log, ...s.fuelLogs],
@@ -1567,7 +1678,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return true;
   };
 
-  const setMaintenanceParams: Ctx["setMaintenanceParams"] = (params, applyToAll = false) => {
+  const setMaintenanceParams: Ctx["setMaintenanceParams"] = async (params, applyToAll = false) => {
+    const ownVehicles = applyToAll ? state.vehicles.filter((v) => v.ownership === "Milik Sendiri") : [];
+    for (const vehicle of ownVehicles) {
+      const updated = { ...vehicle, serviceIntervalKm: params.defaultIntervalKm };
+      if (!(await persistWrite(supabase.from("vehicles").update(dbVehicle(updated)).eq("id", vehicle.id), "Interval servis kendaraan"))) return false;
+    }
     setState((s) => ({
       ...s,
       maintenance: params,
@@ -1582,14 +1698,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
         : `Interval default ${params.defaultIntervalKm.toLocaleString("id-ID")} km • peringatan ${params.warnKm.toLocaleString("id-ID")} km`,
       "success",
     );
+    if (!applyToAll) {
+      toast("Catatan konfigurasi", "Interval default dan ambang peringatan hanya berlaku selama sesi ini karena belum ada tabel pengaturan aplikasi di Supabase.", "info");
+    }
+    return true;
   };
 
-  const updateOdometer: Ctx["updateOdometer"] = (vehicleId, odometer, note) => {
+  const updateOdometer: Ctx["updateOdometer"] = async (vehicleId, odometer, note) => {
     const veh = state.vehicles.find((v) => v.id === vehicleId);
-    if (!veh) return;
+    if (!veh) return false;
+    const updated = { ...veh, odometer, serviceNote: note ?? veh.serviceNote };
+    if (!(await persistWrite(supabase.from("vehicles").update(dbVehicle(updated)).eq("id", vehicleId), "Odometer"))) return false;
     setState((s) => ({
       ...s,
-      vehicles: s.vehicles.map((v) => (v.id === vehicleId ? { ...v, odometer, serviceNote: note ?? v.serviceNote } : v)),
+      vehicles: s.vehicles.map((v) => (v.id === vehicleId ? updated : v)),
     }));
     const rem = nextServiceKm({ ...veh, odometer }) - odometer;
     toast(
@@ -1599,30 +1721,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
         : `${veh.plate} pada ${odometer.toLocaleString("id-ID")} km • sisa ${rem.toLocaleString("id-ID")} km menuju servis berikutnya`,
       rem <= 0 ? "warn" : "success",
     );
+    return true;
   };
 
   const recordService: Ctx["recordService"] = async (vehicleId, p) => {
     const veh = state.vehicles.find((v) => v.id === vehicleId);
     if (!veh) return;
     const odo = Math.max(p.odometerAtService, 0);
-    setState((s) => ({
-      ...s,
-      vehicles: s.vehicles.map((v) =>
-        v.id === vehicleId
-          ? {
-              ...v,
-              odometer: Math.max(v.odometer, odo),
-              lastServiceOdometer: odo,
-              serviceIntervalKm: p.intervalKm,
-              lastServiceDate: p.date,
-              status: p.nextStatus ?? "Aktif",
-              serviceNote: p.note || `Servis berkala pada ${odo.toLocaleString("id-ID")} km`,
-            }
-          : v,
-      ),
-    }));
+    const updatedVehicle: Vehicle = {
+      ...veh,
+      odometer: Math.max(veh.odometer, odo),
+      lastServiceOdometer: odo,
+      serviceIntervalKm: p.intervalKm,
+      lastServiceDate: p.date,
+      status: p.nextStatus ?? "Aktif",
+      serviceNote: p.note || `Servis berkala pada ${odo.toLocaleString("id-ID")} km`,
+    };
+    let tx: BankTx | null = null;
     if (p.cost > 0) {
-      const tx: BankTx = {
+      tx = {
         id: uid("TX"),
         accountId: p.accountId,
         date: p.date,
@@ -1632,9 +1749,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
         amount: p.cost,
         ref: veh.id,
       };
-      await supabase.from("bank_tx").insert([dbBankTx(tx)]);
-      setState((s) => ({ ...s, bankTx: [tx, ...s.bankTx] }));
+      if (!(await persistWrite(supabase.from("bank_tx").insert([dbBankTx(tx)]), "Biaya servis"))) return;
     }
+    if (!(await persistWrite(supabase.from("vehicles").update(dbVehicle(updatedVehicle)).eq("id", vehicleId), "Data servis kendaraan"))) {
+      if (tx) await persistWrite(supabase.from("bank_tx").delete().eq("id", tx.id), "Pembatalan biaya servis");
+      return;
+    }
+    setState((s) => ({
+      ...s,
+      vehicles: s.vehicles.map((v) => (v.id === vehicleId ? updatedVehicle : v)),
+      bankTx: tx ? [tx, ...s.bankTx] : s.bankTx,
+    }));
     toast(
       "Servis tercatat",
       `${veh.plate} • odometer ${odo.toLocaleString("id-ID")} km • target berikutnya ${(odo + p.intervalKm).toLocaleString("id-ID")} km${p.cost > 0 ? ` • biaya Rp ${p.cost.toLocaleString("id-ID")} dibebankan ke kas/bank` : ""}`,
@@ -1653,8 +1778,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const type: OpeningSource = opts?.firstTime ? "sistem" : "manual";
     const toInsert = valid.map((e) => dbOpeningBalance(e.accountId, ym, e.amount, type, e.note?.trim() || opts?.globalNote?.trim() || (opts?.firstTime ? "Inisialisasi saldo awal saat aplikasi pertama digunakan" : `Saldo awal ${ymLabel(ym)} diinput manual (bukan pemasukan)`), who, now));
     const toLog = valid.map((e) => dbOpeningLog(ym, e.accountId, e.amount, who, now, toInsert.find((x) => x.account_id === e.accountId)!.note, type));
-    await supabase.from("opening_balances").upsert(toInsert, { onConflict: "account_id,ym" });
-    await supabase.from("opening_log").insert(toLog);
+    if (!(await persistWrite(supabase.from("opening_balances").upsert(toInsert, { onConflict: "account_id,ym" }), "Saldo awal"))) return;
+    if (!(await persistWrite(supabase.from("opening_log").insert(toLog), "Audit saldo awal"))) return;
     setState((s) => {
       const next = { ...s.openingBalances };
       const log = [...s.openingLog];
@@ -1687,8 +1812,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return dbOpeningBalance(a.id, ym, amount, "rollforward", `Otomatis dibaca dari saldo akhir ${ymLabel(prev)} — bukan pemasukan`, who, now, prev);
     });
     const toLog = pending.map((_, i) => dbOpeningLog(ym, pending[i].id, toInsert[i].amount, who, now, `Roll forward saldo awal ${ymLabel(ym)} dari saldo akhir ${ymLabel(prev)}`, "rollforward"));
-    await supabase.from("opening_balances").insert(toInsert);
-    await supabase.from("opening_log").insert(toLog);
+    if (!(await persistWrite(supabase.from("opening_balances").insert(toInsert), "Roll-forward saldo awal"))) return;
+    if (!(await persistWrite(supabase.from("opening_log").insert(toLog), "Audit roll-forward saldo awal"))) return;
     setState((s) => {
       const next = { ...s.openingBalances };
       const log = [...s.openingLog];
@@ -1714,8 +1839,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return;
     }
     const who = state.user?.name ?? "Sistem LBS";
-    await supabase.from("opening_balances").delete().match({ account_id: accountId, ym });
-    await supabase.from("opening_log").insert([dbOpeningLog(ym, accountId, existing.amount, who, nowIso(), `Koreksi: saldo awal ${ymLabel(ym)} dihapus — bulan ini kembali memakai perhitungan roll forward otomatis`, "koreksi")]);
+    if (!(await persistWrite(supabase.from("opening_balances").delete().match({ account_id: accountId, ym }), "Penghapusan saldo awal"))) return;
+    if (!(await persistWrite(supabase.from("opening_log").insert([dbOpeningLog(ym, accountId, existing.amount, who, nowIso(), `Koreksi: saldo awal ${ymLabel(ym)} dihapus — bulan ini kembali memakai perhitungan roll forward otomatis`, "koreksi")]), "Audit penghapusan saldo awal"))) return;
     setState((s) => {
       const next = { ...s.openingBalances };
       delete next[key];
@@ -1736,7 +1861,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const setTaxRate: Ctx["setTaxRate"] = (ppnRate) => {
     const rate = Math.max(0, Math.min(1, ppnRate));
     setState((s) => ({ ...s, tax: { ppnRate: rate } }));
-    toast("Tarif pajak default disimpan", `${taxRateLabel(rate)} akan dipakai pada penerbitan invoice berikutnya`, "success");
+    toast("Tarif pajak default diubah", `${taxRateLabel(rate)} akan dipakai selama sesi ini. Tarif pajak pada setiap invoice tetap disimpan permanen di Supabase.`, "info");
   };
 
   const setBulkTaxRate: Ctx["setBulkTaxRate"] = (ppnRate) => {
@@ -1757,7 +1882,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       headcount: state.employees.filter((e) => e.status !== "Resign").length,
       status: "Disetujui",
     };
-    await supabase.from("payroll_runs").insert([dbPayrollRun(run)]);
     const tx: BankTx = {
       id: uid("TX"),
       accountId,
@@ -1767,7 +1891,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       direction: "out",
       amount: net,
     };
-    await supabase.from("bank_tx").insert([dbBankTx(tx)]);
+    if (!(await persistWrite(supabase.from("bank_tx").insert([dbBankTx(tx)]), "Mutasi payroll"))) return;
+    if (!(await persistWrite(supabase.from("payroll_runs").insert([dbPayrollRun(run)]), "Data payroll"))) {
+      await persistWrite(supabase.from("bank_tx").delete().eq("id", tx.id), "Pembatalan mutasi payroll");
+      return;
+    }
     setState((s) => ({
       ...s,
       payrollRuns: [run, ...s.payrollRuns],
@@ -1777,18 +1905,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addLead: Ctx["addLead"] = async (lead) => {
-    await supabase.from("leads").insert([dbLead(lead)]);
+    if (!(await persistWrite(supabase.from("leads").insert([dbLead(lead)]), "Prospek CRM"))) return;
     setState((s) => ({ ...s, leads: [lead, ...s.leads] }));
   };
 
   const setLeadStage: Ctx["setLeadStage"] = async (id, stage) => {
-    await supabase.from("leads").update({ stage, probability: stage === "Deal" ? 100 : stage === "Gagal" ? 0 : undefined }).eq("id", id);
+    if (!(await persistWrite(supabase.from("leads").update({ stage, probability: stage === "Deal" ? 100 : stage === "Gagal" ? 0 : undefined }).eq("id", id), "Perubahan tahap prospek"))) return;
     setState((s) => ({ ...s, leads: s.leads.map((l) => (l.id === id ? { ...l, stage, probability: stage === "Deal" ? 100 : stage === "Gagal" ? 0 : l.probability } : l)) }));
   };
 
   const addLeadActivity: Ctx["addLeadActivity"] = async (id, a) => {
     const act = { id: uid("ACT"), ...a };
-    await supabase.from("lead_activities").insert([{ ...dbLeadActivity(act), lead_id: id }]);
+    if (!(await persistWrite(supabase.from("lead_activities").insert([{ ...dbLeadActivity(act), lead_id: id }]), "Aktivitas CRM"))) return;
     setState((s) => ({ ...s, leads: s.leads.map((l) => (l.id === id ? { ...l, activities: [act, ...l.activities] } : l)) }));
     toast("Aktivitas CRM tercatat", a.note, "success");
   };
@@ -1849,7 +1977,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       drivers: "drivers",
       employees: "employees",
     };
-    await supabase.from(tableMap[collection]).delete().eq("id", id);
+    if (!(await persistWrite(supabase.from(tableMap[collection]).delete().eq("id", id), "Penghapusan master data"))) return;
     setState((s) => {
       const list = s[collection] as { id: ID }[];
       return { ...s, [collection]: list.filter((x) => x.id !== id) } as State;
@@ -1932,7 +2060,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         .join(" | ");
       console.error("[saveUser] Gagal menyimpan akun pengguna:", serializable);
       toast("Gagal menyimpan akun pengguna", readable || String(e), "error");
-      return;
+      return false;
     }
     setState((s) => {
       const exists = s.users.some((u) => u.id === user.id);
@@ -1940,12 +2068,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return { ...s, users: exists ? s.users.map((u) => (u.id === user.id ? nextUser : u)) : [nextUser, ...s.users] };
     });
     toast("Akun pengguna tersimpan", `${user.username} - ${roleLabel(user.role)} - ${user.status}`, "success");
+    return true;
   };
 
   const removeUser: Ctx["removeUser"] = async (id) => {
     const target = state.users.find((u) => u.id === id);
     const isSelf = state.user?.accountId === id;
-    await supabase.from("users").delete().eq("id", id);
+    if (!(await persistWrite(supabase.from("users").delete().eq("id", id), "Penghapusan akun pengguna"))) return false;
     setState((s) => ({
       ...s,
       users: s.users.filter((u) => u.id !== id),
@@ -1954,15 +2083,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (isSelf) {
       setRoute("dashboard");
       toast("Akun Anda dihapus", "Sesi login dihentikan otomatis", "warn");
-      return;
+      return true;
     }
     toast("Akun pengguna dihapus", target ? `${target.username} tidak lagi dapat login` : undefined, "info");
+    return true;
   };
 
   const setUserStatus: Ctx["setUserStatus"] = async (id, status) => {
-    await supabase.from("users").update({ user_status: status }).eq("id", id);
+    if (!(await persistWrite(supabase.from("users").update({ user_status: status }).eq("id", id), "Perubahan status akun"))) return false;
     setState((s) => ({ ...s, users: s.users.map((u) => (u.id === id ? { ...u, status } : u)) }));
     toast(`Status akun: ${status}`, status === "Aktif" ? "Akses login diaktifkan kembali" : "Pengguna tidak dapat login sampai diaktifkan", status === "Aktif" ? "success" : "warn");
+    return true;
   };
 
   const resetUserPassword: Ctx["resetUserPassword"] = (id: ID) => {
@@ -2013,6 +2144,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const value: Ctx = {
     ...state,
     ...derived,
+    reload: loadAll,
     currentAccount,
     can,
     saveUser,

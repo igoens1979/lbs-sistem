@@ -801,7 +801,7 @@ function MaintenanceParamsModal({ onClose }: { onClose: () => void }) {
           </Button>
           <Button
             icon="save"
-            onClick={() => {
+            onClick={async () => {
               if (interval <= 0) {
                 app.toast("Interval servis tidak valid", "Masukkan interval lebih besar dari 0 km", "warn");
                 return;
@@ -810,8 +810,7 @@ function MaintenanceParamsModal({ onClose }: { onClose: () => void }) {
                 app.toast("Ambang peringatan terlalu besar", "Peringatan harus lebih kecil dari interval servis", "error");
                 return;
               }
-              app.setMaintenanceParams({ defaultIntervalKm: interval, warnKm: warn }, applyAll);
-              onClose();
+              if (await app.setMaintenanceParams({ defaultIntervalKm: interval, warnKm: warn }, applyAll)) onClose();
             }}
           >
             Simpan Parameter
@@ -895,13 +894,12 @@ function OdometerModal({ vehicleId, onClose }: { vehicleId: string; onClose: () 
           </Button>
           <Button
             icon="speed"
-            onClick={() => {
+            onClick={async () => {
               if (km < v.odometer) {
                 app.toast("Odometer tidak boleh mundur", `Nilai saat ini ${num(v.odometer)} km`, "error");
                 return;
               }
-              app.updateOdometer(v.id, km, note);
-              onClose();
+              if (await app.updateOdometer(v.id, km, note)) onClose();
             }}
           >
             Simpan Odometer
