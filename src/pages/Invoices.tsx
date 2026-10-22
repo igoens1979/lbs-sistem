@@ -357,9 +357,10 @@ export default function Invoices() {
         <PaymentModal
           invoice={payTarget}
           onClose={() => setPayTarget(null)}
-          onSave={(payload) => {
-            app.recordPayment({ invoiceId: payTarget.id, ...payload });
-            setPayTarget(null);
+          onSave={async (payload) => {
+            const saved = await app.recordPayment({ invoiceId: payTarget.id, ...payload });
+            if (saved) setPayTarget(null);
+            return saved;
           }}
         />
       )}
@@ -686,7 +687,7 @@ function PaymentModal({
 }: {
   invoice: Invoice;
   onClose: () => void;
-  onSave: (p: { amount: number; accountId: string; method: "Transfer" | "Tunai" | "Giro"; date: string; ref: string }) => void;
+  onSave: (p: { amount: number; accountId: string; method: "Transfer" | "Tunai" | "Giro"; date: string; ref: string }) => Promise<boolean>;
 }) {
   const app = useApp();
   const due = app.outstandingOf(invoice);
@@ -695,6 +696,7 @@ function PaymentModal({
   const [method, setMethod] = useState<"Transfer" | "Tunai" | "Giro">("Transfer");
   const [date, setDate] = useState(iso(TODAY()));
   const [ref, setRef] = useState(`TRF/${invoice.no}/PT`);
+  const [saving, setSaving] = useState(false);
 
   return (
     <Modal
@@ -712,8 +714,8 @@ function PaymentModal({
           </Button>
           <Button
             icon="save"
-            disabled={!app.can("invoice", "edit")}
-            onClick={() => {
+            disabled={!app.can("invoice", "edit") || saving}
+            onClick={async () => {
               if (amount <= 0) {
                 app.toast("Nominal pembayaran tidak valid", undefined, "warn");
                 return;
@@ -722,10 +724,15 @@ function PaymentModal({
                 app.toast("Nominal melebihi sisa kewajiban", `Maksimal ${rupiah(due)}`, "error");
                 return;
               }
-              onSave({ amount, accountId, method, date, ref });
+              setSaving(true);
+              try {
+                await onSave({ amount, accountId, method, date, ref });
+              } finally {
+                setSaving(false);
+              }
             }}
           >
-            Simpan Pembayaran
+            {saving ? "Menyimpan…" : "Simpan Pembayaran"}
           </Button>
         </>
       }
@@ -1302,4 +1309,3 @@ function CarryForwardModal({ invoice, onClose }: { invoice: Invoice; onClose: ()
     </Modal>
   );
 }
-

@@ -672,10 +672,10 @@ export interface Ctx extends State {
   taxRateLabel: (rate?: number) => string;
   canRevise: (invoice: Invoice) => { ok: boolean; reason?: string };
   invoiceCoverage: (invoiceId: ID) => { sj: SJ; value: number; covered: number; remaining: number }[];
-  recordPayment: (p: { invoiceId: ID; amount: number; accountId: ID; method: Payment["method"]; date?: string; ref?: string }) => Promise<void>;
-  addBankTx: (tx: Omit<BankTx, "id">) => Promise<void>;
+  recordPayment: (p: { invoiceId: ID; amount: number; accountId: ID; method: Payment["method"]; date?: string; ref?: string }) => Promise<boolean>;
+  addBankTx: (tx: Omit<BankTx, "id">) => Promise<boolean>;
   deleteBankTx: (id: string) => Promise<void>;
-  updateBankTx: (id: string, tx: Omit<BankTx, "id">) => Promise<void>;
+  updateBankTx: (id: string, tx: Omit<BankTx, "id">) => Promise<boolean>;
   transfer: (from: ID, to: ID, amount: number, note: string, date?: string) => Promise<void>;
   paySupplier: (id: ID, amount: number, accountId: ID) => Promise<void>;
   payLegacy: (id: ID, accountId: ID, count?: number) => Promise<void>;
@@ -1331,7 +1331,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await supabase.from("invoice_sj").delete().eq("invoice_id", invoiceId);
     await supabase.from("invoice_sj").insert([...carried.map((r) => ({ invoice_id: newInvoice.id, sj_id: r.id })), ...keptRows.map((r) => ({ invoice_id: invoiceId, sj_id: r.id }))]);
     await supabase.from("surat_jalan").update({ invoice_id: newInvoice.id, status: "Diinvoice" }).in("id", carried.map((r) => r.id));
-    await supabase.from("invoices").update({ dpp: origin.dpp, ppn: origin.ppn, total: origin.total, ppnRate: rate, status: paid >= origin.total - 1 ? "Lunas" : "Sebagian" }).eq("id", invoiceId);
+    await supabase.from("invoices").update({ dpp: origin.dpp, ppn: origin.ppn, total: origin.total, ppn_rate: rate, status: paid >= origin.total - 1 ? "Lunas" : "Sebagian" }).eq("id", invoiceId);
     setState((s) => ({
       ...s,
       invoices: [
@@ -1379,7 +1379,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const recordPayment: Ctx["recordPayment"] = async ({ invoiceId, amount, accountId, method, date, ref }) => {
     const inv = state.invoices.find((i) => i.id === invoiceId);
-    if (!inv) return;
+    if (!inv) {
+      toast("Pembayaran gagal disimpan", "Invoice tidak ditemukan. Muat ulang halaman dan coba lagi.", "error");
+      return false;
+    }
     const payDate = date ?? iso(TODAY());
     const payload: Payment = {
       id: uid("PAY"),
@@ -1390,24 +1393,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
       accountId,
       ref: ref ?? `TRF/${inv.no}/PT`,
     };
-    await supabase.from("payments").insert([dbPayment(payload)]);
+    const paymentResult = await supabase.from("payments").insert([dbPayment(payload)]);
+    if (paymentResult.error) {
+      toast("Pembayaran gagal disimpan", paymentResult.error.message, "error");
+      return false;
+    }
+    const bankTx: BankTx = {
+      id: uid("TX"),
+      accountId,
+      date: payDate,
+      desc: `Penerimaan pembayaran ${inv.no}`,
+      category: "Penerimaan Piutang",
+      direction: "in",
+      amount,
+      ref: payload.ref,
+    };
+    const bankTxResult = await supabase.from("bank_tx").insert([dbBankTx(bankTx)]);
+    if (bankTxResult.error) {
+      const rollbackResult = await supabase.from("payments").delete().eq("id", payload.id);
+      if (rollbackResult.error) {
+        setState((s) => ({ ...s, payments: [...s.payments, payload] }));
+        toast(
+          "Pembayaran tersimpan, tetapi mutasi gagal",
+          `Gagal menyimpan mutasi: ${bankTxResult.error.message}. Pembayaran tidak dapat dibatalkan: ${rollbackResult.error.message}. Hubungi administrator untuk menyelaraskan transaksi.`,
+          "error",
+        );
+      } else {
+        toast("Pembayaran gagal disimpan", `Mutasi kas/bank gagal disimpan dan pembayaran dibatalkan: ${bankTxResult.error.message}`, "error");
+      }
+      return false;
+    }
     const accName = state.accounts.find((a) => a.id === accountId)?.name ?? accountId;
     setState((s) => ({
       ...s,
       payments: [...s.payments, payload],
-      bankTx: [
-        {
-          id: uid("TX"),
-          accountId,
-          date: payDate,
-          desc: `Penerimaan pembayaran ${inv.no}`,
-          category: "Penerimaan Piutang",
-          direction: "in",
-          amount,
-          ref: payload.ref,
-        },
-        ...s.bankTx,
-      ],
+      bankTx: [bankTx, ...s.bankTx],
       invoices: s.invoices.map((i) =>
         i.id === invoiceId
           ? {
@@ -1427,13 +1447,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       ),
     }));
     toast("Pembayaran tercatat", `${inv.no} • ${rupiah(amount)} • sisa ${rupiah(Math.max(0, inv.total - derived.paidOf(inv.id) - amount))}`, "success");
+    return true;
   };
 
   const addBankTx: Ctx["addBankTx"] = async (tx) => {
     const fullTx: BankTx = { ...tx, id: uid("TX") };
-    await supabase.from("bank_tx").insert([dbBankTx(fullTx)]);
+    const { error } = await supabase.from("bank_tx").insert([dbBankTx(fullTx)]);
+    if (error) {
+      toast("Mutasi kas/bank gagal disimpan", error.message, "error");
+      return false;
+    }
     setState((s) => ({ ...s, bankTx: [fullTx, ...s.bankTx] }));
     toast("Mutasi kas/bank tersimpan", tx.desc, "success");
+    return true;
   };
   const deleteBankTx: Ctx["deleteBankTx"] = async (id) => {
     await supabase.from("bank_tx").delete().eq("id", id);
@@ -1442,9 +1468,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
   const updateBankTx: Ctx["updateBankTx"] = async (id, tx) => {
     const fullTx: BankTx = { ...tx, id };
-    await supabase.from("bank_tx").update(dbBankTx(fullTx)).eq("id", id);
+    const { error } = await supabase.from("bank_tx").update(dbBankTx(fullTx)).eq("id", id);
+    if (error) {
+      toast("Mutasi kas/bank gagal diperbarui", error.message, "error");
+      return false;
+    }
     setState((s) => ({ ...s, bankTx: s.bankTx.map((t) => (t.id === id ? fullTx : t)) }));
     toast("Mutasi diperbarui", tx.desc, "success");
+    return true;
   };
 
   const transfer: Ctx["transfer"] = async (from, to, amount, note, date) => {

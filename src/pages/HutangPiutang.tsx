@@ -500,6 +500,7 @@ function ReceivePaymentModal({ customerId, invoices, onClose }: { customerId: st
   const [accountId, setAccountId] = useState("A-001");
   const [method, setMethod] = useState<"Transfer" | "Tunai" | "Giro">("Transfer");
   const [date, setDate] = useState(iso(TODAY()));
+  const [saving, setSaving] = useState(false);
 
   return (
     <Modal
@@ -518,8 +519,8 @@ function ReceivePaymentModal({ customerId, invoices, onClose }: { customerId: st
           </Button>
           <Button
             icon="save"
-            disabled={!app.can("hutang-piutang", "edit")}
-            onClick={() => {
+            disabled={!app.can("hutang-piutang", "edit") || saving}
+            onClick={async () => {
               if (!target) return;
               if (amount <= 0) {
                 app.toast("Nominal pembayaran tidak valid", undefined, "warn");
@@ -529,11 +530,16 @@ function ReceivePaymentModal({ customerId, invoices, onClose }: { customerId: st
                 app.toast("Nominal melebihi sisa kewajiban", `Maksimal ${rupiah(due)}`, "error");
                 return;
               }
-              app.recordPayment({ invoiceId: target.id, amount, accountId, method, date, ref: `TRF/${target.no}/PT` });
-              onClose();
+              setSaving(true);
+              try {
+                const saved = await app.recordPayment({ invoiceId: target.id, amount, accountId, method, date, ref: `TRF/${target.no}/PT` });
+                if (saved) onClose();
+              } finally {
+                setSaving(false);
+              }
             }}
           >
-            Simpan Pembayaran
+            {saving ? "Menyimpan…" : "Simpan Pembayaran"}
           </Button>
         </>
       }
@@ -609,4 +615,3 @@ function ReceivePaymentModal({ customerId, invoices, onClose }: { customerId: st
     </Modal>
   );
 }
-

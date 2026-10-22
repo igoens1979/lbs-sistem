@@ -398,6 +398,7 @@ csvDownload("mutasi-kas-bank-lbs.csv", [
 function TxModal({ initial, onClose }: { initial?: any; onClose: () => void }) {
   const app = useApp();
   const [form, setForm] = useState(initial ? { accountId: initial.accountId, direction: initial.direction, amount: initial.amount, date: initial.date, desc: initial.desc, category: initial.category, allocation: initial.allocation } : { accountId: "A-002", direction: "out" as "in" | "out", amount: 5_000_000, date: iso(TODAY()), desc: "", category: "Operasional Site", allocation: "LBS" as "LBS" | "KMS" | undefined });
+  const [saving, setSaving] = useState(false);
 
   return (
     <Modal
@@ -412,17 +413,24 @@ function TxModal({ initial, onClose }: { initial?: any; onClose: () => void }) {
           </Button>
           <Button
             icon="save"
-onClick={() => {
+            disabled={saving}
+onClick={async () => {
               if (!form.desc.trim()) {
                 app.toast("Uraian mutasi wajib diisi", undefined, "warn");
                 return;
               }
-              if (initial) app.updateBankTx(initial.id, { ...form, ref: initial.ref });
-              else app.addBankTx({ ...form, ref: undefined });
-              onClose();
+              setSaving(true);
+              try {
+                const saved = initial
+                  ? await app.updateBankTx(initial.id, { ...form, ref: initial.ref })
+                  : await app.addBankTx({ ...form, ref: undefined });
+                if (saved) onClose();
+              } finally {
+                setSaving(false);
+              }
             }}
           >
-            Simpan Mutasi
+            {saving ? "Menyimpan…" : "Simpan Mutasi"}
           </Button>
         </>
       }
@@ -969,4 +977,3 @@ function OpeningBalanceModal({ ym, firstTime = false, onClose }: { ym: string; f
     </Modal>
   );
 }
-
