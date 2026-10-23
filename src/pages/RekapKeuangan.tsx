@@ -50,7 +50,7 @@ export default function RekapKeuangan() {
   const ppnKeluaran = periodInvoices.reduce((s, i) => s + i.ppn, 0);
   const payrollPeriod = 0;
   const bbmPeriod = app.fuelLogs.filter((f) => f.date >= from && f.date <= to).reduce((s, f) => s + f.liter * f.pricePerLiter, 0);
-  const operasionalPeriod = app.bankTx.filter((t) => t.date >= from && t.date <= to && t.direction === "out" && t.category.toLowerCase().includes("operasional")).reduce((s, t) => s + t.amount, 0);
+  const operasionalPeriod = app.bankTx.filter((t) => t.date >= from && t.date <= to && t.direction === "out" && t.category !== "Internal Transfer").reduce((s, t) => s + t.amount, 0);
   const laba = pendapatan - (payrollPeriod + bbmPeriod + operasionalPeriod);
 
   /* ---------- Rincian kas keluar & masuk per kategori ---------- */
