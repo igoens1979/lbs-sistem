@@ -20,7 +20,7 @@ export default function RekapKeuangan() {
     const ym = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, "0")}`;
     const invoices = app.invoices.filter((i) => i.date.startsWith(ym));
     const tx = app.bankTx.filter((t) => t.date.startsWith(ym));
-    const payroll = app.payrollRuns.filter((p) => p.date.startsWith(ym)).reduce((s, p) => s + p.net, 0);
+    const payroll = 0;
     const bbm = app.fuelLogs.filter((f) => f.date.startsWith(ym)).reduce((s, f) => s + f.liter * f.pricePerLiter, 0);
     const masuk = tx.filter((t) => t.direction === "in").reduce((s, t) => s + t.amount, 0);
     const keluar = tx.filter((t) => t.direction === "out").reduce((s, t) => s + t.amount, 0);
@@ -48,9 +48,9 @@ export default function RekapKeuangan() {
   const keluar = periodTx.filter((t) => t.direction === "out").reduce((s, t) => s + t.amount, 0);
   const pendapatan = periodInvoices.reduce((s, i) => s + i.dpp, 0);
   const ppnKeluaran = periodInvoices.reduce((s, i) => s + i.ppn, 0);
-  const payrollPeriod = app.payrollRuns.filter((p) => p.date >= from && p.date <= to).reduce((s, p) => s + p.net, 0);
+  const payrollPeriod = 0;
   const bbmPeriod = app.fuelLogs.filter((f) => f.date >= from && f.date <= to).reduce((s, f) => s + f.liter * f.pricePerLiter, 0);
-  const operasionalPeriod = app.bankTx.filter((t) => t.date >= from && t.date <= to && t.direction === "out" && t.category === "OPERASIONAL").reduce((s, t) => s + t.amount, 0);
+  const operasionalPeriod = app.bankTx.filter((t) => t.date >= from && t.date <= to && t.direction === "out" && t.category.toLowerCase().includes("operasional")).reduce((s, t) => s + t.amount, 0);
   const laba = pendapatan - (payrollPeriod + bbmPeriod + operasionalPeriod);
 
   /* ---------- Rincian kas keluar & masuk per kategori ---------- */
