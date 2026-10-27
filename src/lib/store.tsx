@@ -885,7 +885,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return "Belum Jatuh Tempo";
     };
 
-    const SYSTEM_YM = "2026-10";
+    const SYSTEM_YM = "2026-01";
     const monthlyMutations = (accountId: ID, ym: string) => {
       const tx = state.bankTx.filter((t) => t.accountId === accountId && t.date.startsWith(ym));
       return {
