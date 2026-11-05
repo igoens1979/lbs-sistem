@@ -77,6 +77,7 @@ export interface SJ {
   price: number;
   status: SJStatus;
   invoiceId: ID | null;
+  receiptId?: ID | null;
   site: string;
   note?: string;
 }
@@ -138,7 +139,7 @@ export interface Invoice {
 }
 export interface Payment {
   id: ID;
-  invoiceId: ID;
+  invoiceId: ID | null;
   date: string;
   amount: number;
   method: "Transfer" | "Tunai" | "Giro";

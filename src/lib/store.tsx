@@ -676,6 +676,7 @@ export interface Ctx extends State {
   canRevise: (invoice: Invoice) => { ok: boolean; reason?: string };
   invoiceCoverage: (invoiceId: ID) => { sj: SJ; value: number; covered: number; remaining: number }[];
   recordPayment: (p: { invoiceId: ID; amount: number; accountId: ID; method: Payment["method"]; date?: string; ref?: string }) => Promise<boolean>;
+  recordCashReceipt: (p: { sjIds: ID[]; customerId: ID; amount: number; accountId: ID; date?: string; ref?: string; note?: string }) => Promise<{ ok: boolean; receiptNo?: string }>;
   addBankTx: (tx: Omit<BankTx, "id">) => Promise<boolean>;
   deleteBankTx: (id: string) => Promise<void>;
   updateBankTx: (id: string, tx: Omit<BankTx, "id">) => Promise<boolean>;
@@ -1114,9 +1115,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   /* ---------- actions ---------- */
 
   const addSJ: Ctx["addSJ"] = async (payload) => {
-    const ym = payload.date.slice(0, 7);
-    const y = payload.date.slice(0, 4);
-    const m = payload.date.slice(5, 7);
+    const date = payload.date ?? iso(TODAY());
+    const ym = date.slice(0, 7);
+    const y = date.slice(0, 4);
+    const m = date.slice(5, 7);
     const nextNo = payload.no?.trim() || `SJ/LBS/${y}/${m}/${String(state.sj.filter((r) => r.date.startsWith(ym)).length + 1).padStart(4, "0")}`;
     const row: SJ = {
       id: uid("SJ"),
@@ -1557,15 +1559,83 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addBankTx: Ctx["addBankTx"] = async (tx) => {
-    const fullTx: BankTx = { ...tx, id: uid("TX") };
-    const { error } = await supabase.from("bank_tx").insert([dbBankTx(fullTx)]);
+    const full: BankTx = { ...tx, id: uid("TX") };
+    const { error } = await supabase.from("bank_tx").insert([dbBankTx(full)]);
     if (error) {
       toast("Mutasi kas/bank gagal disimpan", error.message, "error");
       return false;
     }
-    setState((s) => ({ ...s, bankTx: [fullTx, ...s.bankTx] }));
+    await loadAll();
     toast("Mutasi kas/bank tersimpan", tx.desc, "success");
     return true;
+  };
+
+  const recordCashReceipt: Ctx["recordCashReceipt"] = async ({ sjIds, customerId, amount, accountId, date, ref }) => {
+    const payDate = date ?? iso(TODAY());
+    const selected = (state.sj || []).filter((r) => sjIds.includes(r.id));
+    if (selected.length === 0) {
+      toast("Gagal terbitkan nota tunai", "Pilih minimal satu surat jalan", "error");
+      return { ok: false };
+    }
+    if (selected.some((r) => r.customerId !== customerId)) {
+      toast("Gagal terbitkan nota tunai", "Semua surat jalan harus milik pelanggan yang sama", "error");
+      return { ok: false };
+    }
+    if (selected.some((r) => r.invoiceId || (r as any).receiptId)) {
+      toast("Gagal terbitkan nota tunai", "Ada surat jalan yang sudah diinvoice atau sudah dibayar tunai", "error");
+      return { ok: false };
+    }
+    if (selected.some((r) => r.status === "Batal")) {
+      toast("Gagal terbitkan nota tunai", "Tidak dapat membayar surat jalan yang dibatalkan", "error");
+      return { ok: false };
+    }
+    const cust = state.customers.find((c) => c.id === customerId);
+    const ddate = new Date(payDate);
+    const year = ddate.getFullYear();
+    const month = String(ddate.getMonth() + 1).padStart(2, "0");
+    const seqKey = `NT/${year}-${month}`;
+    const existing = (state.payments || []).filter((p) => p.invoiceId === null && (p.ref || "").startsWith(seqKey));
+    const seq = String(existing.length + 1).padStart(4, "0");
+    const receiptNo = ref && ref.trim() ? ref.trim() : `NT/LBS/${year}/${month}/${seq}`;
+    const payload: Payment = {
+      id: uid("PAY"),
+      invoiceId: null,
+      date: payDate,
+      amount,
+      method: "Tunai",
+      accountId,
+      ref: receiptNo,
+    } as any;
+    const paymentResult = await supabase.from("payments").insert([payload as any]);
+    if (paymentResult.error) {
+      toast("Gagal terbitkan nota tunai", (paymentResult.error as any).message, "error");
+      return { ok: false };
+    }
+    const bankTx: BankTx = {
+      id: uid("TX"),
+      accountId,
+      date: payDate,
+      desc: `Penerimaan tunai ${receiptNo} - ${cust?.name || ""}`.trim(),
+      category: "Penjualan Tunai",
+      direction: "in",
+      amount,
+      ref: receiptNo,
+    } as any;
+    const bankTxResult = await supabase.from("bank_tx").insert([bankTx as any]);
+    if (bankTxResult.error) {
+      await supabase.from("payments").delete().eq("id", payload.id);
+      await loadAll();
+      toast("Gagal mencatat mutasi kas/bank", (bankTxResult.error as any).message, "error");
+      return { ok: false };
+    }
+    for (const r of selected) {
+      try {
+        await supabase.from("surat_jalan").update({ receipt_id: receiptNo } as any).eq("id", r.id);
+      } catch {}
+    }
+    await loadAll();
+    toast("Nota tunai terbit", `${receiptNo} • ${rupiah(amount)}`, "success");
+    return { ok: true, receiptNo };
   };
   const deleteBankTx: Ctx["deleteBankTx"] = async (id) => {
     if (!(await persistWrite(supabase.from("bank_tx").delete().eq("id", id), "Penghapusan mutasi"))) return;
@@ -2172,6 +2242,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     canRevise,
     invoiceCoverage,
     recordPayment,
+    recordCashReceipt,
     addBankTx,
     deleteBankTx,
     updateBankTx,

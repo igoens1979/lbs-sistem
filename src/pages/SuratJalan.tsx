@@ -58,6 +58,11 @@ const canCreate = app.can("surat-jalan", "create");
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const selectedRows = filtered.filter((r) => selected.includes(r.id));
   const selectedCustomers = new Set(selectedRows.map((r) => r.customerId));
+  const [receiptOpen, setReceiptOpen] = useState(false);
+  const receiptSJ = selectedRows.map((r) => r.id);
+  const receiptCustomer = selectedCustomers.size === 1 ? Array.from(selectedCustomers)[0] : "";
+  const receiptAmount = selectedRows.reduce((s, r) => s + r.volume * r.trips * r.price, 0);
+  const receiptReady = selectedRows.length > 0 && selectedCustomers.size === 1 && selectedRows.every((r) => !r.invoiceId && r.status !== "Batal");
 
   return (
     <PageBody>
@@ -156,6 +161,15 @@ const canCreate = app.can("surat-jalan", "create");
               <Pill tone="amber">{selectedCustomers.size} pelanggan</Pill>
             </div>
             <div className="flex flex-wrap items-center gap-space-sm">
+              <Button
+                variant="secondary"
+                size="sm"
+                icon="add_road"
+                disabled={!receiptReady}
+                onClick={() => setReceiptOpen(true)}
+              >
+                Buat Nota Tunai
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -410,6 +424,14 @@ footer={
 
       {formOpen && <SJForm onClose={() => setFormOpen(false)} editing={null} />}
       {editing && <SJForm onClose={() => setEditing(null)} editing={editing} />}
+      {receiptOpen && (
+        <NotaTunaiForm
+          onClose={() => setReceiptOpen(false)}
+          sjIds={receiptSJ}
+          customerId={receiptCustomer}
+          defaultAmount={receiptAmount}
+        />
+      )}
     </PageBody>
   );
 }
@@ -593,6 +615,99 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
           <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Volume Total</span>
           <p className="font-headline-md text-headline-md text-primary tabular">{num(form.volume * form.trips)} m³</p>
         </div>
+      </div>
+    </Modal>
+  );
+}
+
+function NotaTunaiForm({
+  onClose,
+  sjIds,
+  customerId,
+  defaultAmount,
+}: {
+  onClose: () => void;
+  sjIds: string[];
+  customerId: string;
+  defaultAmount: number;
+}) {
+  const app = useApp();
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const existing = (app.payments || []).filter((p) => p.invoiceId === null && (p.ref || "").startsWith(`NT/${year}-${month}`));
+  const seq = String(existing.length + 1).padStart(4, "0");
+  const defaultRef = `NT/LBS/${year}/${month}/${seq}`;
+  const mandiri = app.accounts.find((a) => (a.bank ?? a.name).toLowerCase().includes("mandiri"));
+  const cust = app.customers.find((c) => c.id === customerId);
+
+  const [form, setForm] = useState({
+    ref: defaultRef,
+    date: iso(TODAY()),
+    accountId: mandiri?.id ?? app.accounts[0]?.id ?? "",
+    amount: defaultAmount,
+    note: "",
+  });
+
+  const submit = async () => {
+    if (!form.accountId || form.amount <= 0) return;
+    const res = await app.recordCashReceipt({
+      sjIds,
+      customerId,
+      amount: form.amount,
+      accountId: form.accountId,
+      date: form.date,
+      ref: form.ref,
+      note: form.note,
+    });
+    if (res.ok) onClose();
+  };
+
+  return (
+    <Modal open onClose={onClose} width="max-w-md" title="Terbitkan Nota Tunai" subtitle="Pembayaran tunai tanpa invoice, dicatat ke mutasi kas/bank">
+      <div className="grid grid-cols-1 gap-space-md sm:grid-cols-2">
+        <Field label="Nomor Nota Tunai (NT/...)" className="sm:col-span-2">
+          <Input value={form.ref} onChange={(e) => setForm({ ...form, ref: e.target.value })} placeholder="Contoh: NT/LBS/2026/11/0001" />
+        </Field>
+        <Field label="Pelanggan" className="sm:col-span-2">
+          <Input value={cust?.name ?? "-"} disabled />
+        </Field>
+        <Field label="Tanggal Terima">
+          <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+        </Field>
+        <Field label="Akun Kas / Bank">
+          <Select value={form.accountId} onChange={(e) => setForm({ ...form, accountId: e.target.value })}>
+            {app.accounts.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name}{a.bank ? ` — ${a.bank}` : ""}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field label="Jumlah Penerimaan">
+          <Input type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: Number(e.target.value) || 0 })} className="font-mono" />
+        </Field>
+        <Field label="Catatan" className="sm:col-span-2">
+          <Textarea value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="Catatan penerimaan tunai…" />
+        </Field>
+      </div>
+      <div className="mt-space-md flex items-center justify-between rounded-xl bg-surface-container-low p-space-md">
+        <div>
+          <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Surat Jalan Terpilih</span>
+          <p className="font-headline-md text-headline-md text-primary tabular">{sjIds.length} dokumen</p>
+        </div>
+        <div className="text-right">
+          <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Total Penerimaan</span>
+          <p className="font-headline-md text-headline-md text-primary tabular">{rupiah(form.amount)}</p>
+        </div>
+      </div>
+      <div className="mt-space-md flex justify-end gap-2">
+        <Button variant="outline" onClick={onClose}>
+          Batal
+        </Button>
+        <Button icon="receipt_long" disabled={!form.accountId || form.amount <= 0} onClick={submit}>
+          Terbitkan Nota Tunai
+        </Button>
       </div>
     </Modal>
   );

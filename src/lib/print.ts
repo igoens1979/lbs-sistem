@@ -73,17 +73,57 @@ function run(title: string, body: string) {
   }, 300);
 }
 
-export function printSuratJalan(row: SJ, extras: { site: string; note?: string }, ctx?: { customers: any[]; commodities: any[]; vehicles: any[]; drivers: any[] }) {
-  const customerNameFn = (id: string) => ctx?.customers?.find((c: any) => c.id === id)?.name ?? customerName(id);
+export function printNotaTunai(receipt: { no: string; date: string; customer: Customer | { name: string; address?: string }; sjRows: SJ[]; total: number; diterimaDari?: string }, ctx?: { customers?: any[]; commodities?: any[]; vehicles?: any[]; drivers?: any[] }) {
+  const cust = (ctx?.customers?.find((c: any) => c.id === (receipt.customer as any)?.id) as Customer) ?? (receipt.customer as Customer);
   const commodityNameFn = (id: string) => ctx?.commodities?.find((c: any) => c.id === id)?.name ?? commodityName(id);
+
+  const rows = (receipt.sjRows || []).map((r) => {
+    const val = r.volume * r.trips * r.price;
+    return `<tr>
+      <td>${r.no}</td>
+      <td>${d(parseISO(r.date))}</td>
+      <td>${commodityNameFn(r.commodityId)}</td>
+      <td style="text-align:right">${num(r.volume)} m³</td>
+      <td style="text-align:right">${num(r.trips)}</td>
+      <td style="text-align:right">${rupiah(val)}</td>
+    </tr>`;
+  }).join("");
+
+  const body = `
+  ${kop("NOTA TUNAI", receipt.no)}
+  <div class="grid">
+    <div class="kv"><b>No. Nota Tunai</b> ${receipt.no}</div>
+    <div class="kv"><b>Tanggal</b> ${d(parseISO(receipt.date))}</div>
+    <div class="kv"><b>Telah diterima dari</b> ${cust?.name ?? receipt.diterimaDari ?? "-"}</div>
+    <div class="kv"><b>Alamat</b> ${(cust as any)?.address ?? "-"}</div>
+  </div>
+  <table>
+    <thead><tr><th>No. Surat Jalan</th><th>Tanggal Muat</th><th>Komoditas</th><th style="text-align:right">Volume</th><th style="text-align:right">Rit</th><th style="text-align:right">Jumlah</th></tr></thead>
+    <tbody>${rows || '<tr><td colspan="6" style="text-align:center">-</td></tr>'}</tbody>
+    <tfoot><tr><td colspan="5">JUMLAH DITERIMA</td><td style="text-align:right">${rupiah(receipt.total)}</td></tr></tfoot>
+  </table>
+  <div class="note"><b>Untuk pembayaran :</b> Penjualan muatan tunai</div>
+  <div class="sign">
+    <div>Yang Menerima<br/><br/><br/>${"________________________"}</div>
+    <div>Kasir / Finance<br/><br/><br/>${"________________________"}</div>
+    <div>Yang Menyerahkan<br/><br/><br/>${cust?.name ?? "________________________"}</div>
+  </div>
+  <p class="foot">Dokumen ini diterbitkan otomatis oleh LBS System 1.0</p>`;
+  run(`Nota Tunai ${receipt.no}`, body);
+}
+
+export function printSuratJalan(row: SJ, extras?: { site?: string; note?: string }, ctx?: { customers?: any[]; commodities?: any[]; vehicles?: any[]; drivers?: any[] }) {
+  const commodityNameFn = (id: string) => ctx?.commodities?.find((c: any) => c.id === id)?.name ?? commodityName(id);
+  const customerNameFn = (id: string) => ctx?.customers?.find((c: any) => c.id === id)?.name ?? customerName(id);
   const vehiclePlateFn = (id: string) => ctx?.vehicles?.find((v: any) => v.id === id)?.plate ?? vehiclePlate(id);
   const driverNameFn = (id: string) => ctx?.drivers?.find((d: any) => d.id === id)?.name ?? driverName(id);
+
   const body = `
   ${kop("Surat Jalan / Delivery Order", row.no)}
   <div class="grid">
     <div class="kv"><b>Pelanggan</b> ${customerNameFn(row.customerId)}</div>
     <div class="kv"><b>Tanggal Muat</b> ${d(parseISO(row.date))}</div>
-    <div class="kv"><b>Lokasi Muat</b> ${extras.site}</div>
+    <div class="kv"><b>Lokasi Muat</b> ${extras?.site ?? "-"}</div>
     <div class="kv"><b>Unit Armada</b> ${vehiclePlateFn(row.vehicleId)}</div>
     <div class="kv"><b>Driver</b> ${driverNameFn(row.driverId)}</div>
     <div class="kv"><b>Jumlah Ritase</b> ${num(row.trips)} rit</div>
@@ -95,11 +135,11 @@ export function printSuratJalan(row: SJ, extras: { site: string; note?: string }
     </tbody>
     <tfoot><tr><td colspan="2">Total Volume Muatan ${num(row.volume)} m³</td></tr></tfoot>
   </table>
-  ${extras.note ? `<div class="note"><b>Catatan operasional:</b> ${extras.note}</div>` : ""}
+  ${extras?.note ? `<div class="note"><b>Catatan operasional:</b> ${extras.note}</div>` : ""}
   <div class="sign">
-    <div>Driver<br/><br/>${driverNameFn(row.driverId)}</div>
-    <div>Petugas Timbangan<br/><br/>…………………………</div>
-    <div>Penerima / Pelanggan<br/><br/>…………………………</div>
+    <div>Driver<br/><br/><br/>${driverNameFn(row.driverId)}</div>
+    <div>Petugas Timbangan<br/><br/><br/>…………………………</div>
+    <div>Penerima / Pelanggan<br/><br/><br/>…………………………</div>
   </div>
   <p class="foot">Dokumen ini diterbitkan otomatis oleh LBS System 1.0 dan sah tanpa tanda tangan basah selama data timbangan tercatat pada sistem.</p>`;
   run(`Surat Jalan ${row.no}`, body);
