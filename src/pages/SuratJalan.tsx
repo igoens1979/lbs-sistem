@@ -21,6 +21,7 @@ export default function SuratJalan() {
   const [printNote, setPrintNote] = useState("");
   const [page, setPage] = useState(1);
   const [scope, setScope] = useState<"periode" | "semua">("periode");
+  const [cashSJ, setCashSJ] = useState<SJ | null>(null);
 const canCreate = app.can("surat-jalan", "create");
   const canEdit = app.can("surat-jalan", "edit");
 
@@ -268,19 +269,30 @@ const canCreate = app.can("surat-jalan", "create");
                          >
                            <Icon name="edit" size={18} />
                          </button>
-                         <button
-                           type="button"
-                           title="Batalkan surat jalan"
-                           disabled={!!r.invoiceId || !canEdit}
-                           onClick={() => {
-                             app.updateSJ(r.id, { status: "Batal" });
-                             app.toast("Surat jalan dibatalkan", r.no, "warn");
-                           }}
-                           className="rounded-lg p-1.5 text-on-surface-variant hover:bg-error-container hover:text-error disabled:opacity-30"
-                         >
-                           <Icon name="cancel" size={18} />
-                         </button>
-                       </div>
+                          <button
+                            type="button"
+                            title="Batalkan surat jalan"
+                            disabled={!!r.invoiceId || !canEdit}
+                            onClick={() => {
+                              app.updateSJ(r.id, { status: "Batal" });
+                              app.toast("Surat jalan dibatalkan", r.no, "warn");
+                            }}
+                            className="rounded-lg p-1.5 text-on-surface-variant hover:bg-error-container hover:text-error disabled:opacity-30"
+                          >
+                            <Icon name="cancel" size={18} />
+                          </button>
+                          {!r.invoiceId && r.status !== "Batal" && (
+                            <button
+                              type="button"
+                              title="Bayar tunai"
+                              disabled={!canEdit}
+                              onClick={() => { setCashSJ(r); }}
+                              className="rounded-lg p-1.5 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container disabled:opacity-30"
+                            >
+                              <Icon name="payments" size={18} />
+                            </button>
+                          )}
+                        </div>
                      </Td>
                 </tr>
               ))}
@@ -432,6 +444,7 @@ footer={
           defaultAmount={receiptAmount}
         />
       )}
+      {cashSJ && <CashPayForm onClose={() => setCashSJ(null)} sj={cashSJ} />}
     </PageBody>
   );
 }
@@ -707,6 +720,88 @@ function NotaTunaiForm({
         </Button>
         <Button icon="receipt_long" disabled={!form.accountId || form.amount <= 0} onClick={submit}>
           Terbitkan Nota Tunai
+        </Button>
+      </div>
+    </Modal>
+  );
+}
+
+function CashPayForm({
+  onClose,
+  sj,
+}: {
+  onClose: () => void;
+  sj: SJ;
+}) {
+  const app = useApp();
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const existing = (app.payments || []).filter((p) => p.invoiceId === null && (p.ref || "").startsWith(`NT/${year}-${month}`));
+  const seq = String(existing.length + 1).padStart(4, "0");
+  const defaultRef = `NT/LBS/${year}/${month}/${seq}`;
+  const mandiri = app.accounts.find((a) => (a.bank ?? a.name).toLowerCase().includes("mandiri"));
+  const cust = app.customers.find((c) => c.id === sj.customerId);
+  const value = sj.volume * sj.trips * sj.price;
+
+  const [form, setForm] = useState({
+    ref: defaultRef,
+    date: iso(TODAY()),
+    accountId: mandiri?.id ?? app.accounts[0]?.id ?? "",
+    amount: value,
+    note: `Pembayaran tunai ${sj.no}`,
+  });
+
+  const submit = async () => {
+    if (!form.accountId || form.amount <= 0) return;
+    const res = await app.recordCashReceipt({
+      sjIds: [sj.id],
+      customerId: sj.customerId,
+      amount: form.amount,
+      accountId: form.accountId,
+      date: form.date,
+      ref: form.ref,
+    });
+    if (res.ok) onClose();
+  };
+
+  return (
+    <Modal open onClose={onClose} width="max-w-md" title="Bayar Tunai Surat Jalan" subtitle={`Pembayaran tunai untuk ${sj.no} (${cust?.name ?? "-"})`}>
+      <div className="grid grid-cols-1 gap-space-md sm:grid-cols-2">
+        <Field label="Nomor Nota Tunai (NT/...)" className="sm:col-span-2">
+          <Input value={form.ref} onChange={(e) => setForm({ ...form, ref: e.target.value })} placeholder="Contoh: NT/LBS/2026/11/0001" />
+        </Field>
+        <Field label="Pelanggan" className="sm:col-span-2">
+          <Input value={cust?.name ?? "-"} disabled />
+        </Field>
+        <Field label="Surat Jalan" className="sm:col-span-2">
+          <Input value={`${sj.no} — ${rupiah(value)}`} disabled />
+        </Field>
+        <Field label="Tanggal Terima">
+          <Input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+        </Field>
+        <Field label="Akun Kas / Bank">
+          <Select value={form.accountId} onChange={(e) => setForm({ ...form, accountId: e.target.value })}>
+            {app.accounts.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name}{a.bank ? ` — ${a.bank}` : ""}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field label="Jumlah Penerimaan">
+          <Input type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: Number(e.target.value) || 0 })} className="font-mono" />
+        </Field>
+        <Field label="Catatan" className="sm:col-span-2">
+          <Textarea value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="Catatan penerimaan tunai…" />
+        </Field>
+      </div>
+      <div className="mt-space-md flex justify-end gap-2">
+        <Button variant="outline" onClick={onClose}>
+          Batal
+        </Button>
+        <Button icon="payments" disabled={!form.accountId || form.amount <= 0} onClick={submit}>
+          Bayar & Terbit Nota
         </Button>
       </div>
     </Modal>
