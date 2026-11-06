@@ -796,8 +796,6 @@ function RowActions({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const disabledEdit = !!r.invoiceId || !canEdit;
-  const disabledCancel = !!r.invoiceId || !canEdit;
   const canPay = !r.invoiceId && !r.receiptId && r.status !== "Batal";
 
   useEffect(() => {
@@ -834,22 +832,24 @@ function RowActions({
           >
             <div className="flex items-center gap-2"><Icon name="visibility" size={16} /> Rincian Dokumen</div>
           </button>
-          <button
-            type="button"
-            disabled={disabledEdit}
-            onClick={() => { setOpen(false); onEdit(r); }}
-            className={`w-full text-left px-3 py-2 text-sm ${disabledEdit ? "text-on-surface-variant/40" : "text-on-surface hover:bg-primary-container hover:text-on-primary-container"} disabled:opacity-30`}
-          >
-            <div className="flex items-center gap-2"><Icon name="edit" size={16} /> Ubah Surat Jalan</div>
-          </button>
-          <button
-            type="button"
-            disabled={disabledCancel}
-            onClick={() => { setOpen(false); onCancel(r); }}
-            className={`w-full text-left px-3 py-2 text-sm ${disabledCancel ? "text-on-surface-variant/40" : "text-error hover:bg-error-container hover:text-error"} disabled:opacity-30`}
-          >
-            <div className="flex items-center gap-2"><Icon name="cancel" size={16} /> Batalkan Surat Jalan</div>
-          </button>
+          {!r.invoiceId && !r.receiptId && canEdit && (
+            <button
+              type="button"
+              onClick={() => { setOpen(false); onEdit(r); }}
+              className="w-full text-left px-3 py-2 text-sm text-on-surface hover:bg-primary-container hover:text-on-primary-container"
+            >
+              <div className="flex items-center gap-2"><Icon name="edit" size={16} /> Ubah Surat Jalan</div>
+            </button>
+          )}
+          {!r.invoiceId && !r.receiptId && canEdit && (
+            <button
+              type="button"
+              onClick={() => { setOpen(false); onCancel(r); }}
+              className="w-full text-left px-3 py-2 text-sm text-error hover:bg-error-container hover:text-error"
+            >
+              <div className="flex items-center gap-2"><Icon name="cancel" size={16} /> Batalkan Surat Jalan</div>
+            </button>
+          )}
           {canPay && (
             <button
               type="button"
