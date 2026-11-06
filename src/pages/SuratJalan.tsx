@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PageBody, PageHeader, PeriodActions } from "@/components/Shell";
 import { Button, Card, Drawer, Field, Icon, Input, Modal, Pill, SectionHeading, Select, StatusPill, Td, Th, Textarea } from "@/components/ui";
 import { commodityName, driverName, vehiclePlate, type SJ, type SJStatus } from "@/lib/data";
@@ -253,46 +253,15 @@ const canCreate = app.can("surat-jalan", "create");
                     <StatusPill status={r.invoiceId ? (app.computedStatus(app.invoices.find((i) => i.id === r.invoiceId)!) === "Lunas" ? "Dibayar" : "Diinvoice") : r.status} />
                   </Td>
 <Td align="center">
-                       <div className="flex items-center justify-center gap-1">
-                         <button type="button" title="Cetak surat jalan" onClick={() => { setPrintRow(r); setPrintNote(r.note ?? ""); }} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary">
-                           <Icon name="print" size={18} />
-                         </button>
-                         <button type="button" title="Rincian dokumen" onClick={() => setDetail(r)} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary">
-                           <Icon name="visibility" size={18} />
-                         </button>
-                         <button
-                           type="button"
-                           title="Ubah surat jalan"
-                           disabled={!!r.invoiceId || !canEdit}
-                           onClick={() => setEditing(r)}
-                           className="rounded-lg p-1.5 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container disabled:opacity-30"
-                         >
-                           <Icon name="edit" size={18} />
-                         </button>
-                          <button
-                            type="button"
-                            title="Batalkan surat jalan"
-                            disabled={!!r.invoiceId || !canEdit}
-                            onClick={() => {
-                              app.updateSJ(r.id, { status: "Batal" });
-                              app.toast("Surat jalan dibatalkan", r.no, "warn");
-                            }}
-                            className="rounded-lg p-1.5 text-on-surface-variant hover:bg-error-container hover:text-error disabled:opacity-30"
-                          >
-                            <Icon name="cancel" size={18} />
-                          </button>
-                          {!r.invoiceId && r.status !== "Batal" && (
-                            <button
-                              type="button"
-                              title="Bayar tunai"
-                              disabled={!canEdit}
-                              onClick={() => { setCashSJ(r); }}
-                              className="rounded-lg p-1.5 text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container disabled:opacity-30"
-                            >
-                              <Icon name="payments" size={18} />
-                            </button>
-                          )}
-                        </div>
+                       <RowActions
+                         r={r}
+                         canEdit={canEdit}
+                         onPrint={(rr) => { setPrintRow(rr); setPrintNote(rr.note ?? ""); }}
+                         onDetail={(rr) => setDetail(rr)}
+                         onEdit={(rr) => setEditing(rr)}
+                         onCancel={(rr) => { app.updateSJ(rr.id, { status: "Batal" }); app.toast("Surat jalan dibatalkan", rr.no, "warn"); }}
+                         onPay={(rr) => setCashSJ(rr)}
+                       />
                      </Td>
                 </tr>
               ))}
@@ -805,5 +774,93 @@ function CashPayForm({
         </Button>
       </div>
     </Modal>
+  );
+}
+
+function RowActions({
+  r,
+  canEdit,
+  onPrint,
+  onDetail,
+  onEdit,
+  onCancel,
+  onPay,
+}: {
+  r: SJ;
+  canEdit: boolean;
+  onPrint: (rr: SJ) => void;
+  onDetail: (rr: SJ) => void;
+  onEdit: (rr: SJ) => void;
+  onCancel: (rr: SJ) => void;
+  onPay: (rr: SJ) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const disabledEdit = !!r.invoiceId || !canEdit;
+  const disabledCancel = !!r.invoiceId || !canEdit;
+  const canPay = !r.invoiceId && r.status !== "Batal";
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative inline-block">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container"
+        aria-label="Aksi lebih lanjut"
+      >
+        <Icon name="more_vert" size={18} />
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-1 w-48 rounded-lg bg-surface-container border border-surface-container-low shadow-lg z-50 py-1 animate-in fade-in slide-in-from-right-2 duration-200">
+          <button
+            type="button"
+            onClick={() => { setOpen(false); onPrint(r); }}
+            className="w-full text-left px-3 py-2 text-sm text-on-surface hover:bg-surface-container-low"
+          >
+            <div className="flex items-center gap-2"><Icon name="print" size={16} /> Cetak Surat Jalan</div>
+          </button>
+          <button
+            type="button"
+            onClick={() => { setOpen(false); onDetail(r); }}
+            className="w-full text-left px-3 py-2 text-sm text-on-surface hover:bg-surface-container-low"
+          >
+            <div className="flex items-center gap-2"><Icon name="visibility" size={16} /> Rincian Dokumen</div>
+          </button>
+          <button
+            type="button"
+            disabled={disabledEdit}
+            onClick={() => { setOpen(false); onEdit(r); }}
+            className={`w-full text-left px-3 py-2 text-sm ${disabledEdit ? "text-on-surface-variant/40" : "text-on-surface hover:bg-primary-container hover:text-on-primary-container"} disabled:opacity-30`}
+          >
+            <div className="flex items-center gap-2"><Icon name="edit" size={16} /> Ubah Surat Jalan</div>
+          </button>
+          <button
+            type="button"
+            disabled={disabledCancel}
+            onClick={() => { setOpen(false); onCancel(r); }}
+            className={`w-full text-left px-3 py-2 text-sm ${disabledCancel ? "text-on-surface-variant/40" : "text-error hover:bg-error-container hover:text-error"} disabled:opacity-30`}
+          >
+            <div className="flex items-center gap-2"><Icon name="cancel" size={16} /> Batalkan Surat Jalan</div>
+          </button>
+          {canPay && (
+            <button
+              type="button"
+              onClick={() => { setOpen(false); onPay(r); }}
+              className="w-full text-left px-3 py-2 text-sm text-on-surface hover:bg-primary-container hover:text-on-primary-container"
+            >
+              <div className="flex items-center gap-2"><Icon name="payments" size={16} /> Bayar Tunai</div>
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
