@@ -110,6 +110,7 @@ export type DbSuratJalan = {
   price: number;
   status: string;
   invoice_id: string | null;
+  receipt_id: string | null;
   site: string;
   catatan: string | null;
   created_at: string;

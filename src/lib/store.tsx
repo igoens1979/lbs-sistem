@@ -223,6 +223,7 @@ const toSJ = (r: DbSuratJalan): SJ => ({
   price: r.price,
   status: r.status as any,
   invoiceId: r.invoice_id ?? null,
+  receiptId: r.receipt_id ?? null,
   site: r.site,
   note: r.catatan ?? undefined,
 });
@@ -1605,8 +1606,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       method: "Tunai",
       accountId,
       ref: receiptNo,
-    } as any;
-    const paymentResult = await supabase.from("payments").insert([payload as any]);
+    };
+    const paymentResult = await supabase.from("payments").insert([dbPayment(payload)]);
     if (paymentResult.error) {
       toast("Gagal terbitkan nota tunai", (paymentResult.error as any).message, "error");
       return { ok: false };
@@ -1620,8 +1621,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       direction: "in",
       amount,
       ref: receiptNo,
-    } as any;
-    const bankTxResult = await supabase.from("bank_tx").insert([bankTx as any]);
+    };
+    const bankTxResult = await supabase.from("bank_tx").insert([dbBankTx(bankTx)]);
     if (bankTxResult.error) {
       await supabase.from("payments").delete().eq("id", payload.id);
       await loadAll();
