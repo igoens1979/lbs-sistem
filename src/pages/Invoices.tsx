@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { PageBody, PageHeader, PeriodActions } from "@/components/Shell";
 import { Button, Card, Drawer, EmptyState, Field, Icon, Input, Modal, Pill, ProgressBar, SectionHeading, Select, StatusPill, Tabs, Td, Textarea, Th } from "@/components/ui";
 import { commodityName, type Invoice, vehiclePlate } from "@/lib/data";
@@ -224,46 +224,18 @@ export default function Invoices() {
                         <StatusPill status={app.computedStatus(i)} />
                       </Td>
                       <Td align="center">
-                        <div className="flex items-center justify-center gap-1">
-                          <button type="button" title="Rincian invoice" onClick={() => setDetail(i)} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary">
-                            <Icon name="visibility" size={18} />
-                          </button>
-                          <button
-                            type="button"
-                            title="Catat pembayaran"
-                            disabled={due <= 0 || !canPay}
-                            onClick={() => setPayTarget(i)}
-                            className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary disabled:opacity-30"
-                          >
-                            <Icon name="payments" size={18} />
-                          </button>
-                          <button
-                            type="button"
-                            title={app.canRevise(i).ok ? "Revisi invoice (tambah / kurangi surat jalan)" : `Revisi tidak dapat dilakukan — ${app.canRevise(i).reason}`}
-                            disabled={!canRevisePerm || !app.canRevise(i).ok}
-                            onClick={() => setReviseTarget(i)}
-                            className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary disabled:opacity-30"
-                          >
-                            <Icon name="rule" size={18} />
-                          </button>
-                          <button
-                            type="button"
-                            title={app.paidOf(i.id) > 0 && app.outstandingOf(i) > 0 ? "Carry forward sisa surat jalan ke invoice baru" : "Carry forward hanya untuk invoice dengan pembayaran bertahap"}
-                            disabled={!canRevisePerm || app.paidOf(i.id) <= 0 || app.outstandingOf(i) <= 0}
-                            onClick={() => setCarryTarget(i)}
-                            className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary disabled:opacity-30"
-                          >
-                            <Icon name="east" size={18} />
-                          </button>
-                          <button
-                            type="button"
-                            title={`Cetak invoice + lampiran surat jalan (${1 + new Set(app.sj.filter((r) => i.sjIds.includes(r.id)).map((r) => r.customerId)).size} halaman lampiran)`}
-                            onClick={() => printInvoice(i, { paid: app.paidOf(i.id), status: app.computedStatus(i), rows: app.sj.filter((r) => i.sjIds.includes(r.id)), allInvoices: app.invoices, customers: app.customers, vehicles: app.vehicles, drivers: app.drivers, commodities: app.commodities })}
-                            className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container hover:text-primary"
-                          >
-                            <Icon name="print" size={18} />
-                          </button>
-                        </div>
+                        <InvoiceRowActions
+                          due={app.outstandingOf(i)}
+                          paid={app.paidOf(i.id)}
+                          canPay={canPay}
+                          canRevisePerm={canRevisePerm}
+                          canRevise={app.canRevise(i)}
+                          onDetail={() => setDetail(i)}
+                          onPay={() => setPayTarget(i)}
+                          onRevise={() => setReviseTarget(i)}
+                          onCarry={() => setCarryTarget(i)}
+                          onPrint={() => printInvoice(i, { paid: app.paidOf(i.id), status: app.computedStatus(i), rows: app.sj.filter((r) => i.sjIds.includes(r.id)), allInvoices: app.invoices, customers: app.customers, vehicles: app.vehicles, drivers: app.drivers, commodities: app.commodities })}
+                        />
                       </Td>
                     </tr>
                   );
@@ -1307,5 +1279,100 @@ function CarryForwardModal({ invoice, onClose }: { invoice: Invoice; onClose: ()
         </div>
       </div>
     </Modal>
+  );
+}
+
+function InvoiceRowActions({
+  due,
+  paid,
+  canPay,
+  canRevisePerm,
+  canRevise,
+  onDetail,
+  onPay,
+  onRevise,
+  onCarry,
+  onPrint,
+}: {
+  due: number;
+  paid: number;
+  canPay: boolean;
+  canRevisePerm: boolean;
+  canRevise: { ok: boolean; reason?: string };
+  onDetail: () => void;
+  onPay: () => void;
+  onRevise: () => void;
+  onCarry: () => void;
+  onPrint: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const disabledPay = due <= 0 || !canPay;
+  const disabledRevise = !canRevisePerm || !canRevise.ok;
+  const disabledCarry = !canRevisePerm || paid <= 0 || due <= 0;
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative inline-block">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="rounded-lg p-1.5 text-on-surface-variant hover:bg-surface-container"
+        aria-label="Aksi lebih lanjut"
+      >
+        <Icon name="more_vert" size={18} />
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-1 w-48 rounded-lg bg-surface-container border border-surface-container-low shadow-lg z-50 py-1 animate-in fade-in slide-in-from-right-2 duration-200">
+          <button
+            type="button"
+            onClick={() => { setOpen(false); onDetail(); }}
+            className="w-full text-left px-3 py-2 text-sm text-on-surface hover:bg-surface-container-low"
+          >
+            <div className="flex items-center gap-2"><Icon name="visibility" size={16} /> Rincian Invoice</div>
+          </button>
+          <button
+            type="button"
+            disabled={disabledPay}
+            onClick={() => { setOpen(false); onPay(); }}
+            className={`w-full text-left px-3 py-2 text-sm ${disabledPay ? "text-on-surface-variant/40" : "text-on-surface hover:bg-surface-container-low"}`}
+          >
+            <div className="flex items-center gap-2"><Icon name="payments" size={16} /> Catat Pembayaran</div>
+          </button>
+          <button
+            type="button"
+            disabled={disabledRevise}
+            onClick={() => { setOpen(false); onRevise(); }}
+            className={`w-full text-left px-3 py-2 text-sm ${disabledRevise ? "text-on-surface-variant/40" : "text-on-surface hover:bg-surface-container-low"} disabled:opacity-30`}
+            title={canRevise.ok ? "Revisi invoice (tambah / kurangi surat jalan)" : `Revisi tidak dapat dilakukan — ${canRevise.reason ?? ""}`}
+          >
+            <div className="flex items-center gap-2"><Icon name="rule" size={16} /> Revisi Invoice</div>
+          </button>
+          <button
+            type="button"
+            disabled={disabledCarry}
+            onClick={() => { setOpen(false); onCarry(); }}
+            className={`w-full text-left px-3 py-2 text-sm ${disabledCarry ? "text-on-surface-variant/40" : "text-on-surface hover:bg-surface-container-low"} disabled:opacity-30`}
+            title={paid > 0 && due > 0 ? "Carry forward sisa surat jalan ke invoice baru" : "Carry forward hanya untuk invoice dengan pembayaran bertahap"}
+          >
+            <div className="flex items-center gap-2"><Icon name="east" size={16} /> Carry Forward</div>
+          </button>
+          <button
+            type="button"
+            onClick={() => { setOpen(false); onPrint(); }}
+            className="w-full text-left px-3 py-2 text-sm text-on-surface hover:bg-surface-container-low"
+          >
+            <div className="flex items-center gap-2"><Icon name="print" size={16} /> Cetak Invoice</div>
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
