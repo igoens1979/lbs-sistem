@@ -963,11 +963,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const periodSJ = state.sj.filter((r) => inPeriod(r.date) && r.status !== "Batal");
     // Hubungan invoice–surat jalan tersimpan di tabel join invoice_sj (kolom surat_jalan.invoice_id kosong di DB)
     const invoicedSjIds = new Set(state.invoiceSJ.map((x) => x.sjId));
-    const sjInvoiced = periodSJ.filter((r) => invoicedSjIds.has(r.id)).length;
+    // Surat jalan yang dibayar tunai via Nota Tunai juga dianggap sudah ditagih (bukan pending)
+    const paidSjIds = new Set(state.sj.filter((r) => r.receiptId).map((r) => r.id));
+    const settledSjIds = new Set([...invoicedSjIds, ...paidSjIds]);
+    const sjInvoiced = periodSJ.filter((r) => settledSjIds.has(r.id)).length;
     const sjPending = periodSJ.length - sjInvoiced;
     const sjValue = (r: (typeof periodSJ)[number]) => r.volume * r.trips * r.price;
-    const sjInvoicedValue = periodSJ.filter((r) => invoicedSjIds.has(r.id)).reduce((s, r) => s + sjValue(r), 0);
-    const sjPendingValue = periodSJ.filter((r) => !invoicedSjIds.has(r.id)).reduce((s, r) => s + sjValue(r), 0);
+    const sjInvoicedValue = periodSJ.filter((r) => settledSjIds.has(r.id)).reduce((s, r) => s + sjValue(r), 0);
+    const sjPendingValue = periodSJ.filter((r) => !settledSjIds.has(r.id)).reduce((s, r) => s + sjValue(r), 0);
     const periodInvoices = state.invoices.filter((i) => inPeriod(i.date));
     const invoiceTotal = periodInvoices.reduce((s, i) => s + i.total, 0);
     const volume = periodSJ.reduce((s, r) => s + r.volume * r.trips, 0);
@@ -1582,7 +1585,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toast("Gagal terbitkan nota tunai", "Semua surat jalan harus milik pelanggan yang sama", "error");
       return { ok: false };
     }
-    if (selected.some((r) => r.invoiceId || (r as any).receiptId)) {
+    if (selected.some((r) => r.invoiceId || r.receiptId)) {
       toast("Gagal terbitkan nota tunai", "Ada surat jalan yang sudah diinvoice atau sudah dibayar tunai", "error");
       return { ok: false };
     }
@@ -1631,7 +1634,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     for (const r of selected) {
       try {
-        await supabase.from("surat_jalan").update({ receipt_id: receiptNo } as any).eq("id", r.id);
+        await supabase.from("surat_jalan").update({ receipt_id: receiptNo, status: "Dibayar" } as any).eq("id", r.id);
       } catch {}
     }
     await loadAll();

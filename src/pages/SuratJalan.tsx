@@ -29,7 +29,7 @@ const canCreate = app.can("surat-jalan", "create");
     return app.sj.filter((r) => {
       if (scope === "periode" && (r.date < app.period.from || r.date > app.period.to)) return false;
       if (status !== "all") {
-        const eff = r.invoiceId ? "Diinvoice" : r.status;
+        const eff = r.invoiceId ? "Diinvoice" : r.receiptId ? "Dibayar" : r.status;
         if (eff !== status) return false;
       }
       if (customerId !== "all" && r.customerId !== customerId) return false;
@@ -50,7 +50,7 @@ const canCreate = app.can("surat-jalan", "create");
       count: rows.length,
       volume: rows.reduce((s, r) => s + r.volume * r.trips, 0),
       value: rows.reduce((s, r) => s + r.volume * r.trips * r.price, 0),
-      pending: rows.filter((r) => !r.invoiceId).length,
+      pending: rows.filter((r) => !r.invoiceId && !r.receiptId).length,
       selectedValue: rows.filter((r) => selected.includes(r.id)).reduce((s, r) => s + r.volume * r.trips * r.price, 0),
     };
   }, [filtered, selected]);
@@ -63,7 +63,7 @@ const canCreate = app.can("surat-jalan", "create");
   const receiptSJ = selectedRows.map((r) => r.id);
   const receiptCustomer = selectedCustomers.size === 1 ? Array.from(selectedCustomers)[0] : "";
   const receiptAmount = selectedRows.reduce((s, r) => s + r.volume * r.trips * r.price, 0);
-  const receiptReady = selectedRows.length > 0 && selectedCustomers.size === 1 && selectedRows.every((r) => !r.invoiceId && r.status !== "Batal");
+  const receiptReady = selectedRows.length > 0 && selectedCustomers.size === 1 && selectedRows.every((r) => !r.invoiceId && !r.receiptId && r.status !== "Batal");
 
   return (
     <PageBody>
@@ -250,7 +250,7 @@ const canCreate = app.can("surat-jalan", "create");
                   </Td>
                   <Td align="right" className="font-mono font-semibold text-primary">{rupiah(r.volume * r.trips * r.price)}</Td>
                   <Td align="center">
-                    <StatusPill status={r.invoiceId ? (app.computedStatus(app.invoices.find((i) => i.id === r.invoiceId)!) === "Lunas" ? "Dibayar" : "Diinvoice") : r.status} />
+                    <StatusPill status={r.receiptId ? "Dibayar" : r.invoiceId ? (app.computedStatus(app.invoices.find((i) => i.id === r.invoiceId)!) === "Lunas" ? "Dibayar" : "Diinvoice") : r.status} />
                   </Td>
 <Td align="center">
                        <RowActions
@@ -798,7 +798,7 @@ function RowActions({
   const ref = useRef<HTMLDivElement>(null);
   const disabledEdit = !!r.invoiceId || !canEdit;
   const disabledCancel = !!r.invoiceId || !canEdit;
-  const canPay = !r.invoiceId && r.status !== "Batal";
+  const canPay = !r.invoiceId && !r.receiptId && r.status !== "Batal";
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
