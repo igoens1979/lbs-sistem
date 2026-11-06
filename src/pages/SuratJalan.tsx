@@ -313,7 +313,7 @@ footer={
                 <Button variant="secondary" icon="print" onClick={() => { setPrintRow(detail); setPrintNote(detail.note ?? ""); setDetail(null); }}>
                   Cetak Surat Jalan
                 </Button>
-                {!detail.invoiceId && (
+                {!detail.receiptId && (
                   <Button
                     variant="primary"
                     icon="edit"
@@ -355,7 +355,7 @@ footer={
                 variant="secondary"
                 size="sm"
                 icon="swap_horiz"
-                disabled={!canEdit || !!detail.invoiceId}
+                disabled={!canEdit || !!detail.receiptId}
                 onClick={() => {
                   const next: SJStatus = detail.status === "Terkirim" ? "Draft" : "Terkirim";
                   app.updateSJ(detail.id, { status: next });
@@ -369,7 +369,7 @@ footer={
                 variant="amber"
                 size="sm"
                 icon="cancel"
-                disabled={!canEdit || !!detail.invoiceId || detail.status === "Batal"}
+                disabled={!canEdit || !!detail.invoiceId || !!detail.receiptId || detail.status === "Batal"}
                 onClick={() => {
                   app.updateSJ(detail.id, { status: "Batal" });
                   app.toast("Surat jalan dibatalkan", detail.no, "warn");
@@ -832,7 +832,7 @@ function RowActions({
           >
             <div className="flex items-center gap-2"><Icon name="visibility" size={16} /> Rincian Dokumen</div>
           </button>
-          {!r.invoiceId && !r.receiptId && canEdit && (
+          {!r.receiptId && canEdit && (
             <button
               type="button"
               onClick={() => { setOpen(false); onEdit(r); }}
