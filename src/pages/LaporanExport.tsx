@@ -6,7 +6,7 @@ import { d, num, parseISO, rupiah } from "@/lib/format";
 import { customerName, vehiclePlate, driverName, commodityName } from "@/lib/data";
 import { useApp } from "@/lib/store";
 
-const COMPANY = "PT LOGAM BUMI SANTOSA â€” Site Golo Mori";
+const COMPANY = "PT LOGAM BUMI SANTOSA — Site Golo Mori";
 
 let appPeriod: { from: string; to: string } = { from: "", to: "" };
 
@@ -157,7 +157,7 @@ export default function LaporanExport() {
     const acc = app.accounts.find((a) => a.id === t.accountId);
     return {
       tanggal: d(parseISO(t.date)),
-      rekening: acc ? `${acc.code} â€” ${acc.name}` : "-",
+      rekening: acc ? `${acc.code} — ${acc.name}` : "-",
       deskripsi: t.desc,
       kategori: t.category,
       masuk: t.direction === "in" ? rupiah(t.amount) : "-",
@@ -195,9 +195,9 @@ export default function LaporanExport() {
     ]);
     const ws = buildSheet(
       "LAPORAN SURAT JALAN",
-      ["No SJ", "Tanggal", "Pelanggan", "Komoditas", "Volume (mÂ³)", "Trips", "Kendaraan (Nopol)", "Sopir (Driver)", "Nilai (Rp)", "Status"],
+      ["No SJ", "Tanggal", "Pelanggan", "Komoditas", "Volume (m³)", "Trips", "Kendaraan (Nopol)", "Sopir (Driver)", "Nilai (Rp)", "Status"],
       rows,
-      [4, 8],
+      [8],
       [1],
     );
     const wb = XLSX.utils.book_new();
@@ -235,7 +235,7 @@ export default function LaporanExport() {
       const acc = app.accounts.find((a) => a.id === t.accountId);
       return [
         t.date,
-        acc ? `${acc.code} â€” ${acc.name}` : "-",
+        acc ? `${acc.code} — ${acc.name}` : "-",
         t.desc,
         t.category,
         t.direction === "in" ? t.amount : 0,
@@ -282,7 +282,7 @@ export default function LaporanExport() {
       const acc = app.accounts.find((a) => a.id === t.accountId);
       return [
         t.date,
-        acc ? `${acc.code} â€” ${acc.name}` : "-",
+        acc ? `${acc.code} — ${acc.name}` : "-",
         t.desc,
         t.category,
         t.direction === "in" ? t.amount : 0,
@@ -294,9 +294,9 @@ export default function LaporanExport() {
       wb,
       buildSheet(
         "LAPORAN SURAT JALAN",
-        ["No SJ", "Tanggal", "Pelanggan", "Komoditas", "Volume (mÂ³)", "Trips", "Kendaraan (Nopol)", "Sopir (Driver)", "Nilai (Rp)", "Status"],
+        ["No SJ", "Tanggal", "Pelanggan", "Komoditas", "Volume (m³)", "Trips", "Kendaraan (Nopol)", "Sopir (Driver)", "Nilai (Rp)", "Status"],
         sjRows,
-        [4, 8],
+        [8],
         [1],
       ),
       "Surat Jalan",
@@ -381,7 +381,7 @@ export default function LaporanExport() {
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Tanggal</Th>
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Pelanggan</Th>
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Komoditas</Th>
-                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">Volume (mÂ³)</Th>
+                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">Volume (m³)</Th>
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">Nilai (Rp)</Th>
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Kendaraan (Nopol)</Th>
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Sopir (Driver)</Th>
@@ -535,6 +535,7 @@ export default function LaporanExport() {
     </PageBody>
   );
 }
+
 
 
 
