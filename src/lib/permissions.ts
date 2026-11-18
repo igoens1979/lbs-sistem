@@ -100,6 +100,7 @@ export function rolePermissions(role: UserRoleId): ModulePermissions {
         bbm: R(true, true, true),
         "master-data": R(true),
         hrd: R(true),
+        "laporan-excel": R(true),
       });
     case "operasional":
       return buildPermissions({
@@ -112,6 +113,7 @@ export function rolePermissions(role: UserRoleId): ModulePermissions {
         bbm: R(true, true, true, true),
         "master-data": R(true, true),
         hrd: R(false),
+        "laporan-excel": R(true),
       });
     case "hrd":
       return buildPermissions({
@@ -124,6 +126,7 @@ export function rolePermissions(role: UserRoleId): ModulePermissions {
         bbm: R(true),
         "master-data": R(true, true, true),
         hrd: R(true, true, true, true),
+        "laporan-excel": R(true),
       });
     case "viewer":
       return buildPermissions({
@@ -136,6 +139,7 @@ export function rolePermissions(role: UserRoleId): ModulePermissions {
         bbm: R(true),
         "master-data": R(true),
         hrd: R(true),
+        "laporan-excel": R(true),
       });
   }
 }
@@ -244,4 +248,6 @@ export const DEFAULT_USERS: UserAccount[] = [
     }),
   },
 ];
+
+
 

@@ -35,6 +35,7 @@ import Bbm from "./Bbm";
 import Dashboard from "./Dashboard";
 import Hrd from "./Hrd";
 import HutangPiutang from "./HutangPiutang";
+import LaporanExport from "./LaporanExport";
 import Invoices from "./Invoices";
 import KasBank from "./KasBank";
 import MasterData from "./MasterData";
@@ -51,6 +52,7 @@ export const PAGES: Record<Route, ReactNode> = {
   bbm: <Bbm />,
   "master-data": <MasterData />,
   hrd: <Hrd />,
+  "laporan-excel": <LaporanExport />,
 };
 
 /** Halaman yang dirender untuk rute aktif (fallback: Dashboard). */

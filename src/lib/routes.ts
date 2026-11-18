@@ -13,7 +13,8 @@ export type Route =
   | "hutang-piutang"
   | "bbm"
   | "master-data"
-  | "hrd";
+  | "hrd"
+  | "laporan-excel";
 
 export interface RouteMeta {
   id: Route;
@@ -99,6 +100,14 @@ export const NAV: RouteMeta[] = [
     group: "Konfigurasi",
     hint: "Kepegawaian, absensi & payroll",
     page: "src/pages/Hrd.tsx",
+  },
+  {
+    id: "laporan-excel",
+    label: "Laporan & Export Excel",
+    icon: "description",
+    group: "Command Center",
+    hint: "Unduh laporan surat jalan, invoice & kas keuangan ke Excel",
+    page: "src/pages/LaporanExport.tsx",
   },
 ];
 
