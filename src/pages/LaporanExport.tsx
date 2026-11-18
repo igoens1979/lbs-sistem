@@ -1,4 +1,4 @@
-﻿import { useMemo } from "react";
+import { useMemo } from "react";
 import * as XLSX from "xlsx";
 import { PageBody, PageHeader } from "@/components/Shell";
 import { Button, Card, Pill, SectionHeading, Td, Th } from "@/components/ui";
@@ -6,7 +6,7 @@ import { d, num, parseISO, rupiah } from "@/lib/format";
 import { customerName, vehiclePlate, driverName, commodityName } from "@/lib/data";
 import { useApp } from "@/lib/store";
 
-const COMPANY = "PT LOGAM BUMI SANTOSA — Site Golo Mori";
+const COMPANY = "PT LOGAM BUMI SANTOSA â€” Site Golo Mori";
 
 let appPeriod: { from: string; to: string } = { from: "", to: "" };
 
@@ -141,6 +141,7 @@ export default function LaporanExport() {
     nilai: rupiah(r.volume * r.trips * r.price),
     status: r.status,
     kendaraan: vehiclePlate(r.vehicleId),
+    sopir: driverName(r.driverId),
   }));
   const invPreview = invoiceList.slice(0, 10).map((i) => ({
     no: i.no,
@@ -156,7 +157,7 @@ export default function LaporanExport() {
     const acc = app.accounts.find((a) => a.id === t.accountId);
     return {
       tanggal: d(parseISO(t.date)),
-      rekening: acc ? `${acc.code} — ${acc.name}` : "-",
+      rekening: acc ? `${acc.code} â€” ${acc.name}` : "-",
       deskripsi: t.desc,
       kategori: t.category,
       masuk: t.direction === "in" ? rupiah(t.amount) : "-",
@@ -194,7 +195,7 @@ export default function LaporanExport() {
     ]);
     const ws = buildSheet(
       "LAPORAN SURAT JALAN",
-      ["No SJ", "Tanggal", "Pelanggan", "Komoditas", "Volume (ton)", "Trips", "Kendaraan", "Sopir", "Nilai", "Status"],
+      ["No SJ", "Tanggal", "Pelanggan", "Komoditas", "Volume (mÂ³)", "Trips", "Kendaraan (Nopol)", "Sopir (Driver)", "Nilai (Rp)", "Status"],
       rows,
       [4, 8],
       [1],
@@ -218,7 +219,7 @@ export default function LaporanExport() {
     ]);
     const ws = buildSheet(
       "LAPORAN INVOICE",
-      ["No Invoice", "Tanggal", "Jatuh Tempo", "Pelanggan", "DPP", "PPN", "Total", "Status"],
+      ["No Invoice", "Tanggal", "Jatuh Tempo", "Pelanggan", "DPP (Rp)", "PPN (Rp)", "Total (Rp)", "Status"],
       rows,
       [4, 5, 6],
       [1, 2],
@@ -234,7 +235,7 @@ export default function LaporanExport() {
       const acc = app.accounts.find((a) => a.id === t.accountId);
       return [
         t.date,
-        acc ? `${acc.code} — ${acc.name}` : "-",
+        acc ? `${acc.code} â€” ${acc.name}` : "-",
         t.desc,
         t.category,
         t.direction === "in" ? t.amount : 0,
@@ -243,7 +244,7 @@ export default function LaporanExport() {
     });
     const ws = buildSheet(
       "LAPORAN KAS KEUANGAN",
-      ["Tanggal", "Rekening", "Deskripsi", "Kategori", "Masuk", "Keluar"],
+      ["Tanggal", "Rekening", "Deskripsi", "Kategori", "Masuk (Rp)", "Keluar (Rp)"],
       rows,
       [4, 5],
       [0],
@@ -281,7 +282,7 @@ export default function LaporanExport() {
       const acc = app.accounts.find((a) => a.id === t.accountId);
       return [
         t.date,
-        acc ? `${acc.code} — ${acc.name}` : "-",
+        acc ? `${acc.code} â€” ${acc.name}` : "-",
         t.desc,
         t.category,
         t.direction === "in" ? t.amount : 0,
@@ -293,7 +294,7 @@ export default function LaporanExport() {
       wb,
       buildSheet(
         "LAPORAN SURAT JALAN",
-        ["No SJ", "Tanggal", "Pelanggan", "Komoditas", "Volume (ton)", "Trips", "Kendaraan", "Sopir", "Nilai", "Status"],
+        ["No SJ", "Tanggal", "Pelanggan", "Komoditas", "Volume (mÂ³)", "Trips", "Kendaraan (Nopol)", "Sopir (Driver)", "Nilai (Rp)", "Status"],
         sjRows,
         [4, 8],
         [1],
@@ -304,7 +305,7 @@ export default function LaporanExport() {
       wb,
       buildSheet(
         "LAPORAN INVOICE",
-        ["No Invoice", "Tanggal", "Jatuh Tempo", "Pelanggan", "DPP", "PPN", "Total", "Status"],
+        ["No Invoice", "Tanggal", "Jatuh Tempo", "Pelanggan", "DPP (Rp)", "PPN (Rp)", "Total (Rp)", "Status"],
         invRows,
         [4, 5, 6],
         [1, 2],
@@ -315,7 +316,7 @@ export default function LaporanExport() {
       wb,
       buildSheet(
         "LAPORAN KAS KEUANGAN",
-        ["Tanggal", "Rekening", "Deskripsi", "Kategori", "Masuk", "Keluar"],
+        ["Tanggal", "Rekening", "Deskripsi", "Kategori", "Masuk (Rp)", "Keluar (Rp)"],
         kasRows,
         [4, 5],
         [0],
@@ -341,7 +342,7 @@ export default function LaporanExport() {
             <span className="font-headline-md text-headline-md font-bold text-primary">{num(sjStats.count)}</span>
             <span className="font-body-sm text-body-sm text-on-surface-variant">dokumen</span>
           </div>
-          <span className="font-body-sm text-body-sm text-on-surface-variant">{rupiah(sjStats.value)} • {sjStats.pending} blm tagih</span>
+          <span className="font-body-sm text-body-sm text-on-surface-variant">{rupiah(sjStats.value)} â€¢ {sjStats.pending} blm tagih</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Invoice</span>
@@ -349,7 +350,7 @@ export default function LaporanExport() {
             <span className="font-headline-md text-headline-md font-bold text-primary">{num(invStats.count)}</span>
             <span className="font-body-sm text-body-sm text-on-surface-variant">dokumen</span>
           </div>
-          <span className="font-body-sm text-body-sm text-on-surface-variant">{rupiah(invStats.total)} • {invStats.lunas} lunas</span>
+          <span className="font-body-sm text-body-sm text-on-surface-variant">{rupiah(invStats.total)} â€¢ {invStats.lunas} lunas</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Kas Keuangan</span>
@@ -357,7 +358,7 @@ export default function LaporanExport() {
             <span className="font-headline-md text-headline-md font-bold text-primary">{rupiah(kasStats.masuk)}</span>
             <span className="font-body-sm text-body-sm text-on-surface-variant">masuk</span>
           </div>
-          <span className="font-body-sm text-body-sm text-on-surface-variant">{rupiah(kasStats.keluar)} keluar • saldo {rupiah(kasStats.saldo)}</span>
+          <span className="font-body-sm text-body-sm text-on-surface-variant">{rupiah(kasStats.keluar)} keluar â€¢ saldo {rupiah(kasStats.saldo)}</span>
         </div>
       </Card>
 
@@ -380,9 +381,10 @@ export default function LaporanExport() {
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Tanggal</Th>
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Pelanggan</Th>
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Komoditas</Th>
-                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">Volume</Th>
-                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">Nilai</Th>
-                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Kendaraan</Th>
+                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">Volume (mÂ³)</Th>
+                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">Nilai (Rp)</Th>
+                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Kendaraan (Nopol)</Th>
+                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Sopir (Driver)</Th>
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Status</Th>
               </tr>
             </thead>
@@ -396,6 +398,7 @@ export default function LaporanExport() {
                   <Td className="text-right font-mono text-label-md">{r.volume}</Td>
                   <Td className="text-right font-mono text-label-md">{r.nilai}</Td>
                   <Td className="text-body-sm">{r.kendaraan}</Td>
+                  <Td className="text-body-sm">{r.sopir}</Td>
                   <Td>
                     <Pill tone={formatStatus(r.status) as any}>{r.status}</Pill>
                   </Td>
@@ -403,7 +406,7 @@ export default function LaporanExport() {
               ))}
               {sjPreview.length === 0 && (
                 <tr>
-                  <Td colSpan={8} className="py-4 text-center text-on-surface-variant">
+                  <Td colSpan={9} className="py-4 text-center text-on-surface-variant">
                     Tidak ada data surat jalan pada periode ini.
                   </Td>
                 </tr>
@@ -432,9 +435,9 @@ export default function LaporanExport() {
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Tanggal</Th>
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Jatuh Tempo</Th>
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Pelanggan</Th>
-                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">DPP</Th>
-                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">PPN</Th>
-                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">Total</Th>
+                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">DPP (Rp)</Th>
+                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">PPN (Rp)</Th>
+                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">Total (Rp)</Th>
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Status</Th>
               </tr>
             </thead>
@@ -472,7 +475,7 @@ export default function LaporanExport() {
         <SectionHeading
           icon="account_balance_wallet"
           title="Laporan Kas Keuangan"
-          subtitle={`Mutasi kas & bank dalam periode. Masuk ${rupiah(kasStats.masuk)} • Keluar ${rupiah(kasStats.keluar)} • Saldo ${rupiah(kasStats.saldo)} (${kasStats.count} transaksi).`}
+          subtitle={`Mutasi kas & bank dalam periode. Masuk ${rupiah(kasStats.masuk)} â€¢ Keluar ${rupiah(kasStats.keluar)} â€¢ Saldo ${rupiah(kasStats.saldo)} (${kasStats.count} transaksi).`}
           right={
             <Button variant="primary" icon="table_view" onClick={exportKas} className="px-4">
               Export Kas ke Excel
@@ -487,8 +490,8 @@ export default function LaporanExport() {
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Rekening</Th>
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Deskripsi</Th>
                 <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1">Kategori</Th>
-                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">Masuk</Th>
-                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">Keluar</Th>
+                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">Masuk (Rp)</Th>
+                <Th className="font-label-sm text-label-sm text-on-surface-variant pb-1 text-right">Keluar (Rp)</Th>
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-variant">
@@ -532,3 +535,7 @@ export default function LaporanExport() {
     </PageBody>
   );
 }
+
+
+
+
