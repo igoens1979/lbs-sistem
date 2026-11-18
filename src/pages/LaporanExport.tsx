@@ -1,9 +1,8 @@
-import { useMemo } from "react";
+﻿import { useMemo } from "react";
 import * as XLSX from "xlsx";
 import { PageBody, PageHeader } from "@/components/Shell";
 import { Button, Card, Pill, SectionHeading, Td, Th } from "@/components/ui";
 import { d, num, parseISO, rupiah } from "@/lib/format";
-import { customerName, vehiclePlate, driverName, commodityName } from "@/lib/data";
 import { useApp } from "@/lib/store";
 
 const COMPANY = "PT LOGAM BUMI SANTOSA — Site Golo Mori";
@@ -96,6 +95,13 @@ export default function LaporanExport() {
   appPeriod = app.period;
   const { from, to } = app.period;
 
+  /* Lookup master data dari store (sinkron dengan data transaksi), bukan array statis */
+  const cName = (id: string) => app.customers.find((c) => c.id === id)?.name ?? "-";
+  const cMod = (id: string) => app.commodities.find((c) => c.id === id)?.name ?? "-";
+  const vPlate = (id: string) => app.vehicles.find((v) => v.id === id)?.plate ?? "-";
+  const dName = (id: string) => app.drivers.find((d) => d.id === id)?.name ?? "-";
+
+
   const sjList = useMemo(
     () =>
       app.sj.filter((s) => s.date >= from && s.date <= to && s.status !== "Batal"),
@@ -135,19 +141,19 @@ export default function LaporanExport() {
   const sjPreview = sjList.slice(0, 10).map((r) => ({
     no: r.no,
     tanggal: d(parseISO(r.date)),
-    pelanggan: customerName(r.customerId),
-    komoditas: commodityName(r.commodityId),
+    pelanggan: cName(r.customerId),
+    komoditas: cMod(r.commodityId),
     volume: num(r.volume * r.trips),
     nilai: rupiah(r.volume * r.trips * r.price),
     status: r.status,
-    kendaraan: vehiclePlate(r.vehicleId),
-    sopir: driverName(r.driverId),
+    kendaraan: vPlate(r.vehicleId),
+    sopir: dName(r.driverId),
   }));
   const invPreview = invoiceList.slice(0, 10).map((i) => ({
     no: i.no,
     tanggal: d(parseISO(i.date)),
     jatuhTempo: d(parseISO(i.dueDate)),
-    pelanggan: customerName(i.customerId),
+    pelanggan: cName(i.customerId),
     dpp: rupiah(i.dpp),
     ppn: rupiah(i.ppn),
     total: rupiah(i.total),
@@ -184,12 +190,12 @@ export default function LaporanExport() {
     const rows = sjList.map((r) => [
       r.no,
       r.date,
-      customerName(r.customerId),
-      commodityName(r.commodityId),
+      cName(r.customerId),
+      cMod(r.commodityId),
       r.volume * r.trips,
       r.trips,
-      vehiclePlate(r.vehicleId),
-      driverName(r.driverId),
+      vPlate(r.vehicleId),
+      dName(r.driverId),
       r.volume * r.trips * r.price,
       r.status,
     ]);
@@ -211,7 +217,7 @@ export default function LaporanExport() {
       i.no,
       i.date,
       i.dueDate,
-      customerName(i.customerId),
+      cName(i.customerId),
       i.dpp,
       i.ppn,
       i.total,
@@ -259,12 +265,12 @@ export default function LaporanExport() {
     const sjRows = sjList.map((r) => [
       r.no,
       r.date,
-      customerName(r.customerId),
-      commodityName(r.commodityId),
+      cName(r.customerId),
+      cMod(r.commodityId),
       r.volume * r.trips,
       r.trips,
-      vehiclePlate(r.vehicleId),
-      driverName(r.driverId),
+      vPlate(r.vehicleId),
+      dName(r.driverId),
       r.volume * r.trips * r.price,
       r.status,
     ]);
@@ -272,7 +278,7 @@ export default function LaporanExport() {
       i.no,
       i.date,
       i.dueDate,
-      customerName(i.customerId),
+      cName(i.customerId),
       i.dpp,
       i.ppn,
       i.total,
