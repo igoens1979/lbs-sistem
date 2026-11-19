@@ -508,7 +508,7 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
           (c) =>
             searchCustomer.length < 3 ||
             c.name.toLowerCase().includes(searchCustomer.toLowerCase()) ||
-            c.code.toLowerCase().includes(searchCustomer.toLowerCase()),
+            (c.code ?? "").toLowerCase().includes(searchCustomer.toLowerCase()),
         ),
     [app.customers, searchCustomer],
   );
@@ -530,8 +530,8 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
         .filter(
           (v) =>
             searchVehicle.length < 3 ||
-            v.plate.toLowerCase().includes(searchVehicle.toLowerCase()) ||
-            v.model.toLowerCase().includes(searchVehicle.toLowerCase()),
+            (v.plate ?? "").toLowerCase().includes(searchVehicle.toLowerCase()) ||
+            (v.model ?? "").toLowerCase().includes(searchVehicle.toLowerCase()),
         ),
     [app.vehicles, searchVehicle],
   );
@@ -543,7 +543,7 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
           (d) =>
             searchDriver.length < 3 ||
             d.name.toLowerCase().includes(searchDriver.toLowerCase()) ||
-            d.sim.toLowerCase().includes(searchDriver.toLowerCase()),
+            (d.sim ?? "").toLowerCase().includes(searchDriver.toLowerCase()),
         ),
     [app.drivers, searchDriver],
   );
