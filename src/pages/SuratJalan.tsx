@@ -493,6 +493,61 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
 
   const isEdit = !!editing;
 
+  /* ---------- State pencarian agar input cepat menemukan data ---------- */
+  const [searchCustomer, setSearchCustomer] = useState("");
+  const [searchCommodity, setSearchCommodity] = useState("");
+  const [searchVehicle, setSearchVehicle] = useState("");
+  const [searchDriver, setSearchDriver] = useState("");
+
+  /* ---------- Daftar pilihan diurutkan alfabetis & dapat difilter ---------- */
+  const customersSorted = useMemo(
+    () =>
+      [...app.customers]
+        .sort((a, b) => a.name.localeCompare(b.name, "id", { sensitivity: "base" }))
+        .filter(
+          (c) =>
+            searchCustomer.length < 3 ||
+            c.name.toLowerCase().includes(searchCustomer.toLowerCase()) ||
+            c.code.toLowerCase().includes(searchCustomer.toLowerCase()),
+        ),
+    [app.customers, searchCustomer],
+  );
+  const commoditiesSorted = useMemo(
+    () =>
+      [...app.commodities]
+        .sort((a, b) => a.name.localeCompare(b.name, "id", { sensitivity: "base" }))
+        .filter(
+          (c) =>
+            searchCommodity.length < 3 ||
+            c.name.toLowerCase().includes(searchCommodity.toLowerCase()),
+        ),
+    [app.commodities, searchCommodity],
+  );
+  const vehiclesSorted = useMemo(
+    () =>
+      [...app.vehicles]
+        .sort((a, b) => a.plate.localeCompare(b.plate, "id", { sensitivity: "base" }))
+        .filter(
+          (v) =>
+            searchVehicle.length < 3 ||
+            v.plate.toLowerCase().includes(searchVehicle.toLowerCase()) ||
+            v.model.toLowerCase().includes(searchVehicle.toLowerCase()),
+        ),
+    [app.vehicles, searchVehicle],
+  );
+  const driversSorted = useMemo(
+    () =>
+      [...app.drivers]
+        .sort((a, b) => a.name.localeCompare(b.name, "id", { sensitivity: "base" }))
+        .filter(
+          (d) =>
+            searchDriver.length < 3 ||
+            d.name.toLowerCase().includes(searchDriver.toLowerCase()) ||
+            d.sim.toLowerCase().includes(searchDriver.toLowerCase()),
+        ),
+    [app.drivers, searchDriver],
+  );
+
   return (
     <Modal
       open
@@ -544,8 +599,14 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
           </Select>
         </Field>
         <Field label="Pelanggan" className="sm:col-span-2">
+          <Input
+            value={searchCustomer}
+            onChange={(e) => setSearchCustomer(e.target.value)}
+            placeholder="Ketik nama atau kode pelanggan…"
+            className="mb-space-xs"
+          />
           <Select value={form.customerId} onChange={(e) => setForm({ ...form, customerId: e.target.value })}>
-            {app.customers.map((c) => (
+            {customersSorted.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name} — termin {c.term} hari
               </option>
@@ -553,11 +614,17 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
           </Select>
         </Field>
         <Field label="Komoditas">
+          <Input
+            value={searchCommodity}
+            onChange={(e) => setSearchCommodity(e.target.value)}
+            placeholder="Ketik nama komoditas…"
+            className="mb-space-xs"
+          />
           <Select value={form.commodityId} onChange={(e) => {
             const selected = app.commodities.find((c) => c.id === e.target.value);
             setForm({ ...form, commodityId: e.target.value, price: selected?.price ?? 0 });
           }}>
-            {app.commodities.map((c) => (
+            {commoditiesSorted.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name} — {rupiah(c.price)}/{c.unit}
               </option>
@@ -574,8 +641,14 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
           <Input type="number" value={form.trips} onChange={(e) => setForm({ ...form, trips: Number(e.target.value) })} />
         </Field>
         <Field label="Unit Armada">
+          <Input
+            value={searchVehicle}
+            onChange={(e) => setSearchVehicle(e.target.value)}
+            placeholder="Ketik nopol atau model armada…"
+            className="mb-space-xs"
+          />
           <Select value={form.vehicleId} onChange={(e) => setForm({ ...form, vehicleId: e.target.value })}>
-            {app.vehicles.map((v) => (
+            {vehiclesSorted.map((v) => (
               <option key={v.id} value={v.id}>
                 {v.plate} — {v.model} ({v.capacity} m³)
               </option>
@@ -583,8 +656,14 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
           </Select>
         </Field>
         <Field label="Driver">
+          <Input
+            value={searchDriver}
+            onChange={(e) => setSearchDriver(e.target.value)}
+            placeholder="Ketik nama atau SIM driver…"
+            className="mb-space-xs"
+          />
           <Select value={form.driverId} onChange={(e) => setForm({ ...form, driverId: e.target.value })}>
-            {app.drivers.map((dr) => (
+            {driversSorted.map((dr) => (
               <option key={dr.id} value={dr.id}>
                 {dr.name} — {dr.sim}
               </option>
