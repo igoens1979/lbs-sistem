@@ -43,8 +43,12 @@ const canCreate = app.can("surat-jalan", "create");
         }
         return true;
       })
-      // Urutkan dari yang terbaru (atas) ke terlama (bawah), berdasarkan tanggal SJ
-      .sort((a, b) => b.date.localeCompare(a.date));
+      // Urutkan dari yang terbaru (atas) ke terlama (bawah), berdasarkan tanggal SJ,
+      // dan jika tanggal sama urutkan berdasarkan nomor SJ (tertinggi dulu)
+      .sort((a, b) => {
+        if (b.date !== a.date) return b.date.localeCompare(a.date);
+        return b.no.localeCompare(a.no);
+      });
   }, [app.sj, app.customers, app.period, scope, status, customerId, query]);
 
   const totals = useMemo(() => {
