@@ -98,7 +98,15 @@ export default function MasterData() {
 
   const isUsersTab = tab === "users";
   const collection = (isUsersTab ? "employees" : tab) as CollectionKey;
-  const list = app[collection] as unknown as Record<string, unknown>[];
+  // Urutkan master data berdasarkan abjad sebelum ditampilkan
+  const list = (app[collection] as unknown as Record<string, unknown>[])
+    .slice()
+    .sort((a, b) => {
+      const sortKey = collection === "vehicles" ? "plate" : "name";
+      const va = String(a[sortKey] ?? "").toLowerCase();
+      const vb = String(b[sortKey] ?? "").toLowerCase();
+      return va.localeCompare(vb);
+    });
   const filtered = list.filter((row) => query.trim() === "" || JSON.stringify(row).toLowerCase().includes(query.toLowerCase()));
   const schema = SCHEMAS[collection];
 
