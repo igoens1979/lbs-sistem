@@ -26,22 +26,25 @@ const canCreate = app.can("surat-jalan", "create");
   const canEdit = app.can("surat-jalan", "edit");
 
   const filtered = useMemo(() => {
-    return app.sj.filter((r) => {
-      if (scope === "periode" && (r.date < app.period.from || r.date > app.period.to)) return false;
-      if (status !== "all") {
-        const eff = r.invoiceId ? "Diinvoice" : r.receiptId ? "Dibayar" : r.status;
-        if (eff !== status) return false;
-      }
-      if (customerId !== "all" && r.customerId !== customerId) return false;
-      if (query.trim()) {
-        const q = query.toLowerCase();
-        const customer = app.customers.find((c) => c.id === r.customerId)?.name.toLowerCase() ?? "";
-        const plate = app.vehicles.find((v) => v.id === r.vehicleId)?.plate ?? vehiclePlate(r.vehicleId) ?? "-";
-        const driver = app.drivers.find((d) => d.id === r.driverId)?.name ?? driverName(r.driverId) ?? "-";
-        if (!r.no.toLowerCase().includes(q) && !customer.includes(q) && !plate.toLowerCase().includes(q) && !driver.toLowerCase().includes(q)) return false;
-      }
-      return true;
-    });
+    return app.sj
+      .filter((r) => {
+        if (scope === "periode" && (r.date < app.period.from || r.date > app.period.to)) return false;
+        if (status !== "all") {
+          const eff = r.invoiceId ? "Diinvoice" : r.receiptId ? "Dibayar" : r.status;
+          if (eff !== status) return false;
+        }
+        if (customerId !== "all" && r.customerId !== customerId) return false;
+        if (query.trim()) {
+          const q = query.toLowerCase();
+          const customer = app.customers.find((c) => c.id === r.customerId)?.name.toLowerCase() ?? "";
+          const plate = app.vehicles.find((v) => v.id === r.vehicleId)?.plate ?? vehiclePlate(r.vehicleId) ?? "-";
+          const driver = app.drivers.find((d) => d.id === r.driverId)?.name ?? driverName(r.driverId) ?? "-";
+          if (!r.no.toLowerCase().includes(q) && !customer.includes(q) && !plate.toLowerCase().includes(q) && !driver.toLowerCase().includes(q)) return false;
+        }
+        return true;
+      })
+      // Urutkan dari yang terbaru (atas) ke terlama (bawah), berdasarkan tanggal SJ
+      .sort((a, b) => b.date.localeCompare(a.date));
   }, [app.sj, app.customers, app.period, scope, status, customerId, query]);
 
   const totals = useMemo(() => {
