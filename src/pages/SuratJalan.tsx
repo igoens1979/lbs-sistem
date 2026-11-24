@@ -560,6 +560,35 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
     return list;
   }, [app.drivers, searchDriver, form.driverId]);
 
+  /* ---------- Otomatis pilih hasil pertama saat mengetik 3+ karakter ---------- */
+  useEffect(() => {
+    if (searchCustomer.length >= 3 && customersSorted.length > 0) {
+      const match = customersSorted.find((c) => c.id === form.customerId);
+      if (!match) setForm({ ...form, customerId: customersSorted[0].id });
+    }
+  }, [searchCustomer, customersSorted, form.customerId]);
+
+  useEffect(() => {
+    if (searchCommodity.length >= 3 && commoditiesSorted.length > 0) {
+      const match = commoditiesSorted.find((c) => c.id === form.commodityId);
+      if (!match) setForm({ ...form, commodityId: commoditiesSorted[0].id });
+    }
+  }, [searchCommodity, commoditiesSorted, form.commodityId]);
+
+  useEffect(() => {
+    if (searchVehicle.length >= 3 && vehiclesSorted.length > 0) {
+      const match = vehiclesSorted.find((v) => v.id === form.vehicleId);
+      if (!match) setForm({ ...form, vehicleId: vehiclesSorted[0].id });
+    }
+  }, [searchVehicle, vehiclesSorted, form.vehicleId]);
+
+  useEffect(() => {
+    if (searchDriver.length >= 3 && driversSorted.length > 0) {
+      const match = driversSorted.find((d) => d.id === form.driverId);
+      if (!match) setForm({ ...form, driverId: driversSorted[0].id });
+    }
+  }, [searchDriver, driversSorted, form.driverId]);
+
   return (
     <Modal
       open
