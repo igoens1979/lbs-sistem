@@ -493,101 +493,23 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
 
   const isEdit = !!editing;
 
-  /* ---------- State pencarian agar input cepat menemukan data ---------- */
-  const [searchCustomer, setSearchCustomer] = useState("");
-  const [searchCommodity, setSearchCommodity] = useState("");
-  const [searchVehicle, setSearchVehicle] = useState("");
-  const [searchDriver, setSearchDriver] = useState("");
-
-  /* ---------- Daftar pilihan diurutkan alfabetis & dapat difilter ---------- */
-  const customersSorted = useMemo(() => {
-    const list = [...app.customers]
-      .sort((a, b) => a.name.localeCompare(b.name, "id", { sensitivity: "base" }))
-      .filter(
-        (c) =>
-          searchCustomer.length < 3 ||
-          c.name.toLowerCase().includes(searchCustomer.toLowerCase()) ||
-          (c.code ?? "").toLowerCase().includes(searchCustomer.toLowerCase()),
-      );
-    if (form.customerId && !list.find((c) => c.id === form.customerId)) {
-      const selected = app.customers.find((c) => c.id === form.customerId);
-      if (selected) list.unshift(selected);
-    }
-    return list;
-  }, [app.customers, searchCustomer, form.customerId]);
-  const commoditiesSorted = useMemo(() => {
-    const list = [...app.commodities]
-      .sort((a, b) => a.name.localeCompare(b.name, "id", { sensitivity: "base" }))
-      .filter(
-        (c) =>
-          searchCommodity.length < 3 ||
-          c.name.toLowerCase().includes(searchCommodity.toLowerCase()),
-      );
-    if (form.commodityId && !list.find((c) => c.id === form.commodityId)) {
-      const selected = app.commodities.find((c) => c.id === form.commodityId);
-      if (selected) list.unshift(selected);
-    }
-    return list;
-  }, [app.commodities, searchCommodity, form.commodityId]);
-  const vehiclesSorted = useMemo(() => {
-    const list = [...app.vehicles]
-      .sort((a, b) => a.plate.localeCompare(b.plate, "id", { sensitivity: "base" }))
-      .filter(
-        (v) =>
-          searchVehicle.length < 3 ||
-          (v.plate ?? "").toLowerCase().includes(searchVehicle.toLowerCase()) ||
-          (v.model ?? "").toLowerCase().includes(searchVehicle.toLowerCase()),
-      );
-    if (form.vehicleId && !list.find((v) => v.id === form.vehicleId)) {
-      const selected = app.vehicles.find((v) => v.id === form.vehicleId);
-      if (selected) list.unshift(selected);
-    }
-    return list;
-  }, [app.vehicles, searchVehicle, form.vehicleId]);
-  const driversSorted = useMemo(() => {
-    const list = [...app.drivers]
-      .sort((a, b) => a.name.localeCompare(b.name, "id", { sensitivity: "base" }))
-      .filter(
-        (d) =>
-          searchDriver.length < 3 ||
-          d.name.toLowerCase().includes(searchDriver.toLowerCase()) ||
-          (d.sim ?? "").toLowerCase().includes(searchDriver.toLowerCase()),
-      );
-    if (form.driverId && !list.find((d) => d.id === form.driverId)) {
-      const selected = app.drivers.find((d) => d.id === form.driverId);
-      if (selected) list.unshift(selected);
-    }
-    return list;
-  }, [app.drivers, searchDriver, form.driverId]);
-
-  /* ---------- Otomatis pilih hasil pertama saat mengetik 3+ karakter ---------- */
-  useEffect(() => {
-    if (searchCustomer.length >= 3 && customersSorted.length > 0) {
-      const match = customersSorted.find((c) => c.id === form.customerId);
-      if (!match) setForm({ ...form, customerId: customersSorted[0].id });
-    }
-  }, [searchCustomer, customersSorted, form.customerId]);
-
-  useEffect(() => {
-    if (searchCommodity.length >= 3 && commoditiesSorted.length > 0) {
-      const match = commoditiesSorted.find((c) => c.id === form.commodityId);
-      if (!match) setForm({ ...form, commodityId: commoditiesSorted[0].id });
-    }
-  }, [searchCommodity, commoditiesSorted, form.commodityId]);
-
-  useEffect(() => {
-    if (searchVehicle.length >= 3 && vehiclesSorted.length > 0) {
-      const match = vehiclesSorted.find((v) => v.id === form.vehicleId);
-      if (!match) setForm({ ...form, vehicleId: vehiclesSorted[0].id });
-    }
-  }, [searchVehicle, vehiclesSorted, form.vehicleId]);
-
-  useEffect(() => {
-    if (searchDriver.length >= 3 && driversSorted.length > 0) {
-      const match = driversSorted.find((d) => d.id === form.driverId);
-      if (!match) setForm({ ...form, driverId: driversSorted[0].id });
-    }
-  }, [searchDriver, driversSorted, form.driverId]);
+  /* ---------- Daftar pilihan diurutkan alfabetis ---------- */
+  const customersSorted = useMemo(
+    () => [...app.customers].sort((a, b) => a.name.localeCompare(b.name, "id", { sensitivity: "base" })),
+    [app.customers],
+  );
+  const commoditiesSorted = useMemo(
+    () => [...app.commodities].sort((a, b) => a.name.localeCompare(b.name, "id", { sensitivity: "base" })),
+    [app.commodities],
+  );
+  const vehiclesSorted = useMemo(
+    () => [...app.vehicles].sort((a, b) => a.plate.localeCompare(b.plate, "id", { sensitivity: "base" })),
+    [app.vehicles],
+  );
+  const driversSorted = useMemo(
+    () => [...app.drivers].sort((a, b) => a.name.localeCompare(b.name, "id", { sensitivity: "base" })),
+    [app.drivers],
+  );
 
   return (
     <Modal
@@ -640,12 +562,6 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
           </Select>
         </Field>
         <Field label="Pelanggan" className="sm:col-span-2">
-          <Input
-            value={searchCustomer}
-            onChange={(e) => setSearchCustomer(e.target.value)}
-            placeholder="Ketik nama atau kode pelanggan…"
-            className="mb-space-xs"
-          />
           <Select value={form.customerId} onChange={(e) => setForm({ ...form, customerId: e.target.value })}>
             {customersSorted.map((c) => (
               <option key={c.id} value={c.id}>
@@ -655,12 +571,6 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
           </Select>
         </Field>
         <Field label="Komoditas">
-          <Input
-            value={searchCommodity}
-            onChange={(e) => setSearchCommodity(e.target.value)}
-            placeholder="Ketik nama komoditas…"
-            className="mb-space-xs"
-          />
           <Select value={form.commodityId} onChange={(e) => {
             const selected = app.commodities.find((c) => c.id === e.target.value);
             setForm({ ...form, commodityId: e.target.value, price: selected?.price ?? 0 });
@@ -682,12 +592,6 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
           <Input type="number" value={form.trips} onChange={(e) => setForm({ ...form, trips: Number(e.target.value) })} />
         </Field>
         <Field label="Unit Armada">
-          <Input
-            value={searchVehicle}
-            onChange={(e) => setSearchVehicle(e.target.value)}
-            placeholder="Ketik nopol atau model armada…"
-            className="mb-space-xs"
-          />
           <Select value={form.vehicleId} onChange={(e) => setForm({ ...form, vehicleId: e.target.value })}>
             {vehiclesSorted.map((v) => (
               <option key={v.id} value={v.id}>
@@ -697,12 +601,6 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
           </Select>
         </Field>
         <Field label="Driver">
-          <Input
-            value={searchDriver}
-            onChange={(e) => setSearchDriver(e.target.value)}
-            placeholder="Ketik nama atau SIM driver…"
-            className="mb-space-xs"
-          />
           <Select value={form.driverId} onChange={(e) => setForm({ ...form, driverId: e.target.value })}>
             {driversSorted.map((dr) => (
               <option key={dr.id} value={dr.id}>
