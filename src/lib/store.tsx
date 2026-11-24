@@ -1597,10 +1597,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const ddate = new Date(payDate);
     const year = ddate.getFullYear();
     const month = String(ddate.getMonth() + 1).padStart(2, "0");
-    const seqKey = `NT/${year}-${month}`;
+    
     const existing = (state.payments || []).filter((p) => p.invoiceId === null && (p.ref || "").startsWith(seqKey));
     const seq = String(existing.length + 1).padStart(4, "0");
-    const receiptNo = ref && ref.trim() ? ref.trim() : `NT/LBS/${year}/${month}/${seq}`;
+    // Use the SJ number's 4-digit suffix for the note number
+    const sjSuffix = (selected[0]?.no?.split('/').pop() || '0001');
+    const receiptNo = ref && ref.trim() ? ref.trim() : `NT/LBS/${year}/${month}/${sjSuffix}`;
     const payload: Payment = {
       id: uid("PAY"),
       invoiceId: null,
