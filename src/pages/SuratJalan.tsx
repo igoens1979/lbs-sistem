@@ -460,13 +460,13 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
   const [form, setForm] = useState({
     no: "",
     date: iso(TODAY()),
-    customerId: "",
+    customerId: app.customers[0]?.id ?? "",
     commodityId: app.commodities[0]?.id ?? "",
     volume: 5,
     trips: 1,
     price: app.commodities[0]?.price ?? 0,
-    vehicleId: "",
-    driverId: "",
+    vehicleId: app.vehicles[0]?.id ?? "",
+    driverId: app.drivers[0]?.id ?? "",
     site: "SITE GOLO MORI",
     note: "",
   });
@@ -562,7 +562,7 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
           </Button>
           <Button
             icon={isEdit ? "edit" : "add_road"}
-            disabled={isEdit && !!editing.invoiceId || !form.customerId || !form.vehicleId || !form.driverId}
+            disabled={isEdit && !!editing.invoiceId}
             onClick={async () => {
               if (isEdit) {
                 const saved = await app.updateSJ(editing.id, { ...form });
