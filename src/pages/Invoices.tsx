@@ -61,7 +61,7 @@ export default function Invoices() {
   }, [app]);
 
   const unbilled = useMemo(() => {
-    const pending = app.sj.filter((r) => !r.invoiceId && r.status !== "Batal");
+    const pending = app.sj.filter((r) => !r.invoiceId && !r.receiptId && r.status !== "Batal");
     const groups = app.customers
       .map((c) => {
         const list = pending.filter((r) => r.customerId === c.id);
@@ -750,7 +750,7 @@ function PaymentModal({
    ============================================================ */
 function ConsolidatedInvoiceModal({ onClose }: { onClose: () => void }) {
   const app = useApp();
-  const unbilled = app.sj.filter((r) => !r.invoiceId && r.status !== "Batal");
+  const unbilled = app.sj.filter((r) => !r.invoiceId && !r.receiptId && r.status !== "Batal");
   const groups = app.customers
     .map((c) => ({ c, list: unbilled.filter((r) => r.customerId === c.id) }))
     .filter((g) => g.list.length > 0)
@@ -929,7 +929,7 @@ function ReviseInvoiceModal({ invoice, onClose }: { invoice: Invoice; onClose: (
   const ppnRate = Math.max(0, Math.min(100, ppnPct)) / 100;
 
   const available = app.sj.filter(
-    (r) => !r.invoiceId && r.status !== "Batal" && (allCustomers || r.customerId === invoice.customerId),
+    (r) => !r.invoiceId && !r.receiptId && r.status !== "Batal" && (allCustomers || r.customerId === invoice.customerId),
   );
   const availableByCustomer = app.customers
     .map((c) => ({ c, list: available.filter((r) => r.customerId === c.id) }))
