@@ -1183,7 +1183,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const actor = () => state.user?.name ?? "Sistem LBS";
 
   const createInvoice: Ctx["createInvoice"] = async (sjIds, opts) => {
-    const rows = state.sj.filter((r) => sjIds.includes(r.id) && !r.invoiceId && r.status !== "Batal");
+    const rows = state.sj.filter((r) => sjIds.includes(r.id) && !r.invoiceId && !r.receiptId && r.status !== "Batal");
     if (!rows.length) {
       toast("Tidak ada surat jalan terpilih", "Pilih minimal satu surat jalan yang belum diinvoice", "warn");
       return null;
