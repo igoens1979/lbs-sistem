@@ -677,7 +677,7 @@ export interface Ctx extends State {
   canRevise: (invoice: Invoice) => { ok: boolean; reason?: string };
   invoiceCoverage: (invoiceId: ID) => { sj: SJ; value: number; covered: number; remaining: number }[];
   recordPayment: (p: { invoiceId: ID; amount: number; accountId: ID; method: Payment["method"]; date?: string; ref?: string }) => Promise<boolean>;
-  recordCashReceipt: (p: { sjIds: ID[]; customerId: ID; amount: number; accountId: ID; date?: string; ref?: string; note?: string }) => Promise<{ ok: boolean; receiptNo?: string }>;
+  recordCashReceipt: (p: { sjIds: ID[]; customerId: ID; amount: number; accountId: ID; date?: string }) => Promise<{ ok: boolean; receiptNo?: string }>;
   addBankTx: (tx: Omit<BankTx, "id">) => Promise<boolean>;
   deleteBankTx: (id: string) => Promise<void>;
   updateBankTx: (id: string, tx: Omit<BankTx, "id">) => Promise<boolean>;
@@ -1574,7 +1574,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return true;
   };
 
-  const recordCashReceipt: Ctx["recordCashReceipt"] = async ({ sjIds, customerId, amount, accountId, date, ref }) => {
+  const recordCashReceipt: Ctx["recordCashReceipt"] = async ({ sjIds, customerId, amount, accountId, date }) => {
     const payDate = date ?? iso(TODAY());
     const selected = (state.sj || []).filter((r) => sjIds.includes(r.id));
     if (selected.length === 0) {
@@ -1597,12 +1597,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const ddate = new Date(payDate);
     const year = ddate.getFullYear();
     const month = String(ddate.getMonth() + 1).padStart(2, "0");
-    
-    const existing = (state.payments || []).filter((p) => p.invoiceId === null && (p.ref || "").startsWith(seqKey));
-    const seq = String(existing.length + 1).padStart(4, "0");
-    // Use the SJ number's 4-digit suffix for the note number
-    const sjSuffix = (selected[0]?.no?.split('/').pop() || '0001');
-    const receiptNo = ref && ref.trim() ? ref.trim() : `NT/LBS/${year}/${month}/${sjSuffix}`;
+
+    // Nomor nota tunai otomatis: NT/LBS/YYYY/MM/NNNN, urut per bulan.
+    // Dihitung dari surat_jalan yang sudah menerima nota pada tahun & bulan yang sama.
+    const notaPrefix = `NT/LBS/${year}/${month}/`;
+    const usedNotas = new Set(
+      (state.sj || [])
+        .map((r) => r.receiptId)
+        .filter((x): x is string => !!x && x.startsWith(notaPrefix)),
+    );
+    const seq = String(usedNotas.size + 1).padStart(4, "0");
+    const receiptNo = `NT/LBS/${year}/${month}/${seq}`;
+
+    // Kolom ref pada pembayaran & mutasi kas memakai nomor surat jalan (digabung bila lebih dari satu).
+    const sjRef = selected.map((r) => r.no).join(", ");
+
     const payload: Payment = {
       id: uid("PAY"),
       invoiceId: null,
@@ -1610,7 +1619,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       amount,
       method: "Tunai",
       accountId,
-      ref: receiptNo,
+      ref: sjRef,
     };
     const paymentResult = await supabase.from("payments").insert([dbPayment(payload)]);
     if (paymentResult.error) {
@@ -1625,7 +1634,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       category: "Penjualan Tunai",
       direction: "in",
       amount,
-      ref: receiptNo,
+      ref: sjRef,
     };
     const bankTxResult = await supabase.from("bank_tx").insert([dbBankTx(bankTx)]);
     if (bankTxResult.error) {

@@ -703,8 +703,13 @@ function NotaTunaiForm({
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
-  const existing = (app.payments || []).filter((p) => p.invoiceId === null && (p.ref || "").startsWith(`NT/${year}-${month}`));
-  const seq = String(existing.length + 1).padStart(4, "0");
+  const notaPrefix = `NT/LBS/${year}/${month}/`;
+  const usedNotas = new Set(
+    (app.sj || [])
+      .map((r) => r.receiptId)
+      .filter((x): x is string => !!x && x.startsWith(notaPrefix)),
+  );
+  const seq = String(usedNotas.size + 1).padStart(4, "0");
   const defaultRef = `NT/LBS/${year}/${month}/${seq}`;
   const mandiri = app.accounts.find((a) => (a.bank ?? a.name).toLowerCase().includes("mandiri"));
   const cust = app.customers.find((c) => c.id === customerId);
@@ -714,7 +719,6 @@ function NotaTunaiForm({
     date: iso(TODAY()),
     accountId: mandiri?.id ?? app.accounts[0]?.id ?? "",
     amount: defaultAmount,
-    note: "",
   });
 
   const submit = async () => {
@@ -725,8 +729,6 @@ function NotaTunaiForm({
       amount: form.amount,
       accountId: form.accountId,
       date: form.date,
-      ref: form.ref,
-      note: form.note,
     });
     if (res.ok) onClose();
   };
@@ -734,8 +736,8 @@ function NotaTunaiForm({
   return (
     <Modal open onClose={onClose} width="max-w-md" title="Terbitkan Nota Tunai" subtitle="Pembayaran tunai tanpa invoice, dicatat ke mutasi kas/bank">
       <div className="grid grid-cols-1 gap-space-md sm:grid-cols-2">
-        <Field label="Nomor Nota Tunai (NT/...)" className="sm:col-span-2">
-          <Input value={form.ref} onChange={(e) => setForm({ ...form, ref: e.target.value })} placeholder="Contoh: NT/LBS/2026/11/0001" />
+        <Field label="Nomor Nota Tunai (otomatis)" className="sm:col-span-2">
+          <Input value={form.ref} disabled className="font-mono" />
         </Field>
         <Field label="Pelanggan" className="sm:col-span-2">
           <Input value={cust?.name ?? "-"} disabled />
@@ -754,9 +756,6 @@ function NotaTunaiForm({
         </Field>
         <Field label="Jumlah Penerimaan">
           <Input type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: Number(e.target.value) || 0 })} className="font-mono" />
-        </Field>
-        <Field label="Catatan" className="sm:col-span-2">
-          <Textarea value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="Catatan penerimaan tunai…" />
         </Field>
       </div>
       <div className="mt-space-md flex items-center justify-between rounded-xl bg-surface-container-low p-space-md">
@@ -792,8 +791,13 @@ function CashPayForm({
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
-  const existing = (app.payments || []).filter((p) => p.invoiceId === null && (p.ref || "").startsWith(`NT/${year}-${month}`));
-  const seq = String(existing.length + 1).padStart(4, "0");
+  const notaPrefix = `NT/LBS/${year}/${month}/`;
+  const usedNotas = new Set(
+    (app.sj || [])
+      .map((r) => r.receiptId)
+      .filter((x): x is string => !!x && x.startsWith(notaPrefix)),
+  );
+  const seq = String(usedNotas.size + 1).padStart(4, "0");
   const defaultRef = `NT/LBS/${year}/${month}/${seq}`;
   const mandiri = app.accounts.find((a) => (a.bank ?? a.name).toLowerCase().includes("mandiri"));
   const cust = app.customers.find((c) => c.id === sj.customerId);
@@ -804,7 +808,6 @@ function CashPayForm({
     date: iso(TODAY()),
     accountId: mandiri?.id ?? app.accounts[0]?.id ?? "",
     amount: value,
-    note: `Pembayaran tunai ${sj.no}`,
   });
 
   const submit = async () => {
@@ -815,7 +818,6 @@ function CashPayForm({
       amount: form.amount,
       accountId: form.accountId,
       date: form.date,
-      ref: form.ref,
     });
     if (res.ok) onClose();
   };
@@ -823,8 +825,8 @@ function CashPayForm({
   return (
     <Modal open onClose={onClose} width="max-w-md" title="Bayar Tunai Surat Jalan" subtitle={`Pembayaran tunai untuk ${sj.no} (${cust?.name ?? "-"})`}>
       <div className="grid grid-cols-1 gap-space-md sm:grid-cols-2">
-        <Field label="Nomor Nota Tunai (NT/...)" className="sm:col-span-2">
-          <Input value={form.ref} onChange={(e) => setForm({ ...form, ref: e.target.value })} placeholder="Contoh: NT/LBS/2026/11/0001" />
+        <Field label="Nomor Nota Tunai (otomatis)" className="sm:col-span-2">
+          <Input value={form.ref} disabled className="font-mono" />
         </Field>
         <Field label="Pelanggan" className="sm:col-span-2">
           <Input value={cust?.name ?? "-"} disabled />
@@ -846,9 +848,6 @@ function CashPayForm({
         </Field>
         <Field label="Jumlah Penerimaan">
           <Input type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: Number(e.target.value) || 0 })} className="font-mono" />
-        </Field>
-        <Field label="Catatan" className="sm:col-span-2">
-          <Textarea value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder="Catatan penerimaan tunai…" />
         </Field>
       </div>
       <div className="mt-space-md flex justify-end gap-2">

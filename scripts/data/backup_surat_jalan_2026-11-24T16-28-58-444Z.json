@@ -1,0 +1,3634 @@
+[
+  {
+    "id": "SJ-VAS7KE",
+    "no": "SJ/LBS/2026/11/3253",
+    "sj_date": "2026-11-20",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "9ed49a61-1cda-40ed-8bff-7b33c80ddba1",
+    "no": "SJ/LBS/2026/09/2936",
+    "sj_date": "2026-09-15",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "fa8e0f5d-4e8d-452b-a076-cf47d997c1e6",
+    "no": "SJ/LBS/2026/09/2938",
+    "sj_date": "2026-09-15",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "52deea21-5311-41bc-b740-950faf97e843",
+    "no": "SJ/LBS/2026/09/3019",
+    "sj_date": "2026-09-26",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "81b63af9-4271-4fd4-abd3-9f67baa282ee",
+    "no": "SJ/LBS/2026/09/2937",
+    "sj_date": "2026-09-15",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "ef001abd-653d-455c-ba01-d657b6684845",
+    "no": "SJ/LBS/2026/09/2959",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-YR0TFG",
+    "no": "SJ/LBS/2026/10/3111",
+    "sj_date": "2026-10-16",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "SJ-06XQU7",
+    "no": "SJ/LBS/2026/06/2665",
+    "sj_date": "2026-06-29",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "8ea13bf7-f4ac-49b8-8e04-a78f2ddbbe15",
+    "no": "SJ/LBS/2026/09/2994",
+    "sj_date": "2026-09-23",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "bb982aae-330b-4456-9563-f6d37f757694",
+    "no": "SJ/LBS/2026/10/3042",
+    "sj_date": "2026-10-01",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "45609d62-e8c9-4e0a-bdef-bba6440ada91",
+    "no": "SJ/LBS/2026/10/3091",
+    "sj_date": "2026-10-13",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "4e16c060-9b66-4e75-a49b-f49a8288ab50",
+    "no": "SJ/LBS/2026/09/2939",
+    "sj_date": "2026-09-15",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "e4b32224-a1ea-4e09-b9b7-ee32e0dce823",
+    "no": "SJ/LBS/2026/10/3074",
+    "sj_date": "2026-10-10",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-5P0P0X",
+    "no": "SJ/LBS/2026/11/3252",
+    "sj_date": "2026-11-20",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YNPCNU"
+  },
+  {
+    "id": "SJ-KB85PP",
+    "no": "SJ/LBS/2026/11/3255",
+    "sj_date": "2026-11-20",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YNPCNU"
+  },
+  {
+    "id": "SJ-YY9OJA",
+    "no": "SJ/LBS/2026/11/3203",
+    "sj_date": "2026-11-13",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YNPCNU"
+  },
+  {
+    "id": "SJ-07II34",
+    "no": "SJ/LBS/2026/11/3180",
+    "sj_date": "2026-11-03",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-9FY2IE"
+  },
+  {
+    "id": "SJ-W7WGVV",
+    "no": "SJ/LBS/2026/07/2693",
+    "sj_date": "2026-07-03",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-L1UPM2",
+    "no": "SJ/LBS/2026/10/3113",
+    "sj_date": "2026-10-16",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "SJ-N6G4F2",
+    "no": "SJ/LBS/2026/11/3256",
+    "sj_date": "2026-11-23",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-S14D3K",
+    "no": "SJ/LBS/2026/11/3192",
+    "sj_date": "2026-11-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-9FY2IE"
+  },
+  {
+    "id": "7b665385-296a-4684-a746-b3bb526a79eb",
+    "no": "SJ/LBS/2026/09/2881",
+    "sj_date": "2026-09-01",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "304591ca-1fa4-4208-bdc1-ef57727d8263",
+    "no": "SJ/LBS/2026/09/2882",
+    "sj_date": "2026-09-02",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "1c35b5a6-4b6a-4b25-be0d-a2ec2d80b8cf",
+    "no": "SJ/LBS/2026/10/3055",
+    "sj_date": "2026-10-07",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "7f608491-9d73-49ed-804f-9f89718df78d",
+    "no": "SJ/LBS/2026/09/2883",
+    "sj_date": "2026-09-02",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-NSS5EV",
+    "no": "SJ/LBS/2026/10/3175",
+    "sj_date": "2026-10-29",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "bc2fd2d4-ff16-467d-bfb5-17e36f916c12",
+    "no": "SJ/LBS/2026/09/2880",
+    "sj_date": "2026-09-01",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "42c7367b-3c50-456b-a713-b6c3397d82c6",
+    "no": "SJ/LBS/2026/09/2884",
+    "sj_date": "2026-09-03",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "905e3f9e-5128-48bb-84b4-2b9783b0f6fa",
+    "no": "SJ/LBS/2026/09/2885",
+    "sj_date": "2026-09-03",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-9ONDZU",
+    "no": "SJ/LBS/2026/10/3167",
+    "sj_date": "2026-10-27",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-H7WIBC"
+  },
+  {
+    "id": "c783fb0d-9657-4dbd-81bd-644778b49829",
+    "no": "SJ/LBS/2026/09/2888",
+    "sj_date": "2026-09-04",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "d13e95f5-3653-4580-b74c-70e27fd57afa",
+    "no": "SJ/LBS/2026/09/2889",
+    "sj_date": "2026-09-04",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "bc27782e-9bad-4d29-9453-6298edb0ec55",
+    "no": "SJ/LBS/2026/09/2890",
+    "sj_date": "2026-09-04",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "94b62c01-fcaa-47e0-af27-0f665801ed16",
+    "no": "SJ/LBS/2026/09/2891",
+    "sj_date": "2026-09-04",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-XTWGCJ",
+    "no": "SJ/LBS/2026/11/3257",
+    "sj_date": "2026-11-17",
+    "status": "Dibayar",
+    "receipt_id": "NT/LBS/2026/11/0009",
+    "invoice_id": null
+  },
+  {
+    "id": "87c1be6e-a4bd-48fb-9563-2a63768d0ff9",
+    "no": "SJ/LBS/2026/09/2892",
+    "sj_date": "2026-09-04",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "c51509ee-2fda-4d3c-9e9f-d186d65a4cc7",
+    "no": "SJ/LBS/2026/09/2894",
+    "sj_date": "2026-09-07",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "b5903945-d4eb-4d58-8bad-2637e495dd59",
+    "no": "SJ/LBS/2026/09/2895",
+    "sj_date": "2026-09-07",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "a5f1b615-2d13-4082-a499-eec74bfc2656",
+    "no": "SJ/LBS/2026/09/2896",
+    "sj_date": "2026-09-07",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "2d599750-56ff-4d46-ac26-7d265e29408d",
+    "no": "SJ/LBS/2026/09/2897",
+    "sj_date": "2026-09-07",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "4cca128d-1201-45df-b0b6-5507ea395386",
+    "no": "SJ/LBS/2026/09/2898",
+    "sj_date": "2026-09-08",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "eab13091-e884-4b45-9c38-43227f183f55",
+    "no": "SJ/LBS/2026/09/2899",
+    "sj_date": "2026-09-08",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "232c4cd1-3b36-41eb-b1c7-a80141ade336",
+    "no": "SJ/LBS/2026/09/2900",
+    "sj_date": "2026-09-08",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "5ad58305-2d82-49e3-a5a4-0864c025c813",
+    "no": "SJ/LBS/2026/09/2901",
+    "sj_date": "2026-09-08",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "1cd39774-5809-48b9-9b50-99cdb5854034",
+    "no": "SJ/LBS/2026/09/2902",
+    "sj_date": "2026-09-09",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "6f112fab-b025-43f4-961d-40e6cedf1e63",
+    "no": "SJ/LBS/2026/09/2903",
+    "sj_date": "2026-09-09",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "dcad9669-91eb-4b91-8dfb-92d543a8a374",
+    "no": "SJ/LBS/2026/09/2904",
+    "sj_date": "2026-09-09",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "ad5dfd0d-5738-4613-ab0a-629092af163c",
+    "no": "SJ/LBS/2026/09/2905",
+    "sj_date": "2026-09-09",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-JU19IH",
+    "no": "SJ/LBS/2026/11/3195",
+    "sj_date": "2026-11-09",
+    "status": "Dibayar",
+    "receipt_id": "NT/LBS/2026/11/0005",
+    "invoice_id": null
+  },
+  {
+    "id": "996ea09f-705d-4209-9437-8e3999760a4d",
+    "no": "SJ/LBS/2026/09/2906",
+    "sj_date": "2026-09-09",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "a85b0ecd-a4f2-4972-a968-1e3f13dedfda",
+    "no": "SJ/LBS/2026/09/2907",
+    "sj_date": "2026-09-10",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "a97ae9a7-5718-49e2-924a-d99e677ec32f",
+    "no": "SJ/LBS/2026/09/2908",
+    "sj_date": "2026-09-10",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "6176c09a-24ce-42a4-8331-98746c883f87",
+    "no": "SJ/LBS/2026/09/2909",
+    "sj_date": "2026-09-10",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "ee2bc916-7634-42d0-955f-46992fc48947",
+    "no": "SJ/LBS/2026/09/2910",
+    "sj_date": "2026-09-10",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "553bbb0a-eaeb-45bf-b654-af38e72d2810",
+    "no": "SJ/LBS/2026/09/2911",
+    "sj_date": "2026-09-10",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "b440961f-e305-45fe-920c-4471f883462c",
+    "no": "SJ/LBS/2026/09/2912",
+    "sj_date": "2026-09-10",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "544feb1d-0d38-4005-8d88-b185c4cfc743",
+    "no": "SJ/LBS/2026/09/2914",
+    "sj_date": "2026-09-10",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "4f3f05c9-afb0-4b57-9a01-81c2ecfb49c3",
+    "no": "SJ/LBS/2026/09/2913",
+    "sj_date": "2026-09-10",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "674c6785-4288-4259-9e24-0eb3805ffafb",
+    "no": "SJ/LBS/2026/09/2915",
+    "sj_date": "2026-09-11",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "a80f8126-dae2-4d8b-a8d1-e55fd6a11034",
+    "no": "SJ/LBS/2026/09/2916",
+    "sj_date": "2026-09-11",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "89f2798b-88f0-46d7-85e8-89508291d714",
+    "no": "SJ/LBS/2026/09/2917",
+    "sj_date": "2026-09-11",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "d891d30c-6209-4c98-88dd-e3830c121112",
+    "no": "SJ/LBS/2026/09/2918",
+    "sj_date": "2026-09-12",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "b06bce06-6e92-4d2b-81c1-5ce60924d949",
+    "no": "SJ/LBS/2026/09/2919",
+    "sj_date": "2026-09-12",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "19bab848-cacb-4996-b09b-6b09bb5e99eb",
+    "no": "SJ/LBS/2026/09/2920",
+    "sj_date": "2026-09-12",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "34dfc0c5-a2c8-4db1-aede-68a177fa128f",
+    "no": "SJ/LBS/2026/09/2921",
+    "sj_date": "2026-09-12",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "790d407e-c0b3-4a31-a68d-4ff131970609",
+    "no": "SJ/LBS/2026/09/2922",
+    "sj_date": "2026-09-12",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "5bee8ecc-e45f-491b-a803-aa0fe732e3d5",
+    "no": "SJ/LBS/2026/09/2923",
+    "sj_date": "2026-09-12",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "fe33dcdd-cf26-4214-a2fa-5ad9f3480def",
+    "no": "SJ/LBS/2026/09/2924",
+    "sj_date": "2026-09-12",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "7267801b-2d50-49b8-9ba1-4b9918b8b1d9",
+    "no": "SJ/LBS/2026/09/2930",
+    "sj_date": "2026-09-14",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "d3278554-068e-492d-a26a-49e14cadb848",
+    "no": "SJ/LBS/2026/09/2931",
+    "sj_date": "2026-09-14",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "e7d5ae5e-af9f-4acc-bb04-d847d5728dce",
+    "no": "SJ/LBS/2026/09/2932",
+    "sj_date": "2026-09-14",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "2d869db4-f18b-4d25-b89a-eef36236ca66",
+    "no": "SJ/LBS/2026/09/2946",
+    "sj_date": "2026-09-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "83fa5fcd-8dc1-4eca-86e7-a22a9c7b04f8",
+    "no": "SJ/LBS/2026/09/2933",
+    "sj_date": "2026-09-14",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "f1da43a5-d26d-4d4c-8e46-785c1cd70b41",
+    "no": "SJ/LBS/2026/09/2934",
+    "sj_date": "2026-09-14",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "5f4826b2-c9e3-43d3-9f1c-ab0613a8d2f9",
+    "no": "SJ/LBS/2026/09/2940",
+    "sj_date": "2026-09-15",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "0db9ad29-1276-43a0-ba0f-0b696695a3f2",
+    "no": "SJ/LBS/2026/09/2941",
+    "sj_date": "2026-09-16",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "8f373986-7e82-4452-8f61-058026904b70",
+    "no": "SJ/LBS/2026/09/2942",
+    "sj_date": "2026-09-16",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "58a77b4d-7b1f-4f26-bde5-4cca97c0f610",
+    "no": "SJ/LBS/2026/09/2943",
+    "sj_date": "2026-09-16",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "592e5dee-9697-4f7b-84ab-b6ccb6c56ebe",
+    "no": "SJ/LBS/2026/09/2944",
+    "sj_date": "2026-09-16",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "e1905bf8-63df-41b5-93db-f1164906c6da",
+    "no": "SJ/LBS/2026/09/2945",
+    "sj_date": "2026-09-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "c672736f-dccc-4815-83c4-7cc17cf4b785",
+    "no": "SJ/LBS/2026/09/2947",
+    "sj_date": "2026-09-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "fe790e87-6d93-4f45-88fb-9f701c724735",
+    "no": "SJ/LBS/2026/09/2948",
+    "sj_date": "2026-09-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "818fb408-5257-4cb1-b493-11979bd3dd7c",
+    "no": "SJ/LBS/2026/09/2949",
+    "sj_date": "2026-09-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "9c127620-c432-4faf-8c8e-970f2adc6361",
+    "no": "SJ/LBS/2026/09/2950",
+    "sj_date": "2026-09-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "bbe6b897-9e86-4fa6-b305-d0b1a6bf5932",
+    "no": "SJ/LBS/2026/09/2951",
+    "sj_date": "2026-09-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "6c02f996-f268-4ca3-9c93-72b60b3c6228",
+    "no": "SJ/LBS/2026/09/2952",
+    "sj_date": "2026-09-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "d756e586-ced2-45ae-ab12-f2c9f92285dd",
+    "no": "SJ/LBS/2026/09/2953",
+    "sj_date": "2026-09-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "30c1787e-dd34-403b-858c-9f93a718c922",
+    "no": "SJ/LBS/2026/09/2954",
+    "sj_date": "2026-09-18",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "271b7411-a50c-47ff-a352-8673a09773b1",
+    "no": "SJ/LBS/2026/09/2955",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "caccd88a-c018-4bba-9478-5890e645dd61",
+    "no": "SJ/LBS/2026/09/2956",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "53656e0d-db74-436c-bf36-42c2f345ca59",
+    "no": "SJ/LBS/2026/09/2957",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "af204b5e-6914-4187-8e16-8b08fd50309c",
+    "no": "SJ/LBS/2026/09/2958",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "f110d4a0-9c40-4235-b9e1-3f007b9708fb",
+    "no": "SJ/LBS/2026/09/2965",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "0233b153-6a8f-4fcd-bf95-b17dbd73b4c8",
+    "no": "SJ/LBS/2026/09/2966",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "104a8af8-1cc1-4b75-989e-eb29fec5535f",
+    "no": "SJ/LBS/2026/09/2967",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "2ca477a8-1fb5-4670-a7a9-fec1300f2492",
+    "no": "SJ/LBS/2026/09/2968",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "922b0a16-01fa-4539-a5be-554feae96d02",
+    "no": "SJ/LBS/2026/09/2969",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "d2de7dbc-0bd5-4e8f-9b29-302300216552",
+    "no": "SJ/LBS/2026/09/2970",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "3e17db4d-a53a-442b-ba80-76f35daee9bf",
+    "no": "SJ/LBS/2026/09/2971",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "b336f6c4-21d0-4de1-b8ea-fc0e9e94b3f3",
+    "no": "SJ/LBS/2026/09/2973",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "4c5da995-bc11-496e-b488-230fb329eb7d",
+    "no": "SJ/LBS/2026/09/2960",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "c0a71469-078b-481a-b89c-5541743beb49",
+    "no": "SJ/LBS/2026/09/2961",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "fc270f49-a8b1-4bd1-bd6c-071602197177",
+    "no": "SJ/LBS/2026/09/2962",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "6435f84f-fe9b-4457-8d66-28fdcd41fbad",
+    "no": "SJ/LBS/2026/09/2963",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "c6e2ec22-6e5e-4202-9ff7-3399990b3344",
+    "no": "SJ/LBS/2026/09/2964",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "f344c73a-ffa1-44d4-935a-0f1373d3c7f8",
+    "no": "SJ/LBS/2026/09/2981",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "17ba9ec4-2f64-4df2-b4a6-e2dd565e0915",
+    "no": "SJ/LBS/2026/09/2980",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "99907d26-23d9-4726-bffc-7bbb6ac505ef",
+    "no": "SJ/LBS/2026/09/2975",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "646185c7-a1da-4487-8513-d5835fa7734d",
+    "no": "SJ/LBS/2026/09/2976",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "2f4d5303-aa01-40be-af20-ac716c4ec512",
+    "no": "SJ/LBS/2026/09/2979",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "1b5a4896-4eed-446f-a5fb-c4a0ac5e310d",
+    "no": "SJ/LBS/2026/09/2978",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "dc637147-c974-4470-a220-75335c48f862",
+    "no": "SJ/LBS/2026/09/2977",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "72023f68-c2ab-4b41-8900-19078e104c31",
+    "no": "SJ/LBS/2026/09/2972",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "22ea9fc4-91cb-4a60-957b-59e09492aa9b",
+    "no": "SJ/LBS/2026/09/2974",
+    "sj_date": "2026-09-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "73f44ef2-2324-4a5a-a403-1f6c91936942",
+    "no": "SJ/LBS/2026/09/2982",
+    "sj_date": "2026-09-21",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "874d4a74-feb0-4b69-b6cf-20cca98c9a89",
+    "no": "SJ/LBS/2026/09/2983",
+    "sj_date": "2026-09-21",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "fdd0ca81-fd00-4c94-814c-243d3d6691f0",
+    "no": "SJ/LBS/2026/09/2984",
+    "sj_date": "2026-09-21",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "68589c53-938e-4d58-acdd-7e29260cd233",
+    "no": "SJ/LBS/2026/09/2985",
+    "sj_date": "2026-09-21",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "a6ddce0d-d13a-4f0d-b9fe-aebc0a7ecdb1",
+    "no": "SJ/LBS/2026/09/2986",
+    "sj_date": "2026-09-21",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "512ce87c-3b0a-409e-9d7f-66d59551fe49",
+    "no": "SJ/LBS/2026/09/2987",
+    "sj_date": "2026-09-21",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "ddcfc488-83da-4728-860f-0fd4d67cd5ab",
+    "no": "SJ/LBS/2026/09/2988",
+    "sj_date": "2026-09-21",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "149dd023-69bb-42a2-a85c-dc920c9ad32f",
+    "no": "SJ/LBS/2026/09/2989",
+    "sj_date": "2026-09-21",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "3ff3a03b-069c-4250-9dd1-25c629f86beb",
+    "no": "SJ/LBS/2026/09/2990",
+    "sj_date": "2026-09-21",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "b41be41a-827a-4f95-ad5c-eb038c890248",
+    "no": "SJ/LBS/2026/09/2991",
+    "sj_date": "2026-09-22",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "d6797d43-53a5-4534-85e1-e22656d37698",
+    "no": "SJ/LBS/2026/09/2992",
+    "sj_date": "2026-09-22",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "d25da8d7-49bb-4d8b-908d-bdc603e1d537",
+    "no": "SJ/LBS/2026/09/2993",
+    "sj_date": "2026-09-22",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "560525e3-92cf-47d9-a8c9-d3001c89e654",
+    "no": "SJ/LBS/2026/09/2995",
+    "sj_date": "2026-09-22",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "9e2811a0-b398-4e7b-98d5-64597bac4f52",
+    "no": "SJ/LBS/2026/09/2996",
+    "sj_date": "2026-09-23",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "8735809f-0955-43fe-b3c7-82c56acdf473",
+    "no": "SJ/LBS/2026/09/2997",
+    "sj_date": "2026-09-23",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "551a108a-c7d4-488b-8365-a0ea878224a1",
+    "no": "SJ/LBS/2026/09/2998",
+    "sj_date": "2026-09-23",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "c746d00f-5c29-4a1d-a267-3e1bf718d06c",
+    "no": "SJ/LBS/2026/09/2999",
+    "sj_date": "2026-09-23",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "acfac6ed-d238-4c1e-acbf-25667d699090",
+    "no": "SJ/LBS/2026/09/3000",
+    "sj_date": "2026-09-23",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "d715a66d-616f-447d-b0ee-288b4ea26c0b",
+    "no": "SJ/LBS/2026/09/3002",
+    "sj_date": "2026-09-24",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "cb448ad3-e1f2-4ba3-998f-c7f5ae9f038f",
+    "no": "SJ/LBS/2026/09/3003",
+    "sj_date": "2026-09-24",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "e5455da9-fd9d-4fea-911e-3587efb7d9d3",
+    "no": "SJ/LBS/2026/09/3004",
+    "sj_date": "2026-09-24",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "637d305e-9a4e-471f-acd2-f7fe90cf0a0d",
+    "no": "SJ/LBS/2026/09/3005",
+    "sj_date": "2026-09-24",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "a3ca2645-eab1-40f6-ad9b-889e0835baf5",
+    "no": "SJ/LBS/2026/09/3001",
+    "sj_date": "2026-09-24",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "a1b85b49-f5b4-4e1a-9264-39ac88375b0b",
+    "no": "SJ/LBS/2026/09/3006",
+    "sj_date": "2026-09-24",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "b05c39d5-0118-4dfa-a92a-a88ca767ccee",
+    "no": "SJ/LBS/2026/09/3007",
+    "sj_date": "2026-09-24",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "5ecdfe6b-8d7f-4609-b617-dd624a53afae",
+    "no": "SJ/LBS/2026/09/3008",
+    "sj_date": "2026-09-24",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "72297bef-8878-4046-b2c8-28bf265f80ef",
+    "no": "SJ/LBS/2026/09/3009",
+    "sj_date": "2026-09-24",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "0a301809-8deb-468a-a27e-44abf7f6bad9",
+    "no": "SJ/LBS/2026/09/3010",
+    "sj_date": "2026-09-25",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "9cf1a5c8-6965-4753-9d66-19a14e5b836a",
+    "no": "SJ/LBS/2026/09/3011",
+    "sj_date": "2026-09-25",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "9db5a7c3-53e9-4cc7-a9d8-f26e47fa6fda",
+    "no": "SJ/LBS/2026/09/3012",
+    "sj_date": "2026-09-25",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "96ab2653-9146-44f1-a61b-2f3391c14a39",
+    "no": "SJ/LBS/2026/09/3013",
+    "sj_date": "2026-09-25",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "28fde149-3a28-42dd-bb3c-a9f0ce711719",
+    "no": "SJ/LBS/2026/09/3014",
+    "sj_date": "2026-09-25",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "827384dc-b392-46c9-91d1-0f86347c9fb7",
+    "no": "SJ/LBS/2026/09/3015",
+    "sj_date": "2026-09-25",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "205040ce-cbce-4c19-904a-567b31118db6",
+    "no": "SJ/LBS/2026/09/3021",
+    "sj_date": "2026-09-26",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "fd53e7c4-72ba-43d5-b20b-dd0243cad2d7",
+    "no": "SJ/LBS/2026/09/3016",
+    "sj_date": "2026-09-26",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "c2688c9c-128b-4575-9b8d-3413590fcacb",
+    "no": "SJ/LBS/2026/09/3017",
+    "sj_date": "2026-09-26",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "419edc90-f070-4dda-8e1a-3b1135b1b8c2",
+    "no": "SJ/LBS/2026/09/3018",
+    "sj_date": "2026-09-26",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "89c40f9e-40ab-416a-ab79-4cd5fe942d5d",
+    "no": "SJ/LBS/2026/09/3020",
+    "sj_date": "2026-09-26",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "d8b81735-f420-4472-92cb-41f0d03688da",
+    "no": "SJ/LBS/2026/09/3022",
+    "sj_date": "2026-09-28",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "3e08ebbe-0d01-40af-b057-c1b089085e38",
+    "no": "SJ/LBS/2026/09/3023",
+    "sj_date": "2026-09-28",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "31cd38ab-27bf-45d0-8077-0c0c5d447cc0",
+    "no": "SJ/LBS/2026/09/3024",
+    "sj_date": "2026-09-28",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "b3c495c1-223a-4c6a-8d9e-a18ba40d2d82",
+    "no": "SJ/LBS/2026/09/3025",
+    "sj_date": "2026-09-28",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "167964d4-33f6-48bc-bae8-dc4c912a36ec",
+    "no": "SJ/LBS/2026/09/3026",
+    "sj_date": "2026-09-28",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "707aa950-c91d-4580-970d-273c2eb0f829",
+    "no": "SJ/LBS/2026/09/3027",
+    "sj_date": "2026-09-28",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "f8e3d69f-c2c7-4a47-bf81-d6797e4adff1",
+    "no": "SJ/LBS/2026/09/3029",
+    "sj_date": "2026-09-28",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "d62a63d5-8f0b-4145-8728-b8b327223789",
+    "no": "SJ/LBS/2026/09/3030",
+    "sj_date": "2026-09-28",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "d66450a7-9483-4458-9723-81fadcfde853",
+    "no": "SJ/LBS/2026/09/3028",
+    "sj_date": "2026-09-30",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "975ab1bd-0221-4e63-aa60-899d35392a36",
+    "no": "SJ/LBS/2026/09/3031",
+    "sj_date": "2026-09-30",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "d0faeee4-9292-437f-987f-0c859cc4117e",
+    "no": "SJ/LBS/2026/09/3032",
+    "sj_date": "2026-09-30",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "8266450a-5560-4a66-9895-64a80a5b104b",
+    "no": "SJ/LBS/2026/09/3033",
+    "sj_date": "2026-09-30",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "37fd8841-9143-4c7f-8ccf-c315b8a84702",
+    "no": "SJ/LBS/2026/09/3034",
+    "sj_date": "2026-09-30",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "aacbaccf-6e84-4850-9703-c7af16512a4e",
+    "no": "SJ/LBS/2026/09/3035",
+    "sj_date": "2026-09-30",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "4c38a201-9b0e-4336-acc4-c47f3a573a63",
+    "no": "SJ/LBS/2026/09/3036",
+    "sj_date": "2026-09-30",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "662f3f0b-1a42-4749-8b9b-f17021d6ba83",
+    "no": "SJ/LBS/2026/09/3037",
+    "sj_date": "2026-09-30",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "96149421-6b46-4032-8260-68ea71fe91f1",
+    "no": "SJ/LBS/2026/09/3038",
+    "sj_date": "2026-09-30",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "e84304ca-71e8-4d32-8aca-9783a28471c2",
+    "no": "SJ/LBS/2026/09/3039",
+    "sj_date": "2026-09-30",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "9f394765-51dd-449d-9c5f-659b6eabb1f8",
+    "no": "SJ/LBS/2026/09/3040",
+    "sj_date": "2026-09-30",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "627ce7a9-c4e6-487d-ae49-afa354b7f663",
+    "no": "SJ/LBS/2026/10/3047",
+    "sj_date": "2026-10-02",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "145653c5-9919-467c-a519-767b286ceb70",
+    "no": "SJ/LBS/2026/10/3048",
+    "sj_date": "2026-10-03",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "ec1999c1-c945-4593-9c24-358ec03e6960",
+    "no": "SJ/LBS/2026/10/3049",
+    "sj_date": "2026-10-06",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "57a3d13e-0631-4018-8ee5-18298c5e41a2",
+    "no": "SJ/LBS/2026/10/3050",
+    "sj_date": "2026-10-06",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "9353ee0b-97a8-48d5-91e5-52bc69c970f5",
+    "no": "SJ/LBS/2026/09/3041",
+    "sj_date": "2026-09-30",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "184e94b6-b8b3-493e-91a3-254a9fa6014f",
+    "no": "SJ/LBS/2026/10/3044",
+    "sj_date": "2026-10-01",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "2bffc0ed-5420-48b7-966f-868f77bc2068",
+    "no": "SJ/LBS/2026/10/3045",
+    "sj_date": "2026-10-01",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "e2ff4081-6e16-484b-8070-5b7bc64c83e9",
+    "no": "SJ/LBS/2026/10/3046",
+    "sj_date": "2026-10-01",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "6285d23d-93a4-43e3-812b-a1b9468ff235",
+    "no": "SJ/LBS/2026/10/3051",
+    "sj_date": "2026-10-06",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "d853bc78-868d-4cfe-bf0c-fcac440d0947",
+    "no": "SJ/LBS/2026/10/3054",
+    "sj_date": "2026-10-07",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "fd7da719-f3bd-4ac2-b49b-4f54ae43d36c",
+    "no": "SJ/LBS/2026/10/3057",
+    "sj_date": "2026-10-07",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "33170225-7a56-44e1-b2b2-e6c9ee720c28",
+    "no": "SJ/LBS/2026/10/3058",
+    "sj_date": "2026-10-07",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "8dc37eb1-086e-4891-b136-72e5ae24bfd7",
+    "no": "SJ/LBS/2026/10/3059",
+    "sj_date": "2026-10-08",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "67d84e95-2c7e-4927-88b8-d1f3b22d3b80",
+    "no": "SJ/LBS/2026/10/3061",
+    "sj_date": "2026-10-08",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "c8abaef3-7c2c-4a80-b71f-5b93270c77a0",
+    "no": "SJ/LBS/2026/10/3062",
+    "sj_date": "2026-10-08",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "4cdfc49c-25a6-4d05-a878-093b5db03068",
+    "no": "SJ/LBS/2026/10/3063",
+    "sj_date": "2026-10-08",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "c741a771-0ac7-4d8c-9082-97bdf11dd93d",
+    "no": "SJ/LBS/2026/10/3064",
+    "sj_date": "2026-10-08",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "8e383bbc-d11a-4c78-912f-96a27171e697",
+    "no": "SJ/LBS/2026/10/3065",
+    "sj_date": "2026-10-08",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "e4ed7f9a-aff7-46eb-b318-0c9f4f7a02e3",
+    "no": "SJ/LBS/2026/10/3066",
+    "sj_date": "2026-10-08",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "be63150d-a1a6-4483-ba07-628dca085aa5",
+    "no": "SJ/LBS/2026/10/3067",
+    "sj_date": "2026-10-08",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "98acdd6a-e2f9-4b16-a792-6841fa5c139c",
+    "no": "SJ/LBS/2026/10/3068",
+    "sj_date": "2026-10-08",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "9312dd50-426a-462b-97c5-c89701aee611",
+    "no": "SJ/LBS/2026/10/3089",
+    "sj_date": "2026-10-13",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "8f7fa946-5dc2-4db8-80d3-86d0666b1537",
+    "no": "SJ/LBS/2026/10/3075",
+    "sj_date": "2026-10-10",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "601ea276-786c-47d6-8085-c51a1eb9a5a3",
+    "no": "SJ/LBS/2026/10/3076",
+    "sj_date": "2026-10-10",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "3d210139-c088-4b5a-a7b1-eaf3be14c77d",
+    "no": "SJ/LBS/2026/10/3077",
+    "sj_date": "2026-10-10",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "1a18d08a-2a85-445b-80cb-14a7eb1c7bd0",
+    "no": "SJ/LBS/2026/10/3069",
+    "sj_date": "2026-10-08",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "2ada476b-01f8-4c6b-adc4-cc6798d90d2a",
+    "no": "SJ/LBS/2026/10/3070",
+    "sj_date": "2026-10-08",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "bf3c8d87-0a22-44ec-9b30-40970bfcf76f",
+    "no": "SJ/LBS/2026/10/3071",
+    "sj_date": "2026-10-08",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "ea263d3d-5f4d-4173-afa8-55f71ece13dc",
+    "no": "SJ/LBS/2026/10/3072",
+    "sj_date": "2026-10-09",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "19305c54-ee0e-487c-a2ef-2880470fd41b",
+    "no": "SJ/LBS/2026/10/3073",
+    "sj_date": "2026-10-09",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "bd309fe1-1e8c-45b2-a64e-10296d879e4d",
+    "no": "SJ/LBS/2026/10/3078",
+    "sj_date": "2026-10-10",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "2ec897ea-ca09-46b6-9f59-69688ccef7a3",
+    "no": "SJ/LBS/2026/10/3079",
+    "sj_date": "2026-10-10",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "9d9fda78-eba5-4c87-b1ea-89e16db25d9b",
+    "no": "SJ/LBS/2026/10/3080",
+    "sj_date": "2026-10-10",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-6HLWYK",
+    "no": "SJ/LBS/2026/06/2655",
+    "sj_date": "2026-06-26",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-02YM2F",
+    "no": "SJ/LBS/2026/08/2819",
+    "sj_date": "2026-08-08",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-G5BFGK",
+    "no": "SJ/LBS/2026/10/3127",
+    "sj_date": "2026-10-19",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-MARVB1"
+  },
+  {
+    "id": "8a71cc9e-ad7a-42ae-9d29-7205d943ce7d",
+    "no": "SJ/LBS/2026/10/3094",
+    "sj_date": "2026-10-13",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-0RZCAC"
+  },
+  {
+    "id": "4ecfa505-3797-4728-8ee6-525071b66b00",
+    "no": "SJ/LBS/2026/10/3082",
+    "sj_date": "2026-10-12",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "d0ef3f89-e297-4e14-877a-d9b4ab7b3519",
+    "no": "SJ/LBS/2026/10/3085",
+    "sj_date": "2026-10-12",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "22ebf2ce-1d9e-4a3a-b145-713ce55dd286"
+  },
+  {
+    "id": "1e26e003-4b65-4f7b-a6c4-8f3e154ecb7e",
+    "no": "SJ/LBS/2026/10/3083",
+    "sj_date": "2026-10-12",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "2b5a3930-7591-4412-8b89-a0920124d56a",
+    "no": "SJ/LBS/2026/10/3084",
+    "sj_date": "2026-10-12",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "ad0ed798-0b4e-4bb4-b2c4-0d963dcb4d6b",
+    "no": "SJ/LBS/2026/10/3086",
+    "sj_date": "2026-10-13",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-H7WIBC"
+  },
+  {
+    "id": "ed442132-84b3-43ff-8b15-d024cb7af8c8",
+    "no": "SJ/LBS/2026/09/2886",
+    "sj_date": "2026-09-04",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "f8a74c10-b21a-4917-b2d7-a7a01de1cd1f",
+    "no": "SJ/LBS/2026/10/3096",
+    "sj_date": "2026-10-14",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "3259903b-c6d3-41ff-acc7-0ffc684f9c06",
+    "no": "SJ/LBS/2026/09/2887",
+    "sj_date": "2026-09-04",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "e87909eb-0947-4e11-9120-3cb3368b4ea1",
+    "no": "SJ/LBS/2026/09/2893",
+    "sj_date": "2026-09-07",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-14LBAT",
+    "no": "SJ/LBS/2026/10/3146",
+    "sj_date": "2026-10-22",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YW1ISP"
+  },
+  {
+    "id": "SJ-9L7N64",
+    "no": "SJ/LBS/2026/07/2710",
+    "sj_date": "2026-07-04",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-D466VX",
+    "no": "SJ/LBS/2026/06/2671",
+    "sj_date": "2026-06-30",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-EA4A33",
+    "no": "SJ/LBS/2026/07/2719",
+    "sj_date": "2026-07-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-EPUT31",
+    "no": "SJ/LBS/2026/06/2670",
+    "sj_date": "2026-06-30",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-GOGFTP",
+    "no": "SJ/LBS/2026/07/2686",
+    "sj_date": "2026-07-03",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-GV9CFZ",
+    "no": "SJ/LBS/2026/06/2654",
+    "sj_date": "2026-06-26",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-R59562",
+    "no": "SJ/LBS/2026/07/2702",
+    "sj_date": "2026-07-04",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-W1OXB1",
+    "no": "SJ/LBS/2026/07/2685",
+    "sj_date": "2026-07-03",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-4GN6GI",
+    "no": "SJ/LBS/2026/06/2657",
+    "sj_date": "2026-06-27",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-A8QC9D",
+    "no": "SJ/LBS/2026/07/2684",
+    "sj_date": "2026-07-03",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-J7S8DL",
+    "no": "SJ/LBS/2026/10/3119",
+    "sj_date": "2026-10-16",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "dba71661-5b5e-46c8-9df7-dffdbb18ca91"
+  },
+  {
+    "id": "SJ-BJIG52",
+    "no": "SJ/LBS/2026/10/3162",
+    "sj_date": "2026-10-26",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "af57de8c-c343-482f-a328-a8e1b5bfac8b",
+    "no": "SJ/LBS/2026/10/3088",
+    "sj_date": "2026-10-13",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "ba18ad19-3be1-4428-958d-40002b85c135",
+    "no": "SJ/LBS/2026/10/3097",
+    "sj_date": "2026-10-14",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "ce9b3feb-5083-4bc9-ac93-6d1c1f50f27c",
+    "no": "SJ/LBS/2026/10/3081",
+    "sj_date": "2026-10-12",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "SJ-5Z4OIR",
+    "no": "SJ/LBS/2026/10/3128",
+    "sj_date": "2026-10-19",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "22ebf2ce-1d9e-4a3a-b145-713ce55dd286"
+  },
+  {
+    "id": "SJ-YR6F3X",
+    "no": "SJ/LBS/2026/10/3110",
+    "sj_date": "2026-10-16",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "22ebf2ce-1d9e-4a3a-b145-713ce55dd286"
+  },
+  {
+    "id": "SJ-Q2183F",
+    "no": "SJ/LBS/2026/10/3171",
+    "sj_date": "2026-10-27",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-H7WIBC"
+  },
+  {
+    "id": "SJ-O7WFDL",
+    "no": "SJ/LBS/2026/11/3183",
+    "sj_date": "2026-11-03",
+    "status": "Dibayar",
+    "receipt_id": "NT/LBS/2026/11/0001",
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-OK4T9X",
+    "no": "SJ/LBS/2026/11/3240",
+    "sj_date": "2026-11-18",
+    "status": "Dibayar",
+    "receipt_id": "NT/LBS/2026/11/0001",
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-5O8GEG",
+    "no": "SJ/LBS/2026/07/2711",
+    "sj_date": "2026-07-04",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-CAUQL6",
+    "no": "SJ/LBS/2026/10/3153",
+    "sj_date": "2026-10-24",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-TJD4UK",
+    "no": "SJ/LBS/2026/10/3138",
+    "sj_date": "2026-10-21",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YW1ISP"
+  },
+  {
+    "id": "SJ-UZOEDX",
+    "no": "SJ/LBS/2026/11/3184",
+    "sj_date": "2026-11-03",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-9FY2IE"
+  },
+  {
+    "id": "SJ-6OUQNH",
+    "no": "SJ/LBS/2026/07/2720",
+    "sj_date": "2026-07-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-EIGQ11",
+    "no": "SJ/LBS/2026/07/2701",
+    "sj_date": "2026-07-03",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-KW3Y75",
+    "no": "SJ/LBS/2026/06/2661",
+    "sj_date": "2026-06-29",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-P906E6",
+    "no": "SJ/LBS/2026/07/2674",
+    "sj_date": "2026-07-01",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-UVWRTL",
+    "no": "SJ/LBS/2026/07/2687",
+    "sj_date": "2026-07-03",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-EFN4W1",
+    "no": "SJ/LBS/2026/08/2821",
+    "sj_date": "2026-08-08",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-PCGVSR",
+    "no": "SJ/LBS/2026/10/3163",
+    "sj_date": "2026-10-26",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "dba71661-5b5e-46c8-9df7-dffdbb18ca91"
+  },
+  {
+    "id": "SJ-IETVS7",
+    "no": "SJ/LBS/2026/08/2805",
+    "sj_date": "2026-08-04",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-4O5DYQ",
+    "no": "SJ/LBS/2026/11/3241",
+    "sj_date": "2026-11-18",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-HFWB3Y",
+    "no": "SJ/LBS/2026/10/3102",
+    "sj_date": "2026-10-15",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "SJ-01YPZK",
+    "no": "SJ/LBS/2026/10/3120",
+    "sj_date": "2026-10-16",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "e105692a-48fc-4291-9498-69538e5a8391",
+    "no": "SJ/LBS/2026/10/3043",
+    "sj_date": "2026-10-01",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-AVBZ2U"
+  },
+  {
+    "id": "SJ-FWPFS8",
+    "no": "SJ/LBS/2026/10/3129",
+    "sj_date": "2026-10-20",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-H7WIBC"
+  },
+  {
+    "id": "SJ-RE1RT9",
+    "no": "SJ/LBS/2026/10/3154",
+    "sj_date": "2026-10-24",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-HOPD3N",
+    "no": "SJ/LBS/2026/10/3141",
+    "sj_date": "2026-10-21",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YW1ISP"
+  },
+  {
+    "id": "SJ-7B6EX8",
+    "no": "SJ/LBS/2026/10/3172",
+    "sj_date": "2026-10-28",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-44ICF8"
+  },
+  {
+    "id": "SJ-56AYCS",
+    "no": "SJ/LBS/2026/11/3213",
+    "sj_date": "2026-11-16",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-22QG7X",
+    "no": "SJ/LBS/2026/10/3103",
+    "sj_date": "2026-10-15",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "SJ-7X8M6B",
+    "no": "SJ/LBS/2026/10/3164",
+    "sj_date": "2026-10-26",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "SJ-9MQHN9",
+    "no": "SJ/LBS/2026/07/2688",
+    "sj_date": "2026-07-03",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-Y3MTJ6",
+    "no": "SJ/LBS/2026/08/2822",
+    "sj_date": "2026-08-08",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-358KZK",
+    "no": "SJ/LBS/2026/11/3220",
+    "sj_date": "2026-11-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-DZQCBD",
+    "no": "SJ/LBS/2026/11/3235",
+    "sj_date": "2026-11-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-7OCHKH",
+    "no": "SJ/LBS/2026/11/3229",
+    "sj_date": "2026-11-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-V985F5",
+    "no": "SJ/LBS/2026/11/3199",
+    "sj_date": "2026-11-11",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "SJ-XJPL3B",
+    "no": "SJ/LBS/2026/11/3206",
+    "sj_date": "2026-11-13",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YNPCNU"
+  },
+  {
+    "id": "SJ-SMBSOP",
+    "no": "SJ/LBS/2026/11/3191",
+    "sj_date": "2026-11-04",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-9FY2IE"
+  },
+  {
+    "id": "SJ-EQ06J4",
+    "no": "SJ/LBS/2026/07/2712",
+    "sj_date": "2026-07-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-HXCLZG",
+    "no": "SJ/LBS/2026/07/2721",
+    "sj_date": "2026-07-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-OQRBEW",
+    "no": "SJ/LBS/2026/07/2676",
+    "sj_date": "2026-07-01",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-TT6YWR",
+    "no": "SJ/LBS/2026/06/2662",
+    "sj_date": "2026-06-29",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-G6S5HC",
+    "no": "SJ/LBS/2026/10/3137",
+    "sj_date": "2026-10-21",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "SJ-8QO9R8",
+    "no": "SJ/LBS/2026/07/2703",
+    "sj_date": "2026-07-04",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-4AYY5D",
+    "no": "SJ/LBS/2026/08/2809",
+    "sj_date": "2026-08-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-KPVKNK",
+    "no": "SJ/LBS/2026/10/3121",
+    "sj_date": "2026-10-16",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "SJ-QKTULR",
+    "no": "SJ/LBS/2026/10/3155",
+    "sj_date": "2026-10-24",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "45bd5912-ec23-41bd-a7bc-f1bd1b81bb45",
+    "no": "SJ/LBS/2026/10/3092",
+    "sj_date": "2026-10-13",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "61097007-3085-4c6d-829a-ece811f4a8d7",
+    "no": "SJ/LBS/2026/10/3098",
+    "sj_date": "2026-10-14",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "89d3c99e-fff8-4274-ae96-0f1f18a77ad6",
+    "no": "SJ/LBS/2026/10/3087",
+    "sj_date": "2026-10-13",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "SJ-TOFZ89",
+    "no": "SJ/LBS/2026/11/3214",
+    "sj_date": "2026-11-16",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-CXAF7E",
+    "no": "SJ/LBS/2026/06/2663",
+    "sj_date": "2026-06-29",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "91b81198-1ff7-40ef-a62b-a085b17e967b",
+    "no": "SJ/LBS/2026/10/3056",
+    "sj_date": "2026-10-07",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "9a4d3484-1d57-474e-a325-15d9b2598ba0",
+    "no": "SJ/LBS/2026/10/3052",
+    "sj_date": "2026-10-07",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "c04afac4-32d6-4f1b-9cfa-166200646d9b",
+    "no": "SJ/LBS/2026/10/3053",
+    "sj_date": "2026-10-07",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "SJ-WKHHFJ",
+    "no": "SJ/LBS/2026/10/3112",
+    "sj_date": "2026-10-16",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "SJ-FYM8MD",
+    "no": "SJ/LBS/2026/10/3130",
+    "sj_date": "2026-10-20",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-H7WIBC"
+  },
+  {
+    "id": "SJ-VDX7RI",
+    "no": "SJ/LBS/2026/10/3173",
+    "sj_date": "2026-10-29",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-H7WIBC"
+  },
+  {
+    "id": "SJ-ETPTZ3",
+    "no": "SJ/LBS/2026/07/2677",
+    "sj_date": "2026-07-01",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-WKRTLY",
+    "no": "SJ/LBS/2026/07/2704",
+    "sj_date": "2026-07-04",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-TE0SHZ",
+    "no": "SJ/LBS/2026/08/2810",
+    "sj_date": "2026-08-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-ZLDHJV",
+    "no": "SJ/LBS/2026/10/3122",
+    "sj_date": "2026-10-16",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-4DYY3U",
+    "no": "SJ/LBS/2026/07/2713",
+    "sj_date": "2026-07-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-ZRIWW6",
+    "no": "SJ/LBS/2026/07/2689",
+    "sj_date": "2026-07-03",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-NOLV1L",
+    "no": "SJ/LBS/2026/11/3200",
+    "sj_date": "2026-11-11",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-FGHKVZ",
+    "no": "SJ/LBS/2026/10/3147",
+    "sj_date": "2026-10-23",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YW1ISP"
+  },
+  {
+    "id": "SJ-77X6A3",
+    "no": "SJ/LBS/2026/10/3156",
+    "sj_date": "2026-10-24",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "SJ-80G5SX",
+    "no": "SJ/LBS/2026/10/3165",
+    "sj_date": "2026-10-26",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "SJ-B1AJ7R",
+    "no": "SJ/LBS/2026/10/3140",
+    "sj_date": "2026-10-21",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "SJ-BMEMFY",
+    "no": "SJ/LBS/2026/10/3104",
+    "sj_date": "2026-10-15",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "dba71661-5b5e-46c8-9df7-dffdbb18ca91"
+  },
+  {
+    "id": "eadac334-98d1-41f4-97b7-39db0076912e",
+    "no": "SJ/LBS/2026/10/3093",
+    "sj_date": "2026-10-13",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "f678dd3f-f17a-47c8-a6e1-e03d11eb0b61",
+    "no": "SJ/LBS/2026/10/3095",
+    "sj_date": "2026-10-14",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "SJ-KB3NFP",
+    "no": "SJ/LBS/2026/11/3193",
+    "sj_date": "2026-11-06",
+    "status": "Dibayar",
+    "receipt_id": "NT/LBS/2026/11/0003",
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-ZJ2SGD",
+    "no": "SJ/LBS/2026/11/3224",
+    "sj_date": "2026-11-17",
+    "status": "Dibayar",
+    "receipt_id": "NT/LBS/2026/11/0010",
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-JBQZ4C",
+    "no": "SJ/LBS/2026/11/3219",
+    "sj_date": "2026-11-16",
+    "status": "Dibayar",
+    "receipt_id": "NT/LBS/2026/11/0011",
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-3211YQ",
+    "no": "SJ/LBS/2026/07/2722",
+    "sj_date": "2026-07-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-QBBLMK",
+    "no": "SJ/LBS/2026/10/3131",
+    "sj_date": "2026-10-20",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-DGDJIW",
+    "no": "SJ/LBS/2026/10/3174",
+    "sj_date": "2026-10-29",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-44ICF8"
+  },
+  {
+    "id": "SJ-J5T6NM",
+    "no": "SJ/LBS/2026/11/3185",
+    "sj_date": "2026-11-03",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-H0PENP",
+    "no": "SJ/LBS/2026/11/3236",
+    "sj_date": "2026-11-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-WVAFBJ",
+    "no": "SJ/LBS/2026/11/3233",
+    "sj_date": "2026-11-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-D4LBYP",
+    "no": "SJ/LBS/2026/11/3198",
+    "sj_date": "2026-11-11",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "SJ-M378AC",
+    "no": "SJ/LBS/2026/11/3246",
+    "sj_date": "2026-11-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-S417O1",
+    "no": "SJ/LBS/2026/11/3207",
+    "sj_date": "2026-11-13",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YNPCNU"
+  },
+  {
+    "id": "SJ-37U8YP",
+    "no": "SJ/LBS/2026/07/2690",
+    "sj_date": "2026-07-03",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-6ZZWS4",
+    "no": "SJ/LBS/2026/07/2678",
+    "sj_date": "2026-07-01",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-CEH3XA",
+    "no": "SJ/LBS/2026/07/2705",
+    "sj_date": "2026-07-04",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-F932F8",
+    "no": "SJ/LBS/2026/06/2664",
+    "sj_date": "2026-06-29",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-XAV4RA",
+    "no": "SJ/LBS/2026/07/2714",
+    "sj_date": "2026-07-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-BXKOME",
+    "no": "SJ/LBS/2026/08/2824",
+    "sj_date": "2026-08-08",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-V8XUCU",
+    "no": "SJ/LBS/2026/11/3201",
+    "sj_date": "2026-11-12",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-BU146K",
+    "no": "SJ/LBS/2026/10/3123",
+    "sj_date": "2026-10-17",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-KMJ4FY",
+    "no": "SJ/LBS/2026/08/2811",
+    "sj_date": "2026-08-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-QVFIMA",
+    "no": "SJ/LBS/2026/10/3105",
+    "sj_date": "2026-10-15",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-KW5OL5",
+    "no": "SJ/LBS/2026/10/3148",
+    "sj_date": "2026-10-23",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YW1ISP"
+  },
+  {
+    "id": "SJ-2OA7P5",
+    "no": "SJ/LBS/2026/10/3114",
+    "sj_date": "2026-10-16",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "SJ-QHAQQP",
+    "no": "SJ/LBS/2026/11/3194",
+    "sj_date": "2026-11-09",
+    "status": "Dibayar",
+    "receipt_id": "NT/LBS/2026/11/0006",
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-8PLAM1",
+    "no": "SJ/LBS/2026/11/3202",
+    "sj_date": "2026-11-12",
+    "status": "Dibayar",
+    "receipt_id": "NT/LBS/2026/11/0008",
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-QGDPBF",
+    "no": "SJ/LBS/2026/11/3237",
+    "sj_date": "2026-11-18",
+    "status": "Dibayar",
+    "receipt_id": "NT/LBS/2026/11/0001",
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-VOUSS1",
+    "no": "SJ/LBS/2026/10/3139",
+    "sj_date": "2026-10-21",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "SJ-2KRC7D",
+    "no": "SJ/LBS/2026/10/3166",
+    "sj_date": "2026-10-26",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-H7WIBC"
+  },
+  {
+    "id": "SJ-V05SYD",
+    "no": "SJ/LBS/2026/10/3132",
+    "sj_date": "2026-10-20",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-H7WIBC"
+  },
+  {
+    "id": "SJ-3KP2DP",
+    "no": "SJ/LBS/2026/10/3157",
+    "sj_date": "2026-10-24",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-TK967I",
+    "no": "SJ/LBS/2026/11/3186",
+    "sj_date": "2026-11-03",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-7VI2XU",
+    "no": "SJ/LBS/2026/11/3208",
+    "sj_date": "2026-11-16",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-GQDOY8",
+    "no": "SJ/LBS/2026/11/3215",
+    "sj_date": "2026-11-16",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-JPH010",
+    "no": "SJ/LBS/2026/11/3221",
+    "sj_date": "2026-11-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-VDX36O",
+    "no": "SJ/LBS/2026/11/3242",
+    "sj_date": "2026-11-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-BEVWC4",
+    "no": "SJ/LBS/2026/11/3247",
+    "sj_date": "2026-11-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-8QQQW9",
+    "no": "SJ/LBS/2026/10/3176",
+    "sj_date": "2026-10-29",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "SJ-EJOGC6",
+    "no": "SJ/LBS/2026/07/2679",
+    "sj_date": "2026-07-02",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-HKGG5U",
+    "no": "SJ/LBS/2026/07/2715",
+    "sj_date": "2026-07-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-JI7H4X",
+    "no": "SJ/LBS/2026/07/2723",
+    "sj_date": "2026-07-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-WTOHCK",
+    "no": "SJ/LBS/2026/07/2706",
+    "sj_date": "2026-07-04",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-YOFF2C",
+    "no": "SJ/LBS/2026/07/2691",
+    "sj_date": "2026-07-03",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-FTRX57",
+    "no": "SJ/LBS/2026/08/2812",
+    "sj_date": "2026-08-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-X7WKFJ",
+    "no": "SJ/LBS/2026/08/2825",
+    "sj_date": "2026-08-08",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-DV3U8X",
+    "no": "SJ/LBS/2026/11/3181",
+    "sj_date": "2026-11-03",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-CTG8DA",
+    "no": "SJ/LBS/2026/11/3210",
+    "sj_date": "2026-11-16",
+    "status": "Dibayar",
+    "receipt_id": "NT/LBS/2026/11/0012",
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-44GWWF",
+    "no": "SJ/LBS/2026/07/2724",
+    "sj_date": "2026-07-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-DRVFN0",
+    "no": "SJ/LBS/2026/08/2826",
+    "sj_date": "2026-08-08",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-M676Z5",
+    "no": "SJ/LBS/2026/10/3115",
+    "sj_date": "2026-10-16",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "SJ-NI8HMF",
+    "no": "SJ/LBS/2026/10/3142",
+    "sj_date": "2026-10-21",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "SJ-U93GVA",
+    "no": "SJ/LBS/2026/10/3158",
+    "sj_date": "2026-10-24",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "SJ-187VYL",
+    "no": "SJ/LBS/2026/10/3106",
+    "sj_date": "2026-10-15",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "SJ-Y3XBKR",
+    "no": "SJ/LBS/2026/10/3124",
+    "sj_date": "2026-10-17",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-H7WIBC"
+  },
+  {
+    "id": "SJ-LFV3OE",
+    "no": "SJ/LBS/2026/10/3133",
+    "sj_date": "2026-10-20",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-QD1LKT",
+    "no": "SJ/LBS/2026/10/3149",
+    "sj_date": "2026-10-23",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YW1ISP"
+  },
+  {
+    "id": "SJ-AYQ3XK",
+    "no": "SJ/LBS/2026/11/3230",
+    "sj_date": "2026-11-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-BHXZE3",
+    "no": "SJ/LBS/2026/11/3222",
+    "sj_date": "2026-11-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-YYOQ7E",
+    "no": "SJ/LBS/2026/11/3209",
+    "sj_date": "2026-11-16",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-ZL1ZHA",
+    "no": "SJ/LBS/2026/11/3216",
+    "sj_date": "2026-11-16",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-VRYZS3",
+    "no": "SJ/LBS/2026/11/3248",
+    "sj_date": "2026-11-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-CT1I1G",
+    "no": "SJ/LBS/2026/11/3243",
+    "sj_date": "2026-11-19",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YNPCNU"
+  },
+  {
+    "id": "SJ-T5XN66",
+    "no": "SJ/LBS/2026/11/3187",
+    "sj_date": "2026-11-04",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-9FY2IE"
+  },
+  {
+    "id": "SJ-4MVKGK",
+    "no": "SJ/LBS/2026/07/2692",
+    "sj_date": "2026-07-03",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-54IF2X",
+    "no": "SJ/LBS/2026/07/2716",
+    "sj_date": "2026-07-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-215LET",
+    "no": "SJ/LBS/2026/10/3143",
+    "sj_date": "2026-10-22",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YW1ISP"
+  },
+  {
+    "id": "SJ-ECI8Z6",
+    "no": "SJ/LBS/2026/06/2666",
+    "sj_date": "2026-06-29",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-UOYDDA",
+    "no": "SJ/LBS/2026/07/2707",
+    "sj_date": "2026-07-04",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-9N3757",
+    "no": "SJ/LBS/2026/11/3245",
+    "sj_date": "2026-11-19",
+    "status": "Dibayar",
+    "receipt_id": "NT/LBS/2026/11/0001",
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-AGJW0H",
+    "no": "SJ/LBS/2026/10/3178",
+    "sj_date": "2026-10-30",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-44ICF8"
+  },
+  {
+    "id": "SJ-15Z4PP",
+    "no": "SJ/LBS/2026/07/2694",
+    "sj_date": "2026-07-03",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-858L2S",
+    "no": "SJ/LBS/2026/07/2680",
+    "sj_date": "2026-07-02",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-DA9JWM",
+    "no": "SJ/LBS/2026/08/2813",
+    "sj_date": "2026-08-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-SC782R",
+    "no": "SJ/LBS/2026/11/3231",
+    "sj_date": "2026-11-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-RNATVB",
+    "no": "SJ/LBS/2026/11/3225",
+    "sj_date": "2026-11-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-Z0N13U",
+    "no": "SJ/LBS/2026/10/3159",
+    "sj_date": "2026-10-24",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "b549f846-6bb6-4779-bc3b-15e29b488a75"
+  },
+  {
+    "id": "SJ-F0KQOL",
+    "no": "SJ/LBS/2026/10/3107",
+    "sj_date": "2026-10-15",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "dba71661-5b5e-46c8-9df7-dffdbb18ca91"
+  },
+  {
+    "id": "SJ-0MILEI",
+    "no": "SJ/LBS/2026/10/3177",
+    "sj_date": "2026-10-30",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "22ebf2ce-1d9e-4a3a-b145-713ce55dd286"
+  },
+  {
+    "id": "SJ-7Q6U0J",
+    "no": "SJ/LBS/2026/10/3150",
+    "sj_date": "2026-10-23",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "22ebf2ce-1d9e-4a3a-b145-713ce55dd286"
+  },
+  {
+    "id": "SJ-40F23C",
+    "no": "SJ/LBS/2026/10/3134",
+    "sj_date": "2026-10-20",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-H7WIBC"
+  },
+  {
+    "id": "SJ-4T3QBX",
+    "no": "SJ/LBS/2026/11/3244",
+    "sj_date": "2026-11-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-J03FY5",
+    "no": "SJ/LBS/2026/11/3188",
+    "sj_date": "2026-11-04",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-9FY2IE"
+  },
+  {
+    "id": "SJ-9OVZOH",
+    "no": "SJ/LBS/2026/11/3249",
+    "sj_date": "2026-11-19",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-TNI1VO",
+    "no": "SJ/LBS/2026/11/3238",
+    "sj_date": "2026-11-18",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YNPCNU"
+  },
+  {
+    "id": "SJ-37J34C",
+    "no": "SJ/LBS/2026/07/2717",
+    "sj_date": "2026-07-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-GJPI7N",
+    "no": "SJ/LBS/2026/10/3168",
+    "sj_date": "2026-10-27",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-K4T2JY",
+    "no": "SJ/LBS/2026/10/3125",
+    "sj_date": "2026-10-17",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-KOAGTJ",
+    "no": "SJ/LBS/2026/10/3116",
+    "sj_date": "2026-10-16",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-9W3KK9",
+    "no": "SJ/LBS/2026/11/3217",
+    "sj_date": "2026-11-16",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-81IA58",
+    "no": "SJ/LBS/2026/07/2708",
+    "sj_date": "2026-07-04",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-8RYLWJ",
+    "no": "SJ/LBS/2026/06/2668",
+    "sj_date": "2026-06-30",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-QDEBQF",
+    "no": "SJ/LBS/2026/11/3190",
+    "sj_date": "2026-11-04",
+    "status": "Dibayar",
+    "receipt_id": "NT/LBS/2026/11/0002",
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-FPC2R4",
+    "no": "SJ/LBS/2026/10/3179",
+    "sj_date": "2026-10-31",
+    "status": "Dibayar",
+    "receipt_id": "NT/LBS/2026/11/0004",
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-IOY9VY",
+    "no": "SJ/LBS/2026/11/3197",
+    "sj_date": "2026-11-10",
+    "status": "Dibayar",
+    "receipt_id": "NT/LBS/2026/11/0007",
+    "invoice_id": null
+  },
+  {
+    "id": "9a2c86d0-316c-4339-8bdd-69dc555da3cc",
+    "no": "SJ/LBS/2026/10/3100",
+    "sj_date": "2026-10-14",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-U00U55",
+    "no": "SJ/LBS/2026/07/2672",
+    "sj_date": "2026-07-01",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-UJ75ZT",
+    "no": "SJ/LBS/2026/07/2681",
+    "sj_date": "2026-07-02",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-UCNY3D",
+    "no": "SJ/LBS/2026/08/2827",
+    "sj_date": "2026-08-08",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-XSNIET",
+    "no": "SJ/LBS/2026/08/2816",
+    "sj_date": "2026-08-07",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-5OM8V9",
+    "no": "SJ/LBS/2026/10/3151",
+    "sj_date": "2026-10-23",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "22ebf2ce-1d9e-4a3a-b145-713ce55dd286"
+  },
+  {
+    "id": "SJ-M9QB6B",
+    "no": "SJ/LBS/2026/10/3108",
+    "sj_date": "2026-10-16",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "d32c3df9-660b-4cbc-93ad-1d0bdbb4b1b9"
+  },
+  {
+    "id": "SJ-6FTS0F",
+    "no": "SJ/LBS/2026/10/3169",
+    "sj_date": "2026-10-27",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-H7WIBC"
+  },
+  {
+    "id": "SJ-BNX5HR",
+    "no": "SJ/LBS/2026/10/3160",
+    "sj_date": "2026-10-26",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-KWI3NL",
+    "no": "SJ/LBS/2026/10/3135",
+    "sj_date": "2026-10-20",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-OCNBFM",
+    "no": "SJ/LBS/2026/10/3117",
+    "sj_date": "2026-10-16",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-V2VR9H",
+    "no": "SJ/LBS/2026/10/3126",
+    "sj_date": "2026-10-17",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-SEEWBS",
+    "no": "SJ/LBS/2026/10/3144",
+    "sj_date": "2026-10-22",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YW1ISP"
+  },
+  {
+    "id": "SJ-AWNUXS",
+    "no": "SJ/LBS/2026/11/3211",
+    "sj_date": "2026-11-16",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-4FGPLO",
+    "no": "SJ/LBS/2026/11/3218",
+    "sj_date": "2026-11-16",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-26NA1E",
+    "no": "SJ/LBS/2026/11/3232",
+    "sj_date": "2026-11-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-2EMQK6",
+    "no": "SJ/LBS/2026/11/3227",
+    "sj_date": "2026-11-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-VK69PJ",
+    "no": "SJ/LBS/2026/11/3251",
+    "sj_date": "2026-11-20",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-H9O79T",
+    "no": "SJ/LBS/2026/11/3250",
+    "sj_date": "2026-11-20",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-5R9DFW",
+    "no": "SJ/LBS/2026/11/3239",
+    "sj_date": "2026-11-18",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YNPCNU"
+  },
+  {
+    "id": "SJ-4NVTBH",
+    "no": "SJ/LBS/2026/11/3189",
+    "sj_date": "2026-11-04",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-9FY2IE"
+  },
+  {
+    "id": "SJ-FVT9ZN",
+    "no": "SJ/LBS/2026/11/3258",
+    "sj_date": "2026-11-23",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-BFFH29",
+    "no": "SJ/LBS/2026/11/3254",
+    "sj_date": "2026-11-20",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "b7a79ff3-2b99-4c56-98b8-284f3c81a242",
+    "no": "SJ/LBS/2026/09/2925",
+    "sj_date": "2026-09-14",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "3ebc09f6-ac18-4341-845d-8594d758588e",
+    "no": "SJ/LBS/2026/09/2926",
+    "sj_date": "2026-09-14",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "d8eb5589-dc30-4bac-a6fb-1143fcf7e8a8",
+    "no": "SJ/LBS/2026/09/2927",
+    "sj_date": "2026-09-14",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "f62e5bf7-0e29-41ca-b309-f42799070cb0",
+    "no": "SJ/LBS/2026/09/2928",
+    "sj_date": "2026-09-14",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "ee3a6fa0-928b-40c6-bb23-8d3e593aad03",
+    "no": "SJ/LBS/2026/09/2929",
+    "sj_date": "2026-09-14",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "a42e845f-25ea-4d62-aeb1-dbfcf89d34e4",
+    "no": "SJ/LBS/2026/09/2935",
+    "sj_date": "2026-09-15",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-II9MY2",
+    "no": "SJ/LBS/2026/11/3204",
+    "sj_date": "2026-11-13",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YNPCNU"
+  },
+  {
+    "id": "SJ-89UT48",
+    "no": "SJ/LBS/2026/08/2820",
+    "sj_date": "2026-08-08",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-591OSH",
+    "no": "SJ/LBS/2026/08/2823",
+    "sj_date": "2026-08-08",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-BJFH79",
+    "no": "SJ/LBS/2026/11/3205",
+    "sj_date": "2026-11-13",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YNPCNU"
+  },
+  {
+    "id": "SJ-Q67GBE",
+    "no": "SJ/LBS/2026/11/3257",
+    "sj_date": "2026-11-23",
+    "status": "Dibayar",
+    "receipt_id": "NT/LBS/2026/11/0001",
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-E7I3MU",
+    "no": "SJ/LBS/2026/11/3196",
+    "sj_date": "2026-11-10",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-ART6E4",
+    "no": "SJ/LBS/2026/10/3118",
+    "sj_date": "2026-10-16",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-LPG4VE",
+    "no": "SJ/LBS/2026/10/3109",
+    "sj_date": "2026-10-16",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-3OAT1I",
+    "no": "SJ/LBS/2026/06/2669",
+    "sj_date": "2026-06-30",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "48ab0727-e14f-4dae-b6fe-fa8793307244",
+    "no": "SJ/LBS/2026/10/3101",
+    "sj_date": "2026-10-14",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "dba71661-5b5e-46c8-9df7-dffdbb18ca91"
+  },
+  {
+    "id": "d416a58a-2e19-40d2-a682-cc72d03f57d0",
+    "no": "SJ/LBS/2026/10/3099",
+    "sj_date": "2026-10-14",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "dba71661-5b5e-46c8-9df7-dffdbb18ca91"
+  },
+  {
+    "id": "SJ-PON0XW",
+    "no": "SJ/LBS/2026/07/2682",
+    "sj_date": "2026-07-02",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-VBD8DF",
+    "no": "SJ/LBS/2026/07/2709",
+    "sj_date": "2026-07-04",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-3P84QX",
+    "no": "SJ/LBS/2026/08/2829",
+    "sj_date": "2026-08-08",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-JBA185",
+    "no": "SJ/LBS/2026/08/2818",
+    "sj_date": "2026-08-08",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-LK3181"
+  },
+  {
+    "id": "SJ-UL5PKD",
+    "no": "SJ/LBS/2026/10/3136",
+    "sj_date": "2026-10-21",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YW1ISP"
+  },
+  {
+    "id": "SJ-CZGZM2",
+    "no": "SJ/LBS/2026/10/3152",
+    "sj_date": "2026-10-23",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "22ebf2ce-1d9e-4a3a-b145-713ce55dd286"
+  },
+  {
+    "id": "SJ-1BXNYR",
+    "no": "SJ/LBS/2026/10/3170",
+    "sj_date": "2026-10-27",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-H7WIBC"
+  },
+  {
+    "id": "SJ-4UAF9O",
+    "no": "SJ/LBS/2026/10/3090",
+    "sj_date": "2026-10-17",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-H7WIBC"
+  },
+  {
+    "id": "SJ-3N5MGE",
+    "no": "SJ/LBS/2026/07/2718",
+    "sj_date": "2026-07-06",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-HTTDBL",
+    "no": "SJ/LBS/2026/07/2696",
+    "sj_date": "2026-07-03",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-L6LFNA",
+    "no": "SJ/LBS/2026/07/2683",
+    "sj_date": "2026-07-02",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-V0ITSJ"
+  },
+  {
+    "id": "SJ-LITK2C",
+    "no": "SJ/LBS/2026/11/3182",
+    "sj_date": "2026-11-03",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-Z56XU9",
+    "no": "SJ/LBS/2026/10/3161",
+    "sj_date": "2026-10-26",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-U72HIO"
+  },
+  {
+    "id": "SJ-SD4MS7",
+    "no": "SJ/LBS/2026/10/3145",
+    "sj_date": "2026-10-22",
+    "status": "Diinvoice",
+    "receipt_id": null,
+    "invoice_id": "INV-YW1ISP"
+  },
+  {
+    "id": "SJ-KQG7WY",
+    "no": "SJ/LBS/2026/11/3212",
+    "sj_date": "2026-11-16",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-J5VWB1",
+    "no": "SJ/LBS/2026/11/3234",
+    "sj_date": "2026-11-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  },
+  {
+    "id": "SJ-4ZRU0S",
+    "no": "SJ/LBS/2026/11/3228",
+    "sj_date": "2026-11-17",
+    "status": "Terkirim",
+    "receipt_id": null,
+    "invoice_id": null
+  }
+]
