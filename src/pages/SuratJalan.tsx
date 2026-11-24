@@ -500,53 +500,65 @@ function SJForm({ onClose, editing }: { onClose: () => void; editing: SJ | null 
   const [searchDriver, setSearchDriver] = useState("");
 
   /* ---------- Daftar pilihan diurutkan alfabetis & dapat difilter ---------- */
-  const customersSorted = useMemo(
-    () =>
-      [...app.customers]
-        .sort((a, b) => a.name.localeCompare(b.name, "id", { sensitivity: "base" }))
-        .filter(
-          (c) =>
-            searchCustomer.length < 3 ||
-            c.name.toLowerCase().includes(searchCustomer.toLowerCase()) ||
-            (c.code ?? "").toLowerCase().includes(searchCustomer.toLowerCase()),
-        ),
-    [app.customers, searchCustomer],
-  );
-  const commoditiesSorted = useMemo(
-    () =>
-      [...app.commodities]
-        .sort((a, b) => a.name.localeCompare(b.name, "id", { sensitivity: "base" }))
-        .filter(
-          (c) =>
-            searchCommodity.length < 3 ||
-            c.name.toLowerCase().includes(searchCommodity.toLowerCase()),
-        ),
-    [app.commodities, searchCommodity],
-  );
-  const vehiclesSorted = useMemo(
-    () =>
-      [...app.vehicles]
-        .sort((a, b) => a.plate.localeCompare(b.plate, "id", { sensitivity: "base" }))
-        .filter(
-          (v) =>
-            searchVehicle.length < 3 ||
-            (v.plate ?? "").toLowerCase().includes(searchVehicle.toLowerCase()) ||
-            (v.model ?? "").toLowerCase().includes(searchVehicle.toLowerCase()),
-        ),
-    [app.vehicles, searchVehicle],
-  );
-  const driversSorted = useMemo(
-    () =>
-      [...app.drivers]
-        .sort((a, b) => a.name.localeCompare(b.name, "id", { sensitivity: "base" }))
-        .filter(
-          (d) =>
-            searchDriver.length < 3 ||
-            d.name.toLowerCase().includes(searchDriver.toLowerCase()) ||
-            (d.sim ?? "").toLowerCase().includes(searchDriver.toLowerCase()),
-        ),
-    [app.drivers, searchDriver],
-  );
+  const customersSorted = useMemo(() => {
+    const list = [...app.customers]
+      .sort((a, b) => a.name.localeCompare(b.name, "id", { sensitivity: "base" }))
+      .filter(
+        (c) =>
+          searchCustomer.length < 3 ||
+          c.name.toLowerCase().includes(searchCustomer.toLowerCase()) ||
+          (c.code ?? "").toLowerCase().includes(searchCustomer.toLowerCase()),
+      );
+    if (form.customerId && !list.find((c) => c.id === form.customerId)) {
+      const selected = app.customers.find((c) => c.id === form.customerId);
+      if (selected) list.unshift(selected);
+    }
+    return list;
+  }, [app.customers, searchCustomer, form.customerId]);
+  const commoditiesSorted = useMemo(() => {
+    const list = [...app.commodities]
+      .sort((a, b) => a.name.localeCompare(b.name, "id", { sensitivity: "base" }))
+      .filter(
+        (c) =>
+          searchCommodity.length < 3 ||
+          c.name.toLowerCase().includes(searchCommodity.toLowerCase()),
+      );
+    if (form.commodityId && !list.find((c) => c.id === form.commodityId)) {
+      const selected = app.commodities.find((c) => c.id === form.commodityId);
+      if (selected) list.unshift(selected);
+    }
+    return list;
+  }, [app.commodities, searchCommodity, form.commodityId]);
+  const vehiclesSorted = useMemo(() => {
+    const list = [...app.vehicles]
+      .sort((a, b) => a.plate.localeCompare(b.plate, "id", { sensitivity: "base" }))
+      .filter(
+        (v) =>
+          searchVehicle.length < 3 ||
+          (v.plate ?? "").toLowerCase().includes(searchVehicle.toLowerCase()) ||
+          (v.model ?? "").toLowerCase().includes(searchVehicle.toLowerCase()),
+      );
+    if (form.vehicleId && !list.find((v) => v.id === form.vehicleId)) {
+      const selected = app.vehicles.find((v) => v.id === form.vehicleId);
+      if (selected) list.unshift(selected);
+    }
+    return list;
+  }, [app.vehicles, searchVehicle, form.vehicleId]);
+  const driversSorted = useMemo(() => {
+    const list = [...app.drivers]
+      .sort((a, b) => a.name.localeCompare(b.name, "id", { sensitivity: "base" }))
+      .filter(
+        (d) =>
+          searchDriver.length < 3 ||
+          d.name.toLowerCase().includes(searchDriver.toLowerCase()) ||
+          (d.sim ?? "").toLowerCase().includes(searchDriver.toLowerCase()),
+      );
+    if (form.driverId && !list.find((d) => d.id === form.driverId)) {
+      const selected = app.drivers.find((d) => d.id === form.driverId);
+      if (selected) list.unshift(selected);
+    }
+    return list;
+  }, [app.drivers, searchDriver, form.driverId]);
 
   return (
     <Modal
